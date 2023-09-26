@@ -12,9 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class Student {
-
   private List<String> subjects;
   private Set<String> contacts;
   private Map<String, String> friends;
-  
 }

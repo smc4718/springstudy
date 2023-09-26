@@ -25,10 +25,10 @@ public class MainWrapper {
     for(Entry<String, String> entry : s.getFriends().entrySet()) {
       System.out.println(entry.getKey() + ", " + entry.getValue());
     }
-    
+
     // app-context.xml 닫기
     ctx.close();
-
+    
   }
 
 }

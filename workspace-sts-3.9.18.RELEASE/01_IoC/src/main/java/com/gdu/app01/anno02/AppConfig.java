@@ -8,8 +8,8 @@ public class AppConfig {
 
   // @Bean에 name 속성으로 bean 이름을 등록할 수 있다.
   
-  @Bean(name = "user")
-  public User goodee() {  // name="user"로 인해서 메소드이름은 의미가 없어진다.(아무렇게나 지어도 됨)
+  @Bean(name="user")
+  public User zxcvbnm() {  // name="user"로 인해서 메소드이름은 의미가 없어진다.
     User user = new User();
     user.setUserNo(1);
     user.setUserId("admin");
@@ -17,10 +17,10 @@ public class AppConfig {
   }
   
   @Bean(name="board")
-  public Board yayaya() {
+  public Board asdfghjkl() {
     Board board = new Board();
     board.setTitle("공지사항");
-    board.setEditor(goodee());
+    board.setEditor(zxcvbnm());
     return board;
   }
   

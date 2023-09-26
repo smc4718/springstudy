@@ -5,7 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class AppConfig {
 
   @Bean
@@ -16,4 +18,5 @@ public class AppConfig {
     student.setFriends(Map.of("동네친구", "루피", "학교친구", "뚜비", "사회친구", "포비"));
     return student;
   }
+  
 }

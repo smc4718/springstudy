@@ -4,7 +4,7 @@ public class Calculator {
 
   // no field
   
-  // default constructor : new Calculator()
+  // default constructor  :  new Calculator()
   
   // method
   public void add(int a, int b) {

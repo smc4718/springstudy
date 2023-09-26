@@ -3,11 +3,8 @@ package com.gdu.app01.anno01;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
-import com.gdu.app01.xml01.Calculator;
-import com.gdu.app01.xml01.Person;
-
 public class MainWrapper {
-  
+
   public static void ex01() {
     
     // AppConfig.java에 등록된 bean 생성하기
@@ -18,15 +15,15 @@ public class MainWrapper {
     
     // 확인
     calc.add(1, 2);
-    calc.subtract(3, 4);
-    calc.multiply(5, 6);
-    calc.divide(7, 8);
-
+    calc.sub(3, 4);
+    calc.mul(5, 6);
+    calc.div(7, 8);
+    
     // ctx 닫기
     ctx.close();
     
   }
-    
+  
   public static void ex02() {
     
     // com.gdu.app01.anno01 패키지에 정의된 bean 생성
@@ -48,9 +45,7 @@ public class MainWrapper {
   }
   
   public static void main(String[] args) {
-    
-   ex02();
-    
+    ex02();
   }
 
 }

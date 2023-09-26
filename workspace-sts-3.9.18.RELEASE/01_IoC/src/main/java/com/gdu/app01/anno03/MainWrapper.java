@@ -1,6 +1,5 @@
 package com.gdu.app01.anno03;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -9,7 +8,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 public class MainWrapper {
 
   public static void main(String[] args) {
-   
+    
     // AppConfig.java에 등록된 bean 생성
     AbstractApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
     

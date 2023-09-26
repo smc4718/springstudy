@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-
 public class Board {
-   private String title;
-   private User editor;
-
-
+  private String title;
+  private User editor;
 }
