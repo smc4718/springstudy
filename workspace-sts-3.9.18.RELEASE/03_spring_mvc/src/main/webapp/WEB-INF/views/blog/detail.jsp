@@ -10,5 +10,11 @@
   ${blogNo}
   <br>
   ${requestScope.blogNo}
+  <br>
+  ${blogDto.blogNo}
+  <br>
+  ${blogDto.getBlogNo()}
+  <br>
+  ${dto.blogNo}
 </body>
 </html>

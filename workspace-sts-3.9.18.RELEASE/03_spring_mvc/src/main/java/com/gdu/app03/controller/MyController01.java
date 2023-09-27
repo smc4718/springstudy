@@ -9,39 +9,37 @@ public class MyController01 {
 
   /*
    * 요청/응답을 처리할 메소드를 만든다.
-   * 1. 반환타입1 String : 응답할 Jsp의 이름을 반환한다.
+   * 
+   * 1. 반환타입
+   *  1) String : 응답할 Jsp의 이름을 반환한다.
    *  2) void   : 컨트롤러가 호출한 서비스에서 직접 응답한다. 요청 주소를 Jsp 이름으로 인식한다.
    *  3) 기타   : 비동기 통신에서 데이터를 응답한다.
-   *  
    * 2. 메소드명
    *  - 아무 일도 안 한다.
    * 3. 매개변수
    *  1) HttpServletRequest를 선언해서 사용할 수 있다.
    *  2) HttpServletResponse를 선언해서 사용할 수 있다.
    *  3) Model을 선언해서 forward할 정보를 저장할 수 있다.
+   *  4) HttpSession을 선언해서 사용할 수 있다.
    * 4. 요청(@RequestMapping)
    *  1) 메소드 : GET, POST
-   *  2) URL    : 요청 주소s
+   *  2) URL    : 요청 주소
    */
   
-  // value="/" : contextPath 요청을 의미한다. http://localhost/app03/주소를 의미한다.  
-  @RequestMapping(value="/", method=RequestMethod.GET)
+  // value="/"         : contextPath 요청을 의미한다. http://localhost/app03/ 주소를 의미한다.
+  // value="/main.do"  : /main.do 요청을 의미한다.    http://localhost/app03/main.do 주소를 의미한다.
+  @RequestMapping(value={"/", "/main.do"}, method=RequestMethod.GET)
   public String welcome() {
     // ViewResolver의 prefix : /WEB-INF/views/
     // ViewResolver의 suffix : .jsp
-    return "index";
+    return "index";  //        /WEB-INF/views/index.jsp
   }
   
   @RequestMapping(value="/board/list.do", method=RequestMethod.GET)
   public String boardList() {
     // ViewResolver의 prefix : /WEB-INF/views/
     // ViewResolver의 suffix : .jsp
-    return "board/list";   //  /WEB-INF/views/board/list.jsp 
+    return "board/list";  //   /WEB-INF/views/board/list.jsp
   }
-  
-  
-  
-  
-  
   
 }
