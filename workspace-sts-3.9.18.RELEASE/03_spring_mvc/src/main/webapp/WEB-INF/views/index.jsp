@@ -24,14 +24,13 @@
   
   <%-- MyController03으로 요청 --%>
   <div>
-      <a href="${contextPath}/blog/detail.do?blogNo=100">블로그 상세보기</a>
+    <a href="${contextPath}/blog/detail.do?blogNo=100">블로그 상세보기</a>
   </div>
   
-  <%-- MyContoller4으로 요청 --%>
+  <%-- MyController04으로 요청 --%>
   <div>
     <a href="${contextPath}/article/add.do?title=이럴수가">기사 등록하기</a>
   </div>
-  ${sessionScope.title}
   
 </body>
 </html>
