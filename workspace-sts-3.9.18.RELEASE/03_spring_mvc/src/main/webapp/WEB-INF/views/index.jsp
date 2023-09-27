@@ -31,7 +31,7 @@
   <div>
     <a href="${contextPath}/article/add.do?title=이럴수가">기사 등록하기</a>
   </div>
-  <!--" ${sessionScope.title} " => 잘 지워졌는지 확인하는 용도 -->
+  ${sessionScope.title}
   
 </body>
 </html>
