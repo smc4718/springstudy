@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-	member 목록
+  member 목록
 </body>
 </html>

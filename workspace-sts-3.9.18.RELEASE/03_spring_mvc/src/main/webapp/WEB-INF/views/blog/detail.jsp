@@ -7,6 +7,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-  board 목록
+  ${blogNo}
+  <br>
+  ${requestScope.blogNo}
 </body>
 </html>
