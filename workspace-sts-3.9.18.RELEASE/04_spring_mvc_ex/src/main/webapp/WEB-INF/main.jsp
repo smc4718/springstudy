@@ -15,5 +15,9 @@
     <img src="${contextPath}/resources/image/animal1.jpg" width="192px"> <!-- assets이라는 폴더와 연결을 해줌 (리소시스가 assets과 매핑되어있음) -->
   </div>
 
+  <div>
+    <a href="${contextPath}/write.do">작성화면으로 가기</a>
+  </div>
+
 </body>
 </html>
