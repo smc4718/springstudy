@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdu.app07.dto.Dto1;
@@ -23,4 +24,13 @@ public class AjaxController1 {
   public List<Dto1> list(){
    return service1.getDtoList();  // jackson 라이브러리가 List<Dto1>를 json 데이터로 자동 변환한다. 
   }
+  
+  @ResponseBody
+  @RequestMapping(value="/ajax1/detail.do", method=RequestMethod.GET)
+  public Dto1 detail(@RequestParam(value="name") String name) {
+    System.out.println(name);
+    return null;
+  }
+  
+  
 }
