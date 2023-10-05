@@ -20,8 +20,8 @@ public class BoardDao {
   // 왠만해서는 필드에 @Autowired 붙이지 말자.
   // @Autowired 는 타입이 같으면 매개변수로 들어옵니다.(같은 타입이 둘 이상있으면 이름으로 비교한다.)
   @Autowired      // ↓ 매개변수로 boardDto 객체 3개가 들어온다.
-  public BoardDao(BoardDto boardDto1, BoardDto boardDto2, BoardDto boardDto3) {
-    super();
+  public void setBoardDao(BoardDto boardDto1, BoardDto boardDto2, BoardDto boardDto3) {
+
     this.boardDto1 = boardDto1;
     this.boardDto2 = boardDto2;
     this.boardDto3 = boardDto3;
