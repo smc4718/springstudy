@@ -70,21 +70,16 @@ public class BoardController {
   
   //@Autowired 의 역할 : 타입이 일치하는 bean 을 알아서 가져온다. (타입이 틀려도 Inject 기반이기 때문에 타입이 틀리면 자동으로 이름을 찾아서 가져온다.)
   
-  @Autowired
-  private BoardService boardService;
+  // 주입된 boardService 객체의 변경 방지를 위한 final 처리
+  private final BoardService boardService;
   
-//  @Autowired  (생성자에 주입)
-//  public BoardController(BoardService boardService) {
-//    super();
-//    this.boardService = boardService;
-//  }
-//
-//  @Autowired (setter에 주입)
-//  public void setBoardService(BoardService boardService) {
-//    this.boardService = boardService;
-//  }
-
-
+  // BoardService에 final 처리를 하면 생성자 주입만 가능하다.(필드 주입과 Setter 주입은 불가능하다.)
+  // 생성자 주입의 @Autowired는 생략할 수 있으므로 @RequiredArgsConstructor와 같은 Annotation으로 대체할 수 있다.
+  @Autowired  // (생성자에 주입)
+  public BoardController(BoardService boardService) {
+    super();
+    this.boardService = boardService;
+  }
 
 
 
