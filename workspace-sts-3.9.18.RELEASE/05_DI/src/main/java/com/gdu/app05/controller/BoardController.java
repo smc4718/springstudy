@@ -1,5 +1,6 @@
 package com.gdu.app05.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.gdu.app05.service.BoardService;
 import com.gdu.app05.service.BoardServiceImpl;
 
-@Controller
+@Controller // 컨트롤러 전용 @Component 이다.
 public class BoardController {
   
   /*
@@ -41,18 +42,52 @@ public class BoardController {
    * BoardService DI 처리 방법
    * 
    * 1. BoardService 타입의 BoardServiceImpl 객체를 Spring Container에 넣는다. (아래 3가지 방법 중 하나 이용)
-   *  1) <bean> 태그 : /WEB-INF/spring/root-context.xml
+   *  1) <bean> 태그            : /WEB-INF/spring/root-context.xml
    *  2) @Configuration + @Bean : com.gdu.app05.config.AppConfig.java
    *  3) @Component
    *  
    * 2. @Autowired 를 이용해서 Spring Container에서 BoardService 타입의 객체를 가져온다.
    *  1) 필드에 주입하기
-   *  2) 생성자에 주입하기
-   *  3) Setter 형식의 메소드에 주입하기 
+   *   : @Autowired
+   *   : private BoardService boardService;   <= 필드.
+   *   
+   *  2) 생성자에 주입하기 (생성자의 매개변수로 주입된다 = BoardService boardService 로 주입됨.)
+   *   : @Autowired
+   *   : public BoardController(BoardService boardService) {
+   *      super();
+   *      this.boardService = boardService;
+   *     }
+   *      
+   *  3) Setter 형식의 메소드에 주입하기 (매개변수로 주입된다 = BoardService boardService 로 주입됨.), 메소드이름이 set이 아니어도 됨.
+   *   : @Autowired
+   *   : public void setBoardService(BoardService boardService) {
+   *       this.boardService = boardService;
+   *     }
+   *    
    */
-
-  private BoardService boardService = new BoardServiceImpl();
+     
   
+  
+  //@Autowired 의 역할 : 타입이 일치하는 bean 을 알아서 가져온다. (타입이 틀려도 Inject 기반이기 때문에 타입이 틀리면 자동으로 이름을 찾아서 가져온다.)
+  
+  @Autowired
+  private BoardService boardService;
+  
+//  @Autowired  (생성자에 주입)
+//  public BoardController(BoardService boardService) {
+//    super();
+//    this.boardService = boardService;
+//  }
+//
+//  @Autowired (setter에 주입)
+//  public void setBoardService(BoardService boardService) {
+//    this.boardService = boardService;
+//  }
+
+
+
+
+
   @RequestMapping(value="/board/list.do", method=RequestMethod.GET)
   public String list(Model model) {
     model.addAttribute("boardList", boardService.getBoardList());

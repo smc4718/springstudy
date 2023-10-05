@@ -7,3 +7,5 @@ import com.gdu.app05.dto.BoardDto;
 public interface BoardService {
   public List<BoardDto> getBoardList();
 }
+
+
