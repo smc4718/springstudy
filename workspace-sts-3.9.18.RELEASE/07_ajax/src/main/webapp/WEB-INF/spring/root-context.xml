@@ -5,15 +5,15 @@
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 		
-    <bean class="com.gdu.app07.dto.Dto1" id="a">
+    <bean class="com.gdu.app07.dto.AjaxDto" id="a">
       <property name="name" value="뽀로로" />
       <property name="age" value="20" />
     </bean>
-    <bean class="com.gdu.app07.dto.Dto1" id="b">
+    <bean class="com.gdu.app07.dto.AjaxDto" id="b">
       <property name="name" value="루피" />
       <property name="age" value="15" />
     </bean>
-    <bean class="com.gdu.app07.dto.Dto1" id="c">
+    <bean class="com.gdu.app07.dto.AjaxDto" id="c">
       <property name="name" value="크롱" />
       <property name="age" value="25" />
     </bean>

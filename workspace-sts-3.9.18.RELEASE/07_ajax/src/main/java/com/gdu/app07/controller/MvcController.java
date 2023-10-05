@@ -16,7 +16,7 @@ public class MvcController {
   public String ajax1() {
     return "ajax1";
   }
-  
+
   @RequestMapping(value="/ajax2.do", method=RequestMethod.GET)
   public String ajax2() {
     return "ajax2";
