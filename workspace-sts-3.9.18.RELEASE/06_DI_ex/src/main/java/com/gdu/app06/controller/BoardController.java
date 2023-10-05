@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.gdu.app06.service.IBoardService;
 
+@RequestMapping("/board")
 @Controller
 public class BoardController {
 
@@ -20,13 +21,13 @@ public class BoardController {
     this.iBoardService = iBoardService;
   }
   
-  @RequestMapping(value="/board/list.do", method=RequestMethod.GET)
+  @RequestMapping(value="/list.do", method=RequestMethod.GET)
   public String list(Model model) {
    model.addAttribute("boardList", iBoardService.getBoardList());
    return "board/list"; // 실제로 처리되는 경로는 " /WEB-INF/views/board/list.jsp " 이다.
   }
   
-  @RequestMapping(value="/board/detail.do", method=RequestMethod.GET) // required = false : 혹시 전달되지 않더라도 오류를 내지 마라.
+  @RequestMapping(value="/detail.do", method=RequestMethod.GET) // required = false : 혹시 전달되지 않더라도 오류를 내지 마라.
   public String detail(@RequestParam(value="boardNo", required = false, defaultValue="0") int boardNo  // int boardNo 가 전달되는 파라미터를 받는 변수이다.
                      , Model model) {
      model.addAttribute("board", iBoardService.getBoardByNo(boardNo));

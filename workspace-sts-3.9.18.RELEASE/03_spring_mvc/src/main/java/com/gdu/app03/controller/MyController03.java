@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.gdu.app03.dto.BlogDto;
 
+@RequestMapping("/blod")  // "/blog로 시작하는 요청"을 처리하는 컨트롤러가 된다.
+                                // 어떻게 적용되는가? : 모든 메소드의 요청에 "/blog"가 자동으로 삽입된다.
 @Controller
 public class MyController03 {
 
   
   
-  /*
+  /*         
    * 1. HttpServletRequest request를 이용한 요청 파라미터 처리
    *  1) Java EE 표준 방식이다.
    *  2) 파라미터뿐만 아니라 HttpSession session, String contextPath 와 같은 정보도 꺼낼 수 있으므로 여전히 강력한 도구이다.
