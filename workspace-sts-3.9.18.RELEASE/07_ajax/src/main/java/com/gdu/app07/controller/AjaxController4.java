@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class AjaxController4 {
   
-  @GetMapping(value="/ajax4/display.do", produces="application/octet-stream")
+  @GetMapping(value="/ajax4/display.do", produces="application/octet-stream") // "application/octet-stream" : 이진 데이터(0, 1) 자체를 의미한다. 자바로따지면 byte타입데이터
   public ResponseEntity<byte[]> display(@RequestParam("path") String path
                                       , @RequestParam("filename") String filename) {
     

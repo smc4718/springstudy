@@ -11,15 +11,16 @@
 <script>
 
   $(function(){
-    fnImage();
+  fnImage();
   })
   
   function fnImage(){
-	$('#btn_image').click(function(){
-	  var path = encodeURIComponent'D:\\GDJ69\\assets\\image';	// 자바로 보낼 데이터이기 때문에 자바가 찾을 수 있게 역슬래시(\)를 하나 더 적어준다.
-	  var filename = $('#image').val();	// val() = value.
-	  $('#display').append('<img src="${contextPath}/ajax4/display.do?path=' + path + '&filename="' + filename + '" width=192px">');
-	})      
+  $('#btn_image').click(function(){
+    var path = encodeURIComponent('D:\\GDJ69\\assets\\image');	// 자바로 보낼 데이터이기 때문에 자바가 찾을 수 있게 역슬래시(\)를 하나 더 적어준다.
+    var filename = $('#image').val();
+    $('#display').empty();
+    $('#display').append('<img src="${contextPath}/ajax4/display.do?path=' + path + '&filename=' + filename + '" width="192px">');
+  })
   }
 
 </script>
