@@ -20,16 +20,17 @@ public class AjaxController1 {
 
   private final AjaxService ajaxService;
   
+  // @ResponseBody 가 있으면 무조건 ajax이다. 이게 없으면 ajax 못한다.
   @ResponseBody  // 메소드의 반환 값이 응답 데이터이다.
   @RequestMapping(value="/list.do", method=RequestMethod.GET, produces="application/json; charset=UTF-8")  // produces : 응답 데이터 타입
   public List<AjaxDto> list() {
-    return ajaxService.getDtoList();  // jackson 라이브러리가 List<Dto1>를 json 데이터로 자동 변환한다.
+    return ajaxService.getDtoList();  // jackson 라이브러리가 List<AjaxDto>를 json 데이터(배열)로 자동 변환한다.
   }
   
   @ResponseBody
   @RequestMapping(value="/detail.do", method=RequestMethod.GET, produces="application/json; charset=UTF-8")
   public AjaxDto detail(@RequestParam(value="name") String name) {
-    return ajaxService.getDto(name);
+    return ajaxService.getDto(name);  // jackson 라이브러리가 AjaxDto를 json 데이터(객체)로 자동 변환한다.
   }
   
 }
