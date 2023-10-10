@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+    <bean class="com.gdu.app10.peopleDto.PeopleDto" id="pd1">
+      <property name="name" value="유재석"/>
+      <property name="age" value='40'/>
+    </bean>
+    <bean class="com.gdu.app10.peopleDto.PeopleDto" id="pd2">
+      <property name="name" value="자연인" />
+      <property name="age" value="50"/>
+    </bean>
+  	
+</beans>
