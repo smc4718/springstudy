@@ -20,15 +20,15 @@
       </div>
       <div>
         <label for="tel">전화번호</label>
-        <input type="text" id="name" name="tel">
+        <input type="text" id="tel" name="tel">
       </div>
       <div>
         <label for="email">이메일</label>
-        <input type="text" id="name" name="email">
+        <input type="text" id="email" name="email">
       </div>
       <div>
         <label for="address">주소</label>
-        <input type="text" id="name" name="address">
+        <input type="text" id="address" name="address">
       </div>
       <div>
         <button type="submit">등록</button>

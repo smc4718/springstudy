@@ -7,14 +7,24 @@ import java.sql.ResultSet;
 
 import org.springframework.stereotype.Component;
 
-@Component  //JdbcConnection 객체(Bean)를 Spring Container에 저장해 둔다.
+@Component  // JdbcConnection 객체(Bean)를 Spring Container에 저장해 둔다.
 public class JdbcConnection {
+
+  /*
+   * 일반 버전
+   *  Class.forName("oracle.jdbc.OracleDriver");
+   *  url = "jdbc:oracle:thin:@localhost:1521:xe"
+   * 
+   * 쿼리 출력 버전(log4jdbc 디펜던시)
+   *  Class.forName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
+   *  url = "jdbc:log4jdbc:oracle:thin:@localhost:1521:xe"
+   */
   
   public Connection getConnection() {
     Connection con = null;
     try {
-      Class.forName("oracle.jdbc.OracleDriver");
-      con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "GD", "1111");
+      Class.forName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
+      con = DriverManager.getConnection("jdbc:log4jdbc:oracle:thin:@localhost:1521:xe", "GD", "1111");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -30,5 +40,5 @@ public class JdbcConnection {
       e.printStackTrace();
     }
   }
-
+  
 }

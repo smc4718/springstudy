@@ -11,6 +11,7 @@
 <script>
   $(function(){
 	fnAddResult();
+	fnDeleteResult();
   })
   
   function fnAddResult(){
@@ -20,6 +21,17 @@
 			alert('연락처가 등록되었습니다.');
 		 } else {
 			alert('연락처 등록이 실패했습니다.');
+		 }
+	  }
+  }
+  
+  function fnDeleteResult() {
+	  var deleteResult = '${deleteResult}';
+	  if(deleteResult !== ''){		// 공백인지 아닌지 확인.
+		 if(deleteResult === '1'){	// 1인지 아닌지 확인.
+			alert('연락처가 삭제되었습니다.');
+		 } else {
+			alert('연락처 삭제가 실패했습니다.');
 		 }
 	  }
   }
@@ -45,7 +57,7 @@
         <c:forEach items="${contactList}" var="c">  <!-- 연락처 하나하나를 "c" 라고 부르겠다. -->
           <tr>
             <td>${c.contact_no}</td>
-            <td>${c.name}</td>
+            <td><a href="${contextPath}/contact/detail.do?contact_no=${c.contact_no}">${c.name}</a></td>    <!-- 이름 클릭하게 함 -->
             <td>${c.tel}</td>
           </tr>
         </c:forEach>
