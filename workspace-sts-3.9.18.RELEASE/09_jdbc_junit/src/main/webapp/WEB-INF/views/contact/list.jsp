@@ -8,6 +8,23 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+  $(function(){
+	fnAddResult();
+  })
+  
+  function fnAddResult(){
+	  var addResult = '${addResult}';
+	  if(addResult !== ''){		// 공백인지 아닌지 확인.
+		 if(addResult === '1'){	// 1인지 아닌지 확인.
+			alert('연락처가 등록되었습니다.');
+		 } else {
+			alert('연락처 등록이 실패했습니다.');
+		 }
+	  }
+  }
+  
+</script>
 </head>
 <body>
 

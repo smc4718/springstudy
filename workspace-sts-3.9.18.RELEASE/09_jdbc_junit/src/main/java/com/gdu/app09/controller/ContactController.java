@@ -4,7 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdu.app09.dto.ContactDto;
 import com.gdu.app09.service.ContactService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,17 @@ public class ContactController {
     return "contact/list";
   }
   
+  @RequestMapping(value="/contact/write.do", method=RequestMethod.GET)
+  public String write() {
+    return "contact/write";
+  }
   
-  
+  @RequestMapping(value="/contact/add.do", method=RequestMethod.POST)
+  public String add(ContactDto contactDto, RedirectAttributes redirectAttributes) {
+    int addResult = contactService.addContact(contactDto);
+    redirectAttributes.addFlashAttribute("addResult", addResult);  // 그냥 Attribute 는 Model처럼 동작하기 때문에, Flash를 써줘야한다.
+    return "redirect:/contact/list.do";   // 목록보기로 다시 넘어가기 (list.do)
+  }
   
   
 }
