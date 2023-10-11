@@ -1,4 +1,4 @@
-package com.gdu.app10.config;
+package com.gdu.app11.config;
 
 import java.util.Collections;
 
@@ -7,9 +7,12 @@ import javax.sql.DataSource;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -19,18 +22,22 @@ import org.springframework.transaction.interceptor.RollbackRuleAttribute;
 import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
+@PropertySource(value="classpath:application.properties")  // application.properties  를 읽어라.
 @EnableAspectJAutoProxy
 @Configuration
 public class AppConfig {
+  
+  @Autowired
+  private Environment env;
 
   // DataSource : CP(Connection Pool)을 처리하는 javax.sql.DataSource 인터페이스
   @Bean
   public DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();  // DriverManagerDataSource : CP(Connection Pool)을 처리하는 스프링 클래스
-    dataSource.setDriverClassName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
-    dataSource.setUrl("jdbc:log4jdbc:oracle:thin:@localhost:1521:xe");
-    dataSource.setUsername("GD");
-    dataSource.setPassword("1111");
+    dataSource.setDriverClassName(env.getProperty("spring.datasource.hikari.driver-class-name"));
+    dataSource.setUrl(env.getProperty("spring.datasource.hikari.jdbc-url"));
+    dataSource.setUsername(env.getProperty("spring.datasource.hikari.username"));
+    dataSource.setPassword(env.getProperty("spring.datasource.hikari.password"));
     return dataSource;
   }
   

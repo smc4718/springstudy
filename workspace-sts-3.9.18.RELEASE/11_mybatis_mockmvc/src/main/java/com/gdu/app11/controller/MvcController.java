@@ -1,4 +1,4 @@
-package com.gdu.app10.controller;
+package com.gdu.app11.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

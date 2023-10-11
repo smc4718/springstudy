@@ -1,4 +1,4 @@
-package com.gdu.app10.dao;
+package com.gdu.app11.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Repository;
 
-import com.gdu.app10.dto.ContactDto;
+import com.gdu.app11.dto.ContactDto;
 
 import lombok.RequiredArgsConstructor;
 

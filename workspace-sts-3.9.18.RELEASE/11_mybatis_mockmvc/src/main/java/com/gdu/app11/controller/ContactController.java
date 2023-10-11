@@ -1,4 +1,4 @@
-package com.gdu.app10.controller;
+package com.gdu.app11.controller;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdu.app10.dto.ContactDto;
-import com.gdu.app10.service.ContactService;
+import com.gdu.app11.dto.ContactDto;
+import com.gdu.app11.service.ContactService;
 
 import lombok.RequiredArgsConstructor;
 
