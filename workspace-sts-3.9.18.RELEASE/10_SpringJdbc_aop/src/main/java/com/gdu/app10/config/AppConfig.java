@@ -6,6 +6,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.gdu.app10.aop.AfterAop;
 import com.gdu.app10.aop.BeforeAop;
 
 @EnableAspectJAutoProxy   // = AOP 동작을 허용한다.
@@ -32,6 +33,11 @@ public class AppConfig {
   @Bean
   public BeforeAop beforeAop() {  // 잘 인식되면 왼쪽에 빨간 갈고리가 생긴다.( = Before 어드바이스 메소드에 의해서 동작할 것이다.)
     return new BeforeAop();   
+  }
+  
+  @Bean
+  public AfterAop afterAop() {
+    return new AfterAop();
   }
   
 }

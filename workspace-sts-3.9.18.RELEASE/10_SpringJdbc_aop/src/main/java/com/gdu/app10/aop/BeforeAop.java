@@ -9,18 +9,19 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j  // 로그라는 객체를 자동으로 만들어 준다.(이 객체를 통해 log.info 를 만드는 것)
+// @Slf4j : 로그라는 객체를 자동으로 만들어 준다.(이 객체를 통해 log.info 를 만드는 것)
+//   └> private static final Logger log = LoggerFactory.getLogger(ContactController.class);
+@Slf4j
 @Aspect
 public class BeforeAop {
   
-  // 포인트컷 : 언제 동작하는가?
-  @Pointcut("execution(* com.gdu.app10.controller.ContactController.*(..))") // 어떤 메소드에서 동작할지 정해주는 것 (표현식을 전달한다). //  *(..) : 모든 메소드에서 동작한다. (ex: list(..) 리스트 메소드에서만 동작한다.)
+  // 포인트컷 : 언제 동작하는가?                 // *Controller : 컨트롤러로 끝나는 모든 것.
+  @Pointcut("execution(* com.gdu.app10.controller.*Controller.*(..))") // 어떤 메소드에서 동작할지 정해주는 것 (표현식을 전달한다). //  *(..) : 모든 메소드에서 동작한다. (ex: list(..) 리스트 메소드에서만 동작한다.)
   public void setPointCut() { } // 이름만 제공하는 메소드 (동작하지 않음, 이름은 마음대로, 본문도 필요 없다. 여기 붙이는 애너테이션때문에 존재하는 메소드이다.)
 
   // 어드바이스 : 무슨 동작을 하는가?
@@ -48,7 +49,7 @@ public class BeforeAop {
       params += "No Parameter";
     } else {
       for(Map.Entry<String, String[]> entry : map.entrySet()) {
-        params += entry.getKey() + ":" + Arrays.toString(entry.getValue()); // 배열을 그냥 출력하면 주소값이 나오니 Arrays.toString()을 써줌.
+        params += entry.getKey() + ":" + Arrays.toString(entry.getValue()) + " "; // 배열을 그냥 출력하면 주소값이 나오니 Arrays.toString()을 써줌.
       }
     }
     
