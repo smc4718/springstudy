@@ -4,14 +4,5 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
-	
-    <bean class="com.gdu.app13.peopleDto.PeopleDto" id="pd1">
-      <property name="name" value="유재석"/>
-      <property name="age" value='40'/>
-    </bean>
-    <bean class="com.gdu.app13.peopleDto.PeopleDto" id="pd2">
-      <property name="name" value="자연인" />
-      <property name="age" value="50"/>
-    </bean>
-  	
+		
 </beans>

@@ -7,7 +7,7 @@ import com.gdu.app08.dto.MemberDto;
 
 @Repository
 public class MemberDao {
-   
+
   private MemberDto member1;
   private MemberDto member2;
   private MemberDto member3;

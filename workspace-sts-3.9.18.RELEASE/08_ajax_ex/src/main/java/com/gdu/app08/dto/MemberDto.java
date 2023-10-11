@@ -12,5 +12,4 @@ public class MemberDto {
   private String name;
   private double height;
   private double weight;
-  
 }

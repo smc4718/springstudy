@@ -7,7 +7,7 @@ import com.gdu.app08.dto.MemberDto;
 
 @Configuration
 public class MemberConfig {
-  
+
   @Bean
   public MemberDto member1() {
     return new MemberDto(1, "뽀로로", 150, 60);

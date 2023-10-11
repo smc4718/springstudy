@@ -1,11 +1,11 @@
-package com.gdu.app10.service;
+package com.gdu.app13.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.gdu.app10.peopleDao.PeopleDao;
-import com.gdu.app10.peopleDto.PeopleDto;
+import com.gdu.app13.peopleDao.PeopleDao;
+import com.gdu.app13.peopleDto.PeopleDto;
 
 import lombok.RequiredArgsConstructor;
 

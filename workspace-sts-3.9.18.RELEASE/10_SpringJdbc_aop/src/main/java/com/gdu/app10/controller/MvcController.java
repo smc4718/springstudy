@@ -1,4 +1,4 @@
-package com.gdu.app08.controller;
+package com.gdu.app10.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,10 +11,5 @@ public class MvcController {
   public String index() {
     return "index";
   }
-  
-  @RequestMapping(value="/shop.go", method=RequestMethod.GET)
-  public String shop() {
-    return "shop";
-  }
-  
+
 }

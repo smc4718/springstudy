@@ -1,4 +1,4 @@
-package com.gdu.app10.peopleDto;
+package com.gdu.app13.peopleDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

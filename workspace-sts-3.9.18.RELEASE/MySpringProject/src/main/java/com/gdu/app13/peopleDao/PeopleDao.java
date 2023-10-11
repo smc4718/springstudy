@@ -1,4 +1,4 @@
-package com.gdu.app10.peopleDao;
+package com.gdu.app13.peopleDao;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.gdu.app10.peopleDto.PeopleDto;
+import com.gdu.app13.peopleDto.PeopleDto;
 
 @Repository
 public class PeopleDao {
