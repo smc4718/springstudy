@@ -1,4 +1,4 @@
-package com.gdu.app10.aop;
+package com.gdu.app12.aop;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -15,28 +15,19 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j  // private static final Logger log = LoggerFactory.getLogger(BeforeAop.class);
+@Slf4j
 @Aspect
 @Component
-public class BeforeAop {
+public class LogAop {
 
-  // 포인트컷 : 언제 동작하는가?
-  @Pointcut("execution(* com.gdu.app10.controller.*Controller.*(..))")
-  public void setPointCut() { }  // 이름만 제공하는 메소드(이름은 마음대로 본문도 필요 없다.)
+  // 포인트컷 : 어떤 메소드에서 동작하는지 표현식으로 작성
+  @Pointcut("execution(* com.gdu.app12.controller.*Controller.*(..))")
+  public void setPointCut() {}
   
-  // 어드바이스 : 무슨 동작을 하는가?
+  // 어드바이스 : 포인트컷에서 실제로 동작할 내용
   @Before("setPointCut()")
-  public void beforeAdvice(JoinPoint joinPoint) {
+  public void doLog(JoinPoint joinPoint) {  // JoinPoint : 어드바이스로 전달되는 메소드
     
-    /*
-     * Before 어드바이스
-     * 1. 반환타입 : void
-     * 2. 메소드명 : 마음대로
-     * 3. 매개변수 : JoinPoint
-     */
-    
-    /* 모든 컨트롤러의 모든 메소드가 동작하기 전에 요청(방식/주소/파라미터) 출력하기 */
-        
     // 1. HttpServletRequest
     ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
     HttpServletRequest request = servletRequestAttributes.getRequest();

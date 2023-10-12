@@ -1,4 +1,4 @@
-package com.gdu.app11.config;
+package com.gdu.app12.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
