@@ -1,6 +1,6 @@
 package com.gdu.app11;
 
-import org.aspectj.lang.annotation.Before;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import lombok.extern.slf4j.Slf4j;
 
-// JUnit4
+// JUnin4를 사용한다.
 @RunWith(SpringJUnit4ClassRunner.class)
 
 // 테스트에서 사용할 Bean이 @Component로 생성되었다.
@@ -32,15 +32,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 
 public class ContactControllerTest {
-  
+
   // MockMvc 객체가 생성될 때 필요한 WebApplicationContext
   @Autowired
   private WebApplicationContext webApplicationContext;
-
+  
   // MockMvc 객체 : 테스트를 수행하는 객체
   private MockMvc mockMvc;
   
-  // 테스트 수행 이전에 MovcMvc mockMvc 객체를 만든다.
+  // 테스트 수행 이전에 MockMvc mockMvc 객체를 만든다.
   @Before
   public void setUp() throws Exception {
     mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -53,20 +53,20 @@ public class ContactControllerTest {
   @Test
   public void test01_삽입() throws Exception {
     log.info(mockMvc
-              .perform(MockMvcRequestBuilders                   // 요청 수행
-                        .post("/contact/add.do")                // 요청 방식, 주소
-                        .param("name", "뽀로로")                // 요청 파라미터
-                        .param("tel", "02-1111-2222")
+              .perform(MockMvcRequestBuilders                  // 요청 수행
+                        .post("/contact/add.do")               // 요청 방식, 주소
+                        .param("name", "뽀로로")               // 요청 파라미터
+                        .param("tel", "02-111-1111")
                         .param("email", "pororo@naver.com")
-                        .param("address", "pororo villige"))
-              .andReturn()                                      // 요청 결과
-              .getFlashMap()                                    // 요청 결과가 저장된 flash attribute를 Map으로 가져옴
+                        .param("address", "pororo villiage"))
+              .andReturn()                                     // 요청 결과
+              .getFlashMap()                                   // 요청 결과가 저장된 flash attribute를 Map으로 가져옴
               .toString());
   }
-    
+  
   // 상세조회테스트
-  // 요청 방식     : GET
-  // 요청 주소     : /contact/detail.do
+  // 요청 방식 : GET
+  // 요청 주소 : /contact/detail.do
   // 요청 파라미터 : contactNo
   @Test
   public void test02_상세조회() throws Exception {
