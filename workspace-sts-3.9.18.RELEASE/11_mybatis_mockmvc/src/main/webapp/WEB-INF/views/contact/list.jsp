@@ -56,8 +56,8 @@
       <tbody>
         <c:forEach items="${contactList}" var="c">  <!-- 연락처 하나하나를 "c" 라고 부르겠다. -->
           <tr>
-            <td>${c.contact_no}</td>
-            <td><a href="${contextPath}/contact/detail.do?contact_no=${c.contact_no}">${c.name}</a></td>    <!-- 이름 클릭하게 함 -->
+            <td>${c.contactNo}</td>
+            <td><a href="${contextPath}/contact/detail.do?contactNo=${c.contactNo}">${c.name}</a></td>    <!-- 이름 클릭하게 함 -->
             <td>${c.tel}</td>
           </tr>
         </c:forEach>
