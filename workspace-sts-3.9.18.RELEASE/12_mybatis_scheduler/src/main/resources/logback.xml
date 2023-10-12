@@ -8,7 +8,7 @@
   <!-- Console에 로그를 찍는 Appender -->
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-      <layout class="com.gdu.app11.logback.MyLogbackLayout"/>
+      <layout class="com.gdu.app12.logback.MyLogbackLayout"/>
     </encoder>
   </appender>
   

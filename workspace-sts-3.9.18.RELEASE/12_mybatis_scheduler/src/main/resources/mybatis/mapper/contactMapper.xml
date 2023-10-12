@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="mybatis.mapper.contact">  <!-- namespace가 가지는 의미 : 매퍼의 경로 -->
+<mapper namespace="com.gdu.app12.dao.ContactMapper">  <!-- namespace가 가지는 의미 : 매퍼의 경로 -->
 
 <!-- 태그의 id는 메소드 이름으로 해주기 -->
   <insert id="insert" parameterType="ContactDto">
