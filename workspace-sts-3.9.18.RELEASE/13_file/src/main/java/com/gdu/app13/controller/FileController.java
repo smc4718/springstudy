@@ -1,8 +1,11 @@
 package com.gdu.app13.controller;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,4 +25,10 @@ public class FileController {
     redirectAttributes.addFlashAttribute("addResult", addResult);
     return "redirect:/main.do";
   }
-}
+  
+  @RequestMapping(value="/ajax/upload.do", method=RequestMethod.POST, produces="application/json")
+  @ResponseBody
+  public Map<String, Object> ajaxUpload(MultipartHttpServletRequest multipartRequest) {        // json 보낼 거면 Map 써야 한다. (배열 보낼 때는 List 사용하는 것)
+    return fileService.ajaxUpload(multipartRequest);
+  }
+ }
