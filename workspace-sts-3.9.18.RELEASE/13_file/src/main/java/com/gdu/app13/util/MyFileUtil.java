@@ -18,7 +18,7 @@ public class MyFileUtil {   // @Component 해놓고 불러다가 @Autowired 로 
   }
   
   // 파일이 저장될 이름 반환하기 (파일을 올릴 때 이름과, 실제 저장될 때 이름은 다르다)
-  public String gerFilesystemName(String originalName) { // Filesystem 은 한 단어임.
+  public String getFilesystemName(String originalName) { // Filesystem 은 한 단어임.
     
     /*  UUID.확장자  */
     

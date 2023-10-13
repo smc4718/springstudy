@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class MvcController {
 
-  @RequestMapping(value="/", method=RequestMethod.GET)
+  @RequestMapping(value={"/", "/main.do"}, method=RequestMethod.GET)
   public String index() {
     return "index";
   }
