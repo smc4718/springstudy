@@ -20,5 +20,17 @@
       , #{address}
     )
   </insert>
+  
+  <select id="getMemberList" parameterType="Map" resultType="MemberDto"> <!--parameterType은 1과 2를 가지고 있어야 하고, 그 역할을 Map에게 맡긴다. --> -->
+    SELECT MEMBER_NO, ID, NAME, GENDER, ADDRESS               <!-- MemberDto가 5개의 select 값을 반환할 수 있다. -->
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY MEMBER_NO DESC) AS RN, MEMBER_NO, ID, NAME, GENDER, ADDRESS
+              FROM MEMBER_T)
+     WHERE RN BETWEEN #{begin} AND #{end}
+  </select>
+
+  <select id="getMemberCount" resultType="int">
+    SELECT COUNT(*)
+      FROM MEMBER_T
+  </select>
 
 </mapper>

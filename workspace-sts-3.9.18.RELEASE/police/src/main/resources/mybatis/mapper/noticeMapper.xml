@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 연결할 인터페이스 이름을 적어준다. 그리고 같은 이름의 인터페이스를 만들어주면 된다.-->
+<mapper namespace="com.gdu.app.dao.NoticeMapper">  <!-- namespace가 가지는 의미 : 매퍼의 경로 -->
+  
+  <!-- 삽입 쿼리문 -->
+  <insert id="addNotice" parameterType="NoticeDto">  <!-- 삽입하니까 NoticeDto를 불러온다. -->
+    INSERT INTO NOTICE_T (
+        NOTICE_NO
+      , GUBUN
+      , TITLE
+      , CONTENT
+    ) VALUES (
+        NOTICE_SEQ.NEXTVAL   <!-- 번호표 뽑기(번호는 오라클에서 뽑아온다.NoticeDto에 번호는 들어있지 않음.) -->
+      , #{gubun}
+      , #{title}
+      , #{content}
+    )
+    
+  </insert>
+  
+  
+  <!-- 목록 쿼리문 -->
+  <select id="getNoticeList" resultType="NoticeDto">
+    SELECT NOTICE_NO, GUBUN, TITLE, CONTENT
+      FROM NOTICE_T
+     ORDER BY NOTICE_NO DESC
+  </select>
+  
+</mapper>
