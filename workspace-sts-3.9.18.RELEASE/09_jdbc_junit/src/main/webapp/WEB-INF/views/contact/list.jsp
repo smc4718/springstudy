@@ -9,31 +9,32 @@
 <title>Insert title here</title>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
+  
   $(function(){
-	fnAddResult();
-	fnDeleteResult();
+    fnAddResult();
+    fnDeleteResult();
   })
   
   function fnAddResult(){
-	  var addResult = '${addResult}';
-	  if(addResult !== ''){		// 공백인지 아닌지 확인.
-		 if(addResult === '1'){	// 1인지 아닌지 확인.
-			alert('연락처가 등록되었습니다.');
-		 } else {
-			alert('연락처 등록이 실패했습니다.');
-		 }
-	  }
+    var addResult = '${addResult}';
+    if(addResult !== ''){
+      if(addResult === '1'){
+        alert('연락처가 등록되었습니다.');
+      } else {
+    	alert('연락처 등록이 실패했습니다.');
+      }
+    }
   }
   
-  function fnDeleteResult() {
-	  var deleteResult = '${deleteResult}';
-	  if(deleteResult !== ''){		// 공백인지 아닌지 확인.
-		 if(deleteResult === '1'){	// 1인지 아닌지 확인.
-			alert('연락처가 삭제되었습니다.');
-		 } else {
-			alert('연락처 삭제가 실패했습니다.');
-		 }
-	  }
+  function fnDeleteResult(){
+    var deleteResult = '${deleteResult}';
+    if(deleteResult !== ''){
+      if(deleteResult === '1'){
+        alert('연락처가 삭제되었습니다.');
+      } else {
+    	alert('연락처 삭제가 실패했습니다.');
+      }
+    }
   }
   
 </script>
@@ -43,7 +44,7 @@
   <div>
     <h3>연락처관리</h3>
     <div>
-      <a href="${contextPath}/contact/write.do">새 연락처등록</a>
+      <a href="${contextPath}/contact/write.do">새연락처등록</a>
     </div>
     <table border="1">
       <thead>
@@ -54,10 +55,10 @@
         </tr>
       </thead>
       <tbody>
-        <c:forEach items="${contactList}" var="c">  <!-- 연락처 하나하나를 "c" 라고 부르겠다. -->
+        <c:forEach items="${contactList}" var="c">
           <tr>
             <td>${c.contact_no}</td>
-            <td><a href="${contextPath}/contact/detail.do?contact_no=${c.contact_no}">${c.name}</a></td>    <!-- 이름 클릭하게 함 -->
+            <td><a href="${contextPath}/contact/detail.do?contact_no=${c.contact_no}">${c.name}</a></td>
             <td>${c.tel}</td>
           </tr>
         </c:forEach>

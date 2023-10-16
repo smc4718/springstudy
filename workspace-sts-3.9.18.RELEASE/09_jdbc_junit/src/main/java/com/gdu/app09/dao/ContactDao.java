@@ -11,24 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.gdu.app09.dto.ContactDto;
 
-//순서(중요) : ContactView -> ContactController -> ContactService -> ContactDao -> DB
-
-/*
- * Dao
- * 1. Database Access Object
- * 2. 데이터베이스에 접근해서 쿼리문을 실행하고 쿼리문의 실행 결과를 받는 객체이다.
- * 3. 하나의 객체만 만들어서 사용하는 Singleton Pattern으로 객체를 생성한다.
- * (DB를 갔다 온 애들은 전부 dao 에 모아 둔다.)
- */
-
-/*
- * Singleton Pattern
- * 1. 오직 하나의 객체만 만들 수 있도록 처리하는 패턴이다.
- * 2. 미리 하나의 객체를 만든 뒤 해당 객체를 가져다 사용할 수 있도록 처리한다.
- * 3. 객체 생성이 불가능하도록 생성자를 호출할 수 없게 만든다.
- * (dao의 외부에서는 new ContactDao() 를 사용하지 못하게 막는다.)
- */
-
 @Repository
 public class ContactDao {
   

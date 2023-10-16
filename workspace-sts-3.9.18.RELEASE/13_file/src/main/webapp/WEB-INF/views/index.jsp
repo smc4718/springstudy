@@ -8,11 +8,14 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+<!-- ${contextPath} = webapp 폴더까지를 의미함. "/"를 의미. -->
 <script>
 
   $(function(){     
     fnFileCheck();
     fnUpload();
+    fnCkeditor();
   })
   
   function fnFileCheck(){
@@ -70,6 +73,27 @@
         })
       })
     }
+  
+  function fnCkeditor(){
+		 
+	  CKEDITOR.replace('contents', {  // <textarea id="contents"></textarea>
+		  width: '1000px',
+		  height: '400px',
+		  filebrowserImageUploadUrl: '${contextPath}/ckeditor/upload.do'  // 이미지 업로드 경로
+	  });
+	  
+	  CKEDITOR.on('dialogDefinition', function(event){
+		  var dialogName = event.data.name;
+		  var dialogDefinition = event.data.definition;
+		  switch(dialogName){
+		  case 'image':
+			  dialogDefinition.removeContents('Link');
+			  dialogDefinition.removeContents('advanced');
+			  break;
+		  }
+	  });
+	  
+  }
 
 </script>
 </head>
@@ -99,13 +123,23 @@
       <button type="button" id="btn_upload">업로드</button>
     </div>
   </div>
-  <script>
+  
+  <hr>
+  
+  <div>
+    <h3>CKEditor</h3>
+    <form>
+      <div>
+        <textarea id="contents"></textarea>  <!-- 에디터를 쓸 때는 row와 col 적을 필요가 없다. -->
+      </div>
+    </form>
+  </div>
 
-    
-    
 
-    
-  </script>
+
+
+
+
 
 </body>
 </html>
