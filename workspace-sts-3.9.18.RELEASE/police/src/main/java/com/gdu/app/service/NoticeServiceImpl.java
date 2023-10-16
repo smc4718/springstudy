@@ -17,6 +17,16 @@ public class NoticeServiceImpl implements NoticeService {
   
   // ServiceImpl은 돌아온 값을 바로 옆으로 넘겨주는 역할인데, 왜있는지 이해가 안될 정도로 그냥 넘겨주기만 한다.(이렇게 이해하면 됨)
   
+  @Override
+  public int modifyNotice(NoticeDto noticeDto) {
+    return noticeMapper.modifyNotice(noticeDto);
+  }
+  
+  @Override
+  public NoticeDto getNotice(int noticeNo) {
+    return noticeMapper.getNotice(noticeNo);
+  }
+  
   @Override           // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ Controller한테 받아오는 것(noticeDto).
   public int addNotice(NoticeDto noticeDto) {
     return noticeMapper.addNotice(noticeDto); // addNotice(NoticeDto noticeDto) 에서 받아온 noticeDto 를 그대로 전달해 준다.

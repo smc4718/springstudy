@@ -6,6 +6,22 @@
 <!-- 연결할 인터페이스 이름을 적어준다. 그리고 같은 이름의 인터페이스를 만들어주면 된다.-->
 <mapper namespace="com.gdu.app.dao.NoticeMapper">  <!-- namespace가 가지는 의미 : 매퍼의 경로 -->
   
+  
+  <update id="modifyNotice" parameterType="NoticeDto">
+    UPDATE NOTICE_T
+       SET GUBUN = #{gubun}
+         , TITLE = #{title}
+         , CONTENT = #{content}
+     WHERE NOTICE_NO = #{noticeNo}
+  </update>
+  
+  <!-- 상세보기 쿼리문 -->
+  <select id="getNotice" parameterType="int" resultType="NoticeDto">
+    SELECT NOTICE_NO, GUBUN, TITLE, CONTENT
+      FROM NOTICE_T
+     WHERE NOTICE_NO = #{noticeNo}  <!-- ←자바 변수로 넘어올 것 -->
+  </select>
+  
   <!-- 삽입 쿼리문 -->
   <insert id="addNotice" parameterType="NoticeDto">  <!-- 삽입하니까 NoticeDto를 불러온다. -->
     INSERT INTO NOTICE_T (

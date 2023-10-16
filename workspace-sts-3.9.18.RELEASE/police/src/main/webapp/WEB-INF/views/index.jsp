@@ -12,7 +12,7 @@
 <body>
 
   <!--  [ 데이터 전송 흐름 순서 ] :
-     index.jsp -> NoticeController.java -> NoticeService.java 
+     index.jsp (혹은 필요한 jsp파일이 먼저 올 수도 있음:list.do같은 것) -> NoticeController.java -> NoticeService.java 
      -> NoticeServiceImpl.java -> NoticeMapper.java -> noticeMapper.xml 
      코드로 구현하는 순서는 위의 흐름을 거꾸로 작성 해 나간다.            -->
 
