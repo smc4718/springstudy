@@ -62,7 +62,7 @@ public class NoticeController {
   @RequestMapping(value="/notice/modify.do", method=RequestMethod.POST) 
   public String modify(NoticeDto noticeDto, RedirectAttributes redirectAttributes) {
     int modifyResult = noticeService.modifyNotice(noticeDto);
-    redirectAttributes.addFlashAttribute("modifyResult", redirectAttributes);
+    redirectAttributes.addFlashAttribute("modifyResult", modifyResult);
     return "redirect:/notice/detail.do?noticeNo=" + noticeDto.getNoticeNo(); // 수정은 어떤 글을 진행하고 싶은지 noticeNo 가 있어야 함.
   }
   

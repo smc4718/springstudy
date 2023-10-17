@@ -15,15 +15,18 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
 
+	// 메소드 호출부
     $(function(){
-    	  fnChkAll();
-    	  fnChkOne();
-    	  fnInit();
-    	  fnMemberRegister();
-    	  fnMemberList();
-    	  fnMemberDetail();
-    	  fnMemberModify();
-    })
+	  fnChkAll();
+	  fnChkOne();
+	  fnInit();
+	  fnMemberRegister();
+	  fnMemberList();
+	  fnMemberDetail();
+	  fnMemberModify();
+	  fnRemoveMember();
+	  fnRemoveMembers();
+  })
   
    // 전체 선택을 클릭하면 개별 선택에 영향을 미친다.
     function fnChkAll(){
@@ -43,16 +46,17 @@
 	  })
   }
   
-  // 입력란 초기화
-   function fnInit(){
-	  $('#memberNo').val('');
-	  $('#id').val('').prop('disabled', false);
-	  $('#name').val('');
-	  $(':radio[value=none]').prop('checked', true);
-	  $('#address').val('');
-	  $('#btn_register').prop('disabled', false);
-    $('#btn_modify').prop('disabled', true);
-  }
+ // 입력란 초기화
+    function fnInit(){
+  	  $('#memberNo').val('');
+  	  $('#id').val('').prop('disabled', false);
+  	  $('#name').val('');
+  	  $(':radio[value=none]').prop('checked', true);
+  	  $('#address').val('');
+  	  $('#btn_register').prop('disabled', false);
+      $('#btn_modify').prop('disabled', true);
+      $('#btn_remove').prop('disabled', true);
+    }
 
   // 회원 등록
   function fnMemberRegister(){
@@ -146,6 +150,7 @@
       			  $('#address').val(member.address);
       			  $('#btn_register').prop('disabled', true);
       			  $('#btn_modify').prop('disabled', false);
+				  $('#btn_remove').prop('disabled', false);
       			}
 		  }
 		})
@@ -180,9 +185,69 @@
   	  })
   }
   
+  // 회원 정보 삭제
+  function fnRemoveMember(){
+	  $('#btn_remove').click(function(){
+		  if(!confirm('회원 정보를 삭제할까요?')){
+			  return;
+		  }
+		  $.ajax({
+			  // 요청
+			  type: 'delete',
+			  url: '${contextPath}/members/' + $('#memberNo').val(),
+			  // 응답
+			  dataType: 'json',
+			  success: function(resData){
+				  if(resData.removeResult === 1){
+					  alert('회원 정보가 삭제되었습니다.');
+	          page = 1;
+	          fnMemberList();
+	          fnInit();
+				  } else {
+					  alert('회원 정보가 삭제되지 않았습니다.');
+				  }
+			  }
+		  })
+	  })
+  }
   
-  
-  
+	// 회원들의 정보 삭제
+	function fnRemoveMembers(){
+		$('#btn_remove_list').click(function(){
+	     	// 체크된 요소의 value를 배열 arr에 저장하기(push 메소드)   . *push 메소드는 자바스크립트 메소드이다.
+			var arr = [];
+			var chkOne = $('.chk_one');	// 체크된 회원들의 배열이므로 싹 다 긁어온다.
+			$.each(chkOne, function(i, elem){
+				if($(elem).is(':checked')){ 		// if에서 많이 쓰는 건 'is' 이다.  ( $(elem).prop('checked') 방법도 있음 )
+					arr.push($(elem).val());
+	    	    }
+	    	})
+	    	// 체크된 요소가 없으면 삭제 중지
+			  if(arr.length === 0){
+				  alert('선택된 회원 정보가 없습니다. 다시 시도하세요.');
+				  return;
+			  }
+			// 선택된 회원 삭제
+			  $.ajax({
+				  // 요청
+				  type: 'delete',
+				  url: '${contextPath}/members/' + arr.join(','),
+				  // 응답
+				  dataType: 'json',
+				  success: function(resData){
+					  if(resData.removeResult > 0){
+						  alert('선택한 회원 정보들이 삭제되었습니다.');
+					// 1페이지로 돌아와서 초기화하기
+				      page = 1;
+	            fnMemberList();
+	            fnInit();
+					  } else {
+						  alert('선택한 회원 정보들이 삭제되지 않았습니다.');
+					  }
+				  }
+			  })
+		  })
+	  }
   
 </script>
 
@@ -222,13 +287,17 @@
       <button type="button" onclick="fnInit()">초기화</button>   <!--인라인 이벤트 : 클릭하면 fnInit()을 동작시켜 주세요. -->
       <button type="button" id="btn_register">등록</button>
       <button type="button" id="btn_modify">수정</button>      
+      <button type="button" id="btn_remove">삭제</button>      
     </div>
-  </div>
+   </div>
   
   
 
   <hr>
   
+  <div>
+    <button type="button" id="btn_remove_list">선택삭제</button>
+  </div>
   <div>
     <table border="1">
       <thead>

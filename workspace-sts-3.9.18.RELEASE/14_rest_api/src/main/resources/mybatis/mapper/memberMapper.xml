@@ -47,5 +47,23 @@
      WHERE MEMBER_NO = #{memberNo}
   </update>
   
+  <delete id="deleteMember" parameterType="int">
+    DELETE
+      FROM MEMBER_T
+     WHERE MEMBER_NO = #{memberNo}
+  </delete>
+  
+   <delete id="deleteMembers" parameterType="List">
+    DELETE
+      FROM MEMBER_T
+      <!-- WHERE MEMBER_NO IN(4,3) 을 아래 동적 태그로 변환시 ↓   -->
+    <where> <!-- WHERE 구문을 태그로 대체했다. = 동적태그 -->
+      MEMBER_NO   <!-- MEMBER_NO 는 대체가 없어서 그냥 넣었다. -->
+      <foreach collection="list" item="memberNo" open="IN(" close=")" separator=",">  <!-- open : 열 때 . close : 닫을 때 . separator요소 사이에 넣을 것 ',' -->
+        #{memberNo}
+      </foreach>
+    </where>
+  </delete>
+
 
 </mapper>

@@ -10,11 +10,11 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 </head>
 <body>
-
-  <div ia="a">
+<!-- 삼항연산자 사용 가능 -->
+  <div id="a">
     <h1>공지 상세화면</h1>
     <h3>공지번호 : ${notice.noticeNo}</h3>
-    <h3>구분 : ${notice.gubun == 1 ? '긴급' : '일반'}</h3>  <!-- 삼항연산자 사용 가능 -->
+    <h3>구분 : ${notice.gubun == 1 ? '긴급' : '일반'}</h3>
     <h3>제목 : ${notice.title}</h3>
     <h3>내용 : ${notice.content}</h3>
     <!-- 버튼은 아래 값들보다 상단에 있어야 한다. -->
@@ -43,10 +43,10 @@
         // 수정(편집) 기능.
     	// 수정(편집) 할 수 있는 기능을 스크립트로 만들어 보자.
     	// 가진 값을 가져와서 보여줘라.
-    	$('#gubun').val('${notice.gubun}')	// notice 가 가진 gubun값을 바꿔라.
-    	$('#title').val('${notice.title}')	// notice 가 가진 title값을 바꿔라.
-    	$('#content').val('${notice.content}')	// notice 가 가진 content값을 바꿔라.
-    	$('#noticeNo').val('${notice.noticeNo}')	// notice 가 가진 noticeNo 값을 바꿔라.
+    	$('#gubun').val('${notice.gubun}');	// notice 가 가진 gubun값을 바꿔라.
+    	$('#title').val('${notice.title}');	// notice 가 가진 title값을 바꿔라.
+    	$('#content').val('${notice.content}');	// notice 가 가진 content값을 바꿔라.
+    	 $('#noticeNo').val('${notice.noticeNo}');	// notice 가 가진 noticeNo 값을 바꿔라.
     </script>
    </div>
    
@@ -59,24 +59,24 @@
    	
    	// 편집하러가기 클릭 (클릭시 반대로 바꿈)
    	$('#btn_edit').click(function(){
-   		$('#a').hide();
-   		$('#b').show();
-   	})
+    	$('#a').hide();
+    	$('#b').show();
+    })
    	
    	// 뒤로가기 클릭 ( a를 다시 보여주고 b를 숨긴다.)
-   	$('#btn_back').click(function(){
-   		$('#a').show(); 
-   	   	$('#b').hide();
-   	})
+    $('#btn_back').click(function(){
+        $('#a').show();
+        $('#b').hide();
+      })
    	
-   	var modifyResult = '${modifyResult}';	// ''. '1', '0'
-   	if(modifyResult !== ''){
-   		if(modifyResult === '1'){
-   			alert('공지사항이 수정되었습니다.');
-   		} else {
-   			alert('공지사항이 수정되지 않았습니다.');
-   		}
-   	}
+   var modifyResult = '${modifyResult}';  // '', '1', '0'
+    if(modifyResult !== ''){
+    	if(modifyResult === '1'){
+    		alert('공지사항이 수정되었습니다.');
+    	} else {
+    		alert('공지사항이 수정되지 않았습니다.');
+    	}
+    }
    	
    </script>
   

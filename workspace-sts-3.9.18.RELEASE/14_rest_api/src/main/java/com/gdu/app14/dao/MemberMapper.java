@@ -25,8 +25,10 @@ public interface MemberMapper {
   // 회원 정보 수정
   public int updateMember(MemberDto memberDto);
   
-  
-  
-  
-  
-}
+  // 회원 정보 삭제
+  public int deleteMember(int memberNo);
+   
+  // 회원들 정보 삭제
+  public int deleteMembers(List<String> list);
+   
+  }

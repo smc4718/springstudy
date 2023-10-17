@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
  *  2) 상세 /members/1  GET      : members 중 memberNo가 1인 회원을 가져오시오.
  *  3) 삽입 /members    POST     : 1)번과 같으나 Method 가 달라지니 동작이 달라진다.
  *  4) 수정 /members    PUT
- *  5) 삭제 /members/1  DELETE   : 누구를 삭제할지 알아야하니까 members 이다.(members중 memberNo가 1인 회원을 삭제하시오.)
+ *  5) 삭제 /member/1  DELETE   : /members/4, 3, 2      누구를 삭제할지 알아야하니까 members 이다.(members중 memberNo가 1인 회원을 삭제하시오.)
  */
 
 
@@ -70,10 +70,18 @@ public class MemberController {
     return memberService.modifyMember(memberDto);
   }
   
+  //회원 정보 삭제 요청
+  @RequestMapping(value="/member/{memberNo}", method=RequestMethod.DELETE, produces="application/json")
+  public Map<String, Object> removeMember(@PathVariable(value="memberNo") int memberNo) {
+    return memberService.removeMember(memberNo);
+  }
   
-  
-  
-  
+  // 회원들 정보 삭제 요청
+  @RequestMapping(value="/members/{memberNoList}", method=RequestMethod.DELETE, produces="application/json")
+  public Map<String, Object> removeMembers(@PathVariable(value="memberNoList") String memberNoList) {
+    System.out.println(memberNoList);
+    return memberService.removeMembers(memberNoList);
+  }
   
 //인덱스에서 컨트롤러로 전달하는 부분을 공부해라.
   

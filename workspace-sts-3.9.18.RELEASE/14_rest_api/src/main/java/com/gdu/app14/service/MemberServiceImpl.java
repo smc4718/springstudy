@@ -1,5 +1,7 @@
 package com.gdu.app14.service;
 
+import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.gdu.app14.dao.MemberMapper;
@@ -29,12 +32,26 @@ public class MemberServiceImpl implements MemberService {
     Map<String, Object> map = null;
     
     try {
+
+      int addResult = memberMapper.insertMember(memberDto);
+      map = Map.of("addResult", addResult);
+    
+    } catch(DuplicateKeyException e) {  // UNIQUE 칼럼에 중복 값이 전달된 경우에 발생함
+                                        // $.ajax({})의 error 속성으로 응답됨
+      try {
+        response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
+        response.setStatus(500);                   // 예외객체 jqXHR의 status 속성으로 확인함
+        out.print("이미 사용 중인 아이디입니다."); // 예외객체 jqXHR의 responseText 속성으로 확인함
+        out.flush();
+        out.close();
+        
+      } catch(Exception e2) {
+        e2.printStackTrace();
+      }
       
-      int addResult = memberMapper.insertMember(memberDto); // insertMember를 호출하고 호출할 때 회원정보가 담김 memberDto를 불러옴.
-      map = Map.of("addResult", addResult); // 그리고 결과를 0 아니면 1로 받아와 그리고 그 결과를 다시 알려줘.
-      
-    } catch (Exception e) {
-      System.out.println(e.getClass().getName()); // 발생한 예외 클래스의 이름 확인
+    } catch(Exception e) {
+      System.out.println(e.getClass().getName());  // 발생한 예외 클래스의 이름 확인
     }
     
     return map;
@@ -68,6 +85,7 @@ public class MemberServiceImpl implements MemberService {
     return map;
   }
   
+  //회원 정보 수정
   @Override
   public Map<String, Object> modifyMember(MemberDto memberDto) {
     int modifyResult = memberMapper.updateMember(memberDto);  // Controller 로부터 받아온 수정할 정보.
@@ -76,6 +94,17 @@ public class MemberServiceImpl implements MemberService {
   }
   
   
+  // 회원 정보 삭제
+  @Override
+  public Map<String, Object> removeMember(int memberNo) {
+    return Map.of("removeResult", memberMapper.deleteMember(memberNo));
+  }
   
+  // 회원들 정보 삭제
+  @Override
+  public Map<String, Object> removeMembers(String memberNoList) {
+    List<String> list = Arrays.asList(memberNoList.split(","));   //List로 바꿔주는 Arrays.asList(). split의 결과는 String. 삭제할 번호가 담겨져 있는 리스트.
+    return Map.of("removeResult", memberMapper.deleteMembers(list));
+  }
   
 }
