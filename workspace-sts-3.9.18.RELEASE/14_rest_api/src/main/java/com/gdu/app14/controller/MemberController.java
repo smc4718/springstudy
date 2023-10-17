@@ -56,4 +56,25 @@ public class MemberController {
     return memberService.getMembers(page);  // Service에 page 를 전달해줘야 한다.
   }
   
+  // 회원 조회 요청
+  @RequestMapping(value="/members/{mNo}", method=RequestMethod.GET, produces="application/json")  // {}앞에 $ or # 이 안들어가는 것에 주의.
+  public Map<String, Object> getMember(@PathVariable(value="mNo") int memberNo) {  //
+    return memberService.getMember(memberNo);
+  }
+  
+  
+  // 회원 정보 수정 요청
+        // 반환타입 Map.
+  @RequestMapping(value="/members", method=RequestMethod.PUT, produces="application/json")
+  public Map<String, Object> modifyMember(@RequestBody MemberDto memberDto) {
+    return memberService.modifyMember(memberDto);
+  }
+  
+  
+  
+  
+  
+  
+//인덱스에서 컨트롤러로 전달하는 부분을 공부해라.
+  
 }

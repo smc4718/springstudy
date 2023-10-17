@@ -16,3 +16,5 @@ public interface NoticeMapper {
                                    // 이렇게 하면 매퍼가 연결됨.
                                    // 게시판 구현이니까 Service가 Mapper를 이용해서 DB를 가는 거지, DB를 안 가서 안 쓸 수도 있다. 1:1 매칭이 아님.
 } 
+
+// 추가하는 메소드의 이름들은 memberMapper.xml의 해당하는 id 와 같게 작성 한다. 

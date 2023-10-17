@@ -7,33 +7,52 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<style>
+  #paging a {
+    margin: 10px;
+  }
+</style>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
 
-  $(function(){
-  	  fnChkAll();
-  	  fnChkOne();
-  	  fnMemberRegister();
-  	  fnMemberList();
-  })
+    $(function(){
+    	  fnChkAll();
+    	  fnChkOne();
+    	  fnInit();
+    	  fnMemberRegister();
+    	  fnMemberList();
+    	  fnMemberDetail();
+    	  fnMemberModify();
+    })
   
    // 전체 선택을 클릭하면 개별 선택에 영향을 미친다.
     function fnChkAll(){
-  	  $('#chk_all').click(function(){
-  		  $('.chk_one').prop('checked', $(this).prop('checked'));
-  	  })
-    }
+	  $('#chk_all').click(function(){
+		  $('.chk_one').prop('checked', $(this).prop('checked'));
+	  })
+  }
   
   //개별 선택을 클릭하면 전체 선택에 영향을 미친다.
     function fnChkOne(){
-  	  $(document).on('click', '.chk_one', function(){
-  		  var total = 0;
-  		  $.each($('.chk_one'), function(i, elem){
-  			  total += $(elem).prop('checked');
-  		  })
-  		  $('#chk_all').prop('checked', total === $('.chk_one').length);
-  	  })
-    }
+	  $(document).on('click', '.chk_one', function(){
+		  var total = 0;
+		  $.each($('.chk_one'), function(i, elem){
+			  total += $(elem).prop('checked');
+		  })
+		  $('#chk_all').prop('checked', total === $('.chk_one').length);
+	  })
+  }
+  
+  // 입력란 초기화
+   function fnInit(){
+	  $('#memberNo').val('');
+	  $('#id').val('').prop('disabled', false);
+	  $('#name').val('');
+	  $(':radio[value=none]').prop('checked', true);
+	  $('#address').val('');
+	  $('#btn_register').prop('disabled', false);
+    $('#btn_modify').prop('disabled', true);
+  }
 
   // 회원 등록
   function fnMemberRegister(){
@@ -51,56 +70,126 @@
         }),
         // 응답
         dataType: 'json',
-        success: function(resData){
-          console.log(resData);
-        }
-      })
-    })
-  }
+        success: function(resData){ // resData === {"addResult": 1}
+      	if(resData.addResult === 1){
+        	  alert('회원 정보가 등록되었습니다.');
+        	  page = 1;
+        	  fnMemberList();
+        	  fnInit();
+          } else {
+        	  alert('회원 정보가 등록되지 않았습니다.');
+          }
+        },
+        error: function(jqXHR){
+        	alert(jqXHR.responseText + '(예외코드 ' + jqXHR.status + ')');
+          }
+        })
+  	  })
+    }
   
   // 전역변수 (모든 함수에서 사용할 수 있는 변수)
   var page = 1;
   
   // 회원 목록
   function fnMemberList(){
-    $.ajax({
-      // 요청
-      type: 'get',
-      url: '${contextPath}/members/page/' + page, // 첫 실행에서 숫자 1을 보낸다.
-      // 응답
-      dataType: 'json',
-      success: function(resData){
-        // 회원 목록을 테이블로 만들기
-        $('#member_list').empty();
-        $.each(resData.memberList, function(i, member){
-          var tr = '<tr>';
-          tr += '<td><input type="checkbox" class="chk_one" value="'+member.memberNo+'"></td>';
-          tr += '<td>'+member.id+'</td>';
-          tr += '<td>'+member.name+'</td>';
-          tr += '<td>'+member.gender+'</td>';
-          tr += '<td>'+member.address+'</td>';
-          tr += '<td><button type="button" class="btn_detail" data-member_no="'+member.memberNo+'">조회</button></td>';
-          tr += '</tr>';
-          $('#member_list').append(tr);
+        $.ajax({
+          // 요청
+          type: 'get',
+          url: '${contextPath}/members/page/' + page, // 첫 실행에서 숫자 1을 보낸다.
+          // 응답
+          dataType: 'json',
+          success: function(resData){
+            // 회원 목록을 테이블로 만들기
+            $('#member_list').empty();
+            $.each(resData.memberList, function(i, member){
+              var tr = '<tr>';
+              tr += '<td><input type="checkbox" class="chk_one" value="'+member.memberNo+'"></td>';
+              tr += '<td>'+member.id+'</td>';
+              tr += '<td>'+member.name+'</td>';
+              tr += '<td>'+member.gender+'</td>';
+              tr += '<td>'+member.address+'</td>';
+              tr += '<td><button type="button" class="btn_detail" data-member_no="'+member.memberNo+'">조회</button></td>';
+              tr += '</tr>';	     				// ( ↑ 각 회원 조회 버튼을 누르면 해당 회원의 member_no 를 가져온다.) 클릭한 버튼디테일에 data 속성에 값이 들어있다.
+              $('#member_list').append(tr);
+            })
+            // 페이징
+            $('#paging').html(resData.paging);
+          }
         })
-        // 페이징
-        $('#paging').html(resData.paging);
-      }
-    })
   }
   
   // 페이지를 바꿀때마다 호출되는 fnAjaxPaging 함수
   function fnAjaxPaging(p){
-    page = p;        // 페이지 번호를 바꾼다.
-    fnMemberList();  // 새로운 목록을 가져온다.
+        page = p;        // 페이지 번호를 바꾼다.
+        fnMemberList();  // 새로운 목록을 가져온다.
+  }
+  
+  // 회원 정보 상세 조회하기
+  function fnMemberDetail(){
+	  $(document).on('click', '.btn_detail', function(){	// 이벤트는 다 document 방식으로 하면 다 된다.
+		$.ajax({
+		  // 요청
+		  type: 'get',
+		  url: '${contextPath}/members/' + $(this).data('member_no'),
+		  // 응답
+		  dataType: 'json',
+		  success: function(resData){
+			     console.log(resData);
+      			var member = resData.member;
+      			if(!member){
+      			  alert('회원 정보를 조회할 수 없습니다.');
+      			} else {
+      			  $('#memberNo').val(member.memberNo); 	// hidden으로 숨어 있지만 번호는 채워진다.
+      			  $('#id').val(member.id).prop('disabled', true);
+      			  $('#name').val(member.name);
+      			  $(':radio[value=' + member.gender + ']').prop('checked', true);	// value 가 해당 성별인 radio 칸에 체크할 것.
+      			  $('#address').val(member.address);
+      			  $('#btn_register').prop('disabled', true);
+      			  $('#btn_modify').prop('disabled', false);
+      			}
+		  }
+		})
+	  });
   }
 
+  // 회원 정보 수정하기	(rest api에서 수정의 타입은 put 이다.)
+  function fnMemberModify(){
+	  $('#btn_modify').click(function(){
+		  $.ajax({
+		  	// 요청
+		  	type: 'put',
+		  	url: '${contextPath}/members',
+		  	contentType: 'application/json',	// ← 자바 측에서 Controller가 json을 인식하는 방법.
+		  	data: JSON.stringify({
+		  	 memberNo: $('#memberNo').val(),
+		  	 name: $('#name').val(),
+		  	 gender: $(':radio:checked').val(),
+		  	 address: $('#address').val()
+		  	}),
+		  	// 응답
+		  	dataType: 'json',
+		  	success: function(resData){
+		  	  if(resData.modifyResult === 1){
+    		  		 alert('회원 정보가 수정되었습니다.');
+    		  		fnMemberList(); // 회원 수정 후에 현재 페이지에 그대로 목록만 갱신해서 나타낸다.
+		  	  } else {
+		  			 alert('회원 정보가 수정되지 않았습니다.');
+  			  }
+  			  }
+  		  })
+  	  })
+  }
+  
+  
+  
+  
+  
 </script>
 
 </head>
 <body>
 
-  <div>
+    <div>
     <h1>회원 관리하기</h1>
     <div>
       <label for="id">아이디</label>
@@ -111,7 +200,9 @@
       <input type="text" id="name">
     </div>
     <div>
-      <input type="radio" id="man" name="gender" value="man" checked>
+      <input type="radio" id="none" name="gender" value="none" checked>
+      <label for="none">선택안함</label>
+      <input type="radio" id="man" name="gender" value="man">
       <label for="man">남자</label>
       <input type="radio" id="woman" name="gender" value="woman">
       <label for="woman">여자</label>
@@ -119,17 +210,22 @@
     <div>
       <label for="address">주소</label>
       <select id="address">
+        <option value="">:::선택:::</option>
         <option>서울</option>
         <option>경기</option>
         <option>인천</option>
       </select>
     </div>
+    <input type="hidden" id="memberNo">
+    </div>
     <div>
-      <button type="button" onclick="fnInit()">초기화</button>   <!--인라인 이벤트 : 클릭하면 fnInit()를 동작시켜 주세요. -->
+      <button type="button" onclick="fnInit()">초기화</button>   <!--인라인 이벤트 : 클릭하면 fnInit()을 동작시켜 주세요. -->
       <button type="button" id="btn_register">등록</button>
       <button type="button" id="btn_modify">수정</button>      
     </div>
   </div>
+  
+  
 
   <hr>
   

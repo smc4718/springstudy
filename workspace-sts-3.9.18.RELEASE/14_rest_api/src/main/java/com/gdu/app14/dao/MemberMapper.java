@@ -18,4 +18,15 @@ public interface MemberMapper {
   
   // 전체 개수
   public int getMemberCount();
+  
+  // 회원 조회
+  public MemberDto getMember(int memberNo);  // 메소드의 이름들은 memberMapper.xml의 id 와 같게 작성 한다. 
+
+  // 회원 정보 수정
+  public int updateMember(MemberDto memberDto);
+  
+  
+  
+  
+  
 }

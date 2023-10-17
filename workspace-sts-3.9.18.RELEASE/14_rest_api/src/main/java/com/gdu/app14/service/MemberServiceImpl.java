@@ -1,5 +1,6 @@
 package com.gdu.app14.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,23 @@ public class MemberServiceImpl implements MemberService {
     return Map.of("memberList", memberList
                     , "paging", paging);  // 받아온 값인 memberList 를 반환해준다. 
   }
+  
+  // 회원 조회
+  @Override          
+  public Map<String, Object> getMember(int memberNo) {  // Controller로부터 받아온 memberNo를 (int memberNo에 저장)
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put("member", memberMapper.getMember(memberNo));  // 저장한 memberNo를 매퍼에 넣어서 반환.
+    return map;
+  }
+  
+  @Override
+  public Map<String, Object> modifyMember(MemberDto memberDto) {
+    int modifyResult = memberMapper.updateMember(memberDto);  // Controller 로부터 받아온 수정할 정보.
+    
+    return Map.of("modifyResult", modifyResult);
+  }
+  
+  
   
   
 }
