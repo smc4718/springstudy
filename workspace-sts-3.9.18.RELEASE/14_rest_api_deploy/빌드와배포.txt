@@ -12,3 +12,12 @@
          </finalName>${artifactId}</finalName>
     (3) 빌드 파일 생성 경로
         프로젝트\target
+
+3. 배포
+  1) 톰캣이 꺼져있는지(OFF) 확인한다.
+  2) CATALINA_HOME\webapps 디렉터리에 빌드된 파일(war 또는 jar)를 가져다둔다.
+  3) 톰캣을 켠다.(ON)
+      - CATALINA_HOME\bin\startup.bat : Windows 서버
+       - CATALINA_HOME\bin\startup.sh : Linux 서버
+   4) 웹 브라우저를 열고 확인한다.
+    http://localhost:8080/빌드파일명
