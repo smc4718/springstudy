@@ -20,6 +20,15 @@
 		   alert('공지사항이 등록되지 않았습니다.');
 	   }
 	}
+	
+	var deleteResult = '${deleteResult}';
+	if(deleteResult !== ''){
+		if(deleteResult === '1'){
+			alert('공지가 삭제되었습니다.');
+		} else {
+			alert('공지 삭제가 실패했습니다.');
+		}
+	}
 
 </script>
 </head>

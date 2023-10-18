@@ -37,4 +37,9 @@ public class NoticeServiceImpl implements NoticeService {
     return noticeMapper.getNoticeList();  // Service에서 받아온 목록을 그대로 되돌려 준다.
   }
   
+  @Override
+  public int deleteNotice(int noticeNo) {
+   return noticeMapper.deleteNotice(noticeNo);
+  }
+  
 }

@@ -35,15 +35,30 @@
       , #{title}
       , #{content}
     )
-    
   </insert>
-  
-  
+    
   <!-- 목록 쿼리문 -->
   <select id="getNoticeList" resultType="NoticeDto">
     SELECT NOTICE_NO, GUBUN, TITLE, CONTENT
       FROM NOTICE_T
      ORDER BY NOTICE_NO DESC
   </select>
+
+  <!-- 삭제 쿼리문 -->
+  <delete id="deleteNotice" parameterType="int" >
+    DELETE
+      FROM NOTICE_T
+     WHERE MEMBER_NO = #{memberNo}
+  </delete>
   
 </mapper>
+
+
+
+
+
+
+
+
+
+
