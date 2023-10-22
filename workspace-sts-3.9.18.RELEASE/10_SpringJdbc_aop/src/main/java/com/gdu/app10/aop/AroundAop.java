@@ -24,13 +24,6 @@ public class AroundAop {
   @Around("setPointCut()")
   public Object aroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
     
-    /*
-     * Around 어드바이스
-     * 1. 반환타입 : Object
-     * 2. 메소드명 : 마음대로
-     * 3. 매개변수 : ProceedingJoinPoint
-     */
-    
     log.info("==================================================================");      // 포인트컷 실행 이전에 실행(@Before 이전에 동작)
     
     Object obj = proceedingJoinPoint.proceed();                                          // 포인트컷이 실행되는 시점

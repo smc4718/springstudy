@@ -40,38 +40,40 @@ import com.gdu.app09.dto.ContactDto;
  *    2) @Bean       : @ContextConfiguration(classes=Appconfig.class)
  *   3) @Component   : @ContextConfiguration(locations="file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml");
  */
-// JUnit4를 이용한다.
+//JUnit4를 이용한다.
 @RunWith(SpringJUnit4ClassRunner.class)
 
-// ContactDao Bean 생성 방법을 알려준다.
+//ContactDao Bean 생성 방법을 알려준다.
 @ContextConfiguration(locations="file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml")
 
-// 테스트 메소드의 이름 오름차순(알파벳순)으로 테스트를 수행한다.
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)     // @FixMethodOrder(MethodSorters.NAME_ASCENDING) : 메소드 순서 고정(메소드이름순으로 오름차순)
+//테스트 메소드의 이름 오름차순(알파벳순)으로 테스트를 수행한다.
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+
 public class ContactUnitTest {
 
-  @Autowired  // Spring Container ContactDao 객체(Bean)를 가져온다.
-  private ContactDao contactDao;
-  
-  @Test   // 테스트를 수행한다.
-  public void test01_삽입테스트() {
-    ContactDto contactDto = new ContactDto(0, "이름", "연락처", "이메일", "주소", "");
-    int insertResult = contactDao.insert(contactDto);
-    assertEquals(1, insertResult);   // assertEquals(기대한 값, 실제나온값) : 기대값과 실제 나온 값이 같으면 테스트 성공이다.
-  }
+@Autowired  // Spring Container에서 ContactDao 객체(Bean)를 가져온다.
+private ContactDao contactDao;
 
-  @Test // 테스트를 수행한다.
-  public void test02_조회테스트() {
-    int contact_no = 1;
-    ContactDto contactDto = contactDao.selectContactByNo(contact_no);
-    assertNotNull(contactDto);  // contactDto가 not null이면 테스트 성공이다.
-  }
-  
-  @Test // 테스트를 수행한다.
-  public void test03_삭제테스트() {
-    int contact_no = 1;
-    int deleteResult = contactDao.delete(contact_no);
-    assertEquals(1, deleteResult);  // insertResult가 1이면 테스트 성공이다.
-  //  assertNull(contactDao.selectContactByNo(contact_no));  = select 결과가 null이면 테스트 성공.
-  }
+@Test  // 테스트를 수행한다.
+public void test01_삽입테스트() {
+ ContactDto contactDto = new ContactDto(0, "이름", "연락처", "이메일", "주소", "");
+ int insertResult = contactDao.insert(contactDto);
+ assertEquals(1, insertResult);  // insertResult가 1이면 테스트 성공이다.
+}
+
+@Test  // 테스트를 수행한다.
+public void test02_조회테스트() {
+ int contact_no = 1;
+ ContactDto contactDto = contactDao.selectContactByNo(contact_no);
+ assertNotNull(contactDto);  // contactDto가 not null이면 테스트 성공이다.
+}
+
+@Test  // 테스트를 수행한다.
+public void test03_삭제테스트() {
+ int contact_no = 1;
+ int deleteResult = contactDao.delete(contact_no);
+ assertEquals(1, deleteResult);  // deleteResult가 1이면 테스트 성공이다.
+ // assertNull(contactDao.selectContactByNo(contact_no));  select 결과가 null이면 테스트 성공이다.
+}
+
 }
