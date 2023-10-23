@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gdu.myhome.dao.UserMapper;
 import com.gdu.myhome.dto.UserDto;
@@ -18,6 +19,7 @@ import com.gdu.myhome.util.MySecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
+@Transactional(readOnly=true)  // ★중요 : DB 수정이 없는 메소드는 readOnly 한다. (성능 향상을 위하여 쓴다.)
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
@@ -132,7 +134,7 @@ public class UserServiceImpl implements UserService {
                     .agree(event.equals("on") ? 1 : 0) // on이면 1, 아니면 0.
                     .build();
     
-    int joinResult = userMapper.insertUser(user);
+    int joinResult = userMapper.insertUser(user); // 사용자가 입력한 정보만 가지고 있는 user. 3개 정보가 포함되어 있지 않다(userNo , pwModifiedAt joinedAt) 
     
     try {
       
@@ -140,9 +142,9 @@ public class UserServiceImpl implements UserService {
       PrintWriter out = response.getWriter();
       out.println("<script");
       if(joinResult == 1) {
-        out.println("alert('회원 가입되었습니다.')");
-        request.getSession().setAttribute("user", user); // 올릴 때 이름은 "user", 회원가입할 때 정보가 담겨져 있는 user .
+        request.getSession().setAttribute("user", userMapper.getUser(Map.of("email", email))); // 올릴 때 이름은 "user", 회원가입할 때 정보가 담겨져 있는 user .
         userMapper.insertAccess(email);
+        out.println("alert('회원 가입되었습니다.')");
         out.println("location.href='"+request.getContextPath()+"/main.do'"); 
       } else {
         out.println("alert('회원 가입이 실패했습니다.')");

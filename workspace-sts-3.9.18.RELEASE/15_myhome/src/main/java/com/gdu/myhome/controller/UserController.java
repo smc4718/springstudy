@@ -73,6 +73,11 @@ public class UserController {
     return userService.sendCode(email);
   }
   
+  @PostMapping("/join.do")
+  public void join(HttpServletRequest request, HttpServletResponse response) {
+    userService.join(request, response);
+  }
+  
   
   
   
