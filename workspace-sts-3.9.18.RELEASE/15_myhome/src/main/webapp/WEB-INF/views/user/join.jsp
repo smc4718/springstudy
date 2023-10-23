@@ -36,6 +36,7 @@
       <input type="password" name="pw" id="pw">
       <span id="msg_pw"></span>
     </div>
+    
     <div>
       <label for="pw2">비밀번호 확인</label>
       <input type="password" id="pw2">
@@ -64,10 +65,10 @@
     </div>
     
     <div>    
-      <input type="text" name="postcode" id="postcode" placeholder="우편번호">
+      <input type="text" name="postcode" id="postcode" onclick="execDaumPostcode()" placeholder="우편번호" readonly>
       <input type="button" onclick="execDaumPostcode()" value="우편번호 찾기"><br>
-      <input type="text" name="roadAddress" id="roadAddress" placeholder="도로명주소">
-      <input type="text" name="jibunAddress" id="jibunAddress" placeholder="지번주소">
+      <input type="text" name="roadAddress" id="roadAddress" placeholder="도로명주소" readonly>
+      <input type="text" name="jibunAddress" id="jibunAddress" placeholder="지번주소" readonly>
       <span id="guide" style="color:#999;display:none"></span>
       <input type="text" name="detailAddress" id="detailAddress" placeholder="상세주소">
       <input type="text" id="extraAddress" placeholder="참고항목">

@@ -4,7 +4,7 @@
 </div>
 
   <div class="footer_wrap">
-    Copyright 민경태
+    Copyright 박영진
   </div>
 
 </body>

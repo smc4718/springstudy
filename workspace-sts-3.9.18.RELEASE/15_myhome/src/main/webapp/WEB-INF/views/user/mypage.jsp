@@ -10,38 +10,17 @@
   <jsp:param value="마이페이지" name="title"/>
 </jsp:include>
 
-<script>
-
- $(() => {
-   fnModifyUser();
- })
- 
- const fnModifyUser = () => {
-   $.ajax({
-	   // 요청
-   	   type: 'post',
-   	   url: '${contextPath}/user/modify.do',
-   	   data: $('#frm_mypage').serialize(),
-	   
-	   // 응답
-	   dataType: 'json',
-	   success: (resData) => {	// {"modifyResult": 1}
-	   	 if(resData.modifyResult === 1){
-	   		 alert('회원 정보가 수정되었습니다.');
-	   	 } else {
-	   		 alert('회원 정보가 수정되지 않았습니다.');
-	   	 }
-	   }
-   })
- }
-
-</script>
+<script src="${contextPath}/resources/js/user_modify.js?dt=${dt}"></script>
 
 <div>
 
-  <form id="frm_mypage" method="post" action="${contextPath}/user/join.do">
+  <form id="frm_mypage" method="post">
     
     <h1>마이페이지</h1>
+    
+    <div>
+      <button type="button" id="btn_modify_pw">비밀번호변경</button>
+    </div>
     
     <div>이메일 : ${sessionScope.user.email}</div>
     <div>가입일 : ${sessionScope.user.joinedAt}</div>
@@ -66,17 +45,17 @@
     
     <div>
       <label for="mobile">휴대전화번호</label>
-      <input type="text" name="mobile" id="mobile">
+      <input type="text" name="mobile" id="mobile" value="${sessionScope.user.mobile}">
       <span id="msg_mobile"></span>
     </div>
     
     <div>    
-      <input type="text" name="postcode" id="postcode" placeholder="우편번호" readonly value="${sessionScope.user.postcode}">
+      <input type="text" name="postcode" id="postcode" onclick="execDaumPostcode()" placeholder="우편번호" readonly value="${sessionScope.user.postcode}">
       <input type="button" onclick="execDaumPostcode()" value="우편번호 찾기"><br>
       <input type="text" name="roadAddress" id="roadAddress" placeholder="도로명주소" readonly value="${sessionScope.user.roadAddress}">
       <input type="text" name="jibunAddress" id="jibunAddress" placeholder="지번주소" readonly value="${sessionScope.user.jibunAddress}">
       <span id="guide" style="color:#999;display:none"></span>
-      <input type="text" name="detailAddress" id="detailAddress" placeholder="상세주소" readonly value="${sessionScope.user.detailAddress}">
+      <input type="text" name="detailAddress" id="detailAddress" placeholder="상세주소" value="${sessionScope.user.detailAddress}">
       <input type="text" id="extraAddress" placeholder="참고항목">
     </div>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -139,19 +118,20 @@
     
     <div>
       <div>이벤트 알림 동의(선택)</div>
-      <input type="radio" name="event" id="event_on"><label for="event_on">동의함</label>
-      <input type="radio" name="event" id="event_off"><label for="event_off">동의안함</label>
+      <input type="radio" name="event" id="event_on" value="on"><label for="event_on">동의함</label>
+      <input type="radio" name="event" id="event_off" value="off"><label for="event_off">동의안함</label>      
     </div>
     <script>
       if('${sessionScope.user.agree}' === '0'){
-    	$('event_off').prop('checked', true);
+        $('#event_off').prop('checked', true);
       } else if('${sessionScope.user.agree}' === '1'){
-      	$('event_on').prop('checked', true);
+        $('#event_on').prop('checked', true);
+      }
     </script>
     
     <div>
-      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}"> <!-- 세션에 있는 user에서 userNo를 꺼내시오. -->
-      <button type="button" id="btn_modify_info">개인정보수정</button>
+      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">
+      <button type="button" id="btn_modify">개인정보수정</button>
       <button type="button" id="btn_leave">회원탈퇴</button>
     </div>
     
