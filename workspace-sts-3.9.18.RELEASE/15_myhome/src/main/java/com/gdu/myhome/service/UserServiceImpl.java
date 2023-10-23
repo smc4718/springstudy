@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     UserDto user = userMapper.getUser(map);
     
     if(user != null) {
-      request.getSession().setAttribute("user", user);
+      request.getSession().setAttribute("user", user);  // 세션에 남기기
       userMapper.insertAccess(email);
       try {
         response.sendRedirect(request.getParameter("referer"));
@@ -102,6 +102,62 @@ public class UserServiceImpl implements UserService {
                                , "<div>인증코드는 <strong>" + code + "</strong>입니다.</div>");
     
     return new ResponseEntity<>(Map.of("code", code), HttpStatus.OK);
+    
+  }
+  
+  @Override
+  public void join(HttpServletRequest request, HttpServletResponse response) {
+   
+    String email = request.getParameter("email");
+    String pw = mySecurityUtils.getSHA256(request.getParameter("pw")); // <- 암호화시키기
+    String name = mySecurityUtils.preventXSS(request.getParameter("name"));
+    String gender = request.getParameter("gender");
+    String mobile = request.getParameter("mobile");
+    String postcode = request.getParameter("postcode");
+    String roadAddress = request.getParameter("roadAddress");
+    String jibunAddress = request.getParameter("jibunAddress");
+    String detailAddress = mySecurityUtils.preventXSS(request.getParameter("detailAddress"));
+    String event = request.getParameter("event");
+    
+    UserDto user = UserDto.builder()
+                    .email(email)
+                    .pw(pw)
+                    .name(name)
+                    .gender(gender)
+                    .mobile(mobile)
+                    .postcode(postcode)
+                    .roadAddress(roadAddress)
+                    .jibunAddress(jibunAddress)
+                    .detailAddress(detailAddress)
+                    .agree(event.equals("on") ? 1 : 0) // on이면 1, 아니면 0.
+                    .build();
+    
+    int joinResult = userMapper.insertUser(user);
+    
+    try {
+      
+      response.setContentType("text/html; charset=UTF-8");
+      PrintWriter out = response.getWriter();
+      out.println("<script");
+      if(joinResult == 1) {
+        out.println("alert('회원 가입되었습니다.')");
+        request.getSession().setAttribute("user", user); // 올릴 때 이름은 "user", 회원가입할 때 정보가 담겨져 있는 user .
+        userMapper.insertAccess(email);
+        out.println("location.href='"+request.getContextPath()+"/main.do'"); 
+      } else {
+        out.println("alert('회원 가입이 실패했습니다.')");
+        out.println("history.go(-2)");  // 약관 동의 페이지로 돌려 보내는 코드.
+      }
+      out.println("</script>");
+      out.flush();
+      out.close();
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    
+    
     
   }
   
