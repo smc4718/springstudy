@@ -36,7 +36,37 @@
      WHERE EMAIL = #{email}
   </select>
 
-  
+  <insert id="insertUser" parameterType="UserDto">
+    INSERT INTO USER_T (
+        USER_NO
+      , EMAIL
+      , PW
+      , NAME
+      , GENDER
+      , MOBILE
+      , POSTCODE
+      , ROAD_ADDRESS
+      , JIBUN_ADDRESS
+      , DETAIL_ADDRESS
+      , AGREE
+      , PW_MODIFIED_AT
+      , JOINED_AT
+    ) VALUES (
+        USER_SEQ.NEXTVAL
+      , #{email}
+      , #{pw}
+      , #{name}
+      , #{gender}
+      , #{mobile}
+      , #{postcode}
+      , #{roadAddress}
+      , #{jibunAddress}
+      , #{detailAddress}
+      , #{agree}
+      , SYSDATE
+      , SYSDATE
+    )  
+  </insert>
   
   
   
