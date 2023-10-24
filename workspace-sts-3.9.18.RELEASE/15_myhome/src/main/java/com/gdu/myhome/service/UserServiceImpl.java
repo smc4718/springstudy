@@ -317,4 +317,45 @@ public class UserServiceImpl implements UserService {
     
   }
   
+  @Override
+  public void active(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+   
+    // inactiveUser 란 이름으로 저장된 정보를 꺼내라.
+    InactiveUserDto inactiveUser = (InactiveUserDto)session.getAttribute("");
+    String email = inactiveUser.getEmail(); // 이메일 정보를 꺼내서 email 에 저장.
+    
+    int insertActiveUserResult = userMapper.insertActiveUser(email);
+    int deleteInactiveUserResult = userMapper.deleteInactiveUser(email);
+    
+    try {
+      response.setContentType("text/html; charset=UTF-8");
+      PrintWriter out = response.getWriter();
+      out.println("<script>");
+      if(insertActiveUserResult == 1 && deleteInactiveUserResult == 1) {
+        out.println("alert('휴면계정이 복구되었습니다. 계정활성화를 위해서 곧바로 로그인 해 주세요.')");
+        out.println("location.href='"+ request.getContextPath()+"/main.do'"); // 로그인 페이지로 보내면 로그인 후 다시 휴면 계정 복구 페이지로 돌아오므로 main으로 이동한다.
+      } else {
+        out.println("alert('휴면계정이 복구가 실패했습니다. 다시 시도하세요.')");
+        out.println("history.back()");
+      }
+      out.println("</script>");
+      out.flush();
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }

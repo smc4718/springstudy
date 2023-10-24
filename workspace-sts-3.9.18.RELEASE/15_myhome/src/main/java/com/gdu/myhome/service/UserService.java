@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.http.ResponseEntity;
 
@@ -17,5 +18,6 @@ public interface UserService {
   public void modifyPw(HttpServletRequest request, HttpServletResponse response);
   public void leave(HttpServletRequest request, HttpServletResponse response);
   public void inactiveUserBatch();
+  public void active(HttpSession session, HttpServletRequest request, HttpServletResponse response);
   
 }
