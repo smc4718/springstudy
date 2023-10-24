@@ -130,28 +130,18 @@
                         OR (LOGIN_AT IS NULL AND MONTHS_BETWEEN(SYSDATE, JOINED_AT) >= 12))
   </delete>
 
-  <insert id="insertActiveUser">
-     INSERT INTO USER_T (
+  <insert id="insertActiveUser" parameterType="String">  
+    INSERT INTO USER_T (
       SELECT USER_NO, EMAIL, PW, NAME, GENDER, MOBILE, POSTCODE, ROAD_ADDRESS, JIBUN_ADDRESS, DETAIL_ADDRESS, AGREE, PW_MODIFIED_AT, JOINED_AT
         FROM INACTIVE_USER_T
        WHERE EMAIL = #{email}
-    );
+    )
   </insert>
 
-  <delete id="deleteInactiveUser">
+  <delete id="deleteInactiveUser" parameterType="String">
     DELETE
       FROM INACTIVE_USER_T
-     WHERE EMAIL = #{email}
+     WHERE EMAIL = #{email}  
   </delete>
-
-
-
-
-  
-  
-  
-  
-  
-  
 
 </mapper>
