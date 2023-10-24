@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    
+  <!-- 설정 -->
+  <settings>
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+  </settings>
+  
+  <!-- 별명을 지정하면 패키지를 안적고 별명으로 적을 수 있다. -->
+  <typeAliases>
+    <typeAlias alias="StaffDto" type="com.gdu.staff.dto.StaffDto"/>
+  </typeAliases>
+
+</configuration>
