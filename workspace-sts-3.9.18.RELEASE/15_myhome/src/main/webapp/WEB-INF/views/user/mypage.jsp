@@ -123,7 +123,7 @@
     </div>
     <script>
       if('${sessionScope.user.agree}' === '0'){
-        $('#event_off').prop('checked', true);
+    	  $('#event_off').prop('checked', true);
       } else if('${sessionScope.user.agree}' === '1'){
         $('#event_on').prop('checked', true);
       }

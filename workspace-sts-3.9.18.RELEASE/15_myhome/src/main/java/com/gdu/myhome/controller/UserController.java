@@ -34,7 +34,7 @@ public class UserController {
   }
   
   @PostMapping("/login.do")
-  public void login(HttpServletRequest request, HttpServletResponse response) {
+  public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
     userService.login(request, response);
   }
   
@@ -101,5 +101,17 @@ public class UserController {
   public void leave(HttpServletRequest request, HttpServletResponse response) {
     userService.leave(request, response);
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 }

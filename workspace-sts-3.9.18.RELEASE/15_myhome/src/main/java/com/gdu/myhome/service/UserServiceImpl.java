@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gdu.myhome.dao.UserMapper;
+import com.gdu.myhome.dto.InactiveUserDto;
 import com.gdu.myhome.dto.UserDto;
 import com.gdu.myhome.util.MyJavaMailUtils;
 import com.gdu.myhome.util.MySecurityUtils;
@@ -30,14 +31,28 @@ public class UserServiceImpl implements UserService {
   private final MyJavaMailUtils myJavaMailUtils;
   
   @Override
-  public void login(HttpServletRequest request, HttpServletResponse response) {
+  public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
     
+    // 이메일 패스워드 받기
     String email = request.getParameter("email");
     String pw = mySecurityUtils.getSHA256(request.getParameter("pw"));
     
+    // 위의 정보를 맵으로 만들기
     Map<String, Object> map = Map.of("email", email
                                    , "pw", pw);
     
+    HttpSession session = request.getSession();
+    
+    // 휴면 계정인지 확인하기 (휴면 계정이면 휴면 복원 페이지로 넘겨주기)
+    InactiveUserDto inactiveUser = userMapper.getInactiveUser(map);
+    if(inactiveUser != null) {
+      // 정보저장 (inactiveUser) // 페이지가 아무리 바뀌어도 정보가 바뀌지 않는 것이 session 이다.
+      session.setAttribute("inactiveUser", inactiveUser);
+      // 이동 (/user/active.form) - user/active.jsp   // redirect 로도 가능하지만 정보 저장이 불편하다 (그래서 session을 같이 써준다) / 혹은 다른 방법으로는 포워딩이 있다. 
+      response.sendRedirect(request.getContextPath() + "/user/active.form");  // active.form 으로 이동해서 동작한다.
+    }
+    
+    // getUser로 받아오기.
     UserDto user = userMapper.getUser(map);
     
     if(user != null) {
@@ -292,6 +307,13 @@ public class UserServiceImpl implements UserService {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    
+  }
+  
+  @Override
+  public void inactiveUserBatch() {
+    userMapper.insertInactiveUser();
+    userMapper.deleteUserForInactive();
     
   }
   
