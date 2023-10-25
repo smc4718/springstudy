@@ -10,23 +10,38 @@
   <jsp:param value="네이버간편가입" name="title"/>
 </jsp:include>
 
-<script src="${contextPath}/resources/js/user_join.js?dt=${dt}"></script>
+<script>
+  
+  $(() => {
+	fnNaverJoin();
+  })
+  
+  const fnNaverJoin = () => {
+	$('#frm_naver_join').submit((ev) => {
+	  if(!$('#service').is(':checked')) {	// 체크가 안돼있다면.
+		alert('이용약관에 동의하세요.');
+	    ev.preventDefault(); // submit 취소
+      }
+	})
+  }
+  
+</script>
 
 <div>
 
-  <form id="frm_join" method="post" action="${contextPath}/user/join.do">
+  <form id="frm_naver_join" method="post" action="${contextPath}/user/naver/join.do">
     
     <h1>네이버간편가입</h1>
     
     
     <div>
-        <label for="email">이메일</label>
-        <input type="text" name="email" id="email" value="${naverProfile.email}">
+        <label for="email">이메일</label>              <!-- 정보를 바꾸지 못하게 readonly 처리 -->
+        <input type="text" name="email" id="email" value="${naverProfile.email}" readonly>
     </div>
     
     <div>
-      <label for="name">이름</label>
-      <input type="text" name="name" id="name" value="${naverProfile.name}">
+      <label for="name">이름</label>              <!-- 정보를 바꾸지 못하게 readonly 처리 -->
+      <input type="text" name="name" id="name" value="${naverProfile.name}" readonly>
     </div>
     
     <div>
@@ -46,6 +61,26 @@
       <input type="text" name="mobile" id="mobile" value="${naverProfile.mobile}">
       <span id="msg_mobile"></span>
     </div>
+    
+    <hr>
+    
+    <div>
+      <input type="checkbox" name="service" id="service">
+      <label for="service">서비스 이용약관 동의(필수)</label>
+    </div>
+    <div>
+      <textarea>본 약관은 ...</textarea>
+    </div>
+    
+    <div>
+      <input type="checkbox" name="event" id="event">
+      <label for="event">이벤트 알림 동의(선택)</label>
+    </div>
+    <div>
+      <textarea>본 약관은 ...</textarea>
+    </div>
+    
+    <hr>
     
     <div>
       <button type="submit">회원가입하기</button>

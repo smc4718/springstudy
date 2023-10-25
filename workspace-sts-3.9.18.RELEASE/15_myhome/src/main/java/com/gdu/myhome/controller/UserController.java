@@ -59,6 +59,11 @@ public class UserController {
     }
   }
   
+  @PostMapping("/naver/join.do")
+  public void naverJoin(HttpServletRequest request, HttpServletResponse response) {
+    userService.naverjoin(request, response);
+  }
+  
   @PostMapping("/login.do")
   public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
     userService.login(request, response);
