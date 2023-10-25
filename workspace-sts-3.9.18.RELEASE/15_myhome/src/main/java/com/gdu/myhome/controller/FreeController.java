@@ -20,6 +20,11 @@ public class FreeController {
 
   private final FreeService freeService;
   
+  @GetMapping("/write.form")
+  public String writeForm() {
+    return "free/write";
+  }
+  
   @PostMapping("/add.do")
   public String add(HttpServletRequest request, RedirectAttributes redirectAttributes) {
     int addResult = freeService.addFree(request); // 값을 받아와서  addResult 에 저장.
@@ -29,7 +34,7 @@ public class FreeController {
  
   @GetMapping("/list.do")
   public String list(HttpServletRequest request, Model model) {
-    
+    freeService.loadFreeList(request, model);
     return "free/list";
   }
   

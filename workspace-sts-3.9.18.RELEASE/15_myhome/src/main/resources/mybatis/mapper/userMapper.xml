@@ -25,24 +25,19 @@
       , FREE_SEQ.CURRVAL
       , 0
     )
-    
   </insert>
-  
+
   <!-- 목록 구할 때 필요 : 파라미터는 없고 결과를 int로 반환하는 getFreeCount -->
   <select id="getFreeCount" resultType="int">
     SELECT COUNT(*)
       FROM FREE_T
   </select>
-  
+
   <select id="getFreeList" parameterType="Map" resultType="FreeDto">
     SELECT FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
       FROM (SELECT ROW_NUMBER() OVER(ORDER BY FREE_NO DESC) AS RN, FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
               FROM FREE_T)
      WHERE RN BETWEEN #{begin} AND #{end}
   </select>
-  
-  
-  
-  
 
 </mapper>

@@ -9,10 +9,10 @@
   padding-top: 50px; 
 }
 .logo {
-  width: 176px;
-  height: 46px;
-  background-image: url(../../resources/image/goodee.png);
-  background-size: 176px 46px;
+  width: 800px;
+  height: 400px;
+  background-image: url(../../resources/image/몰디브.jpg);
+  background-size: 800px 400px;
   margin: 50px auto;
 }
 .login_wrap {
