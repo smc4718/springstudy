@@ -14,7 +14,7 @@
   <select id="getStaff" parameterType="String" resultType="StaffDto">
      SELECT SNO, NAME, DEPT, SALARY
       FROM STAFF
-      WHERE SNO = #{sno}  
+      WHERE SNO = #{sno}
   </select>
 
   <insert id="insertStaff" parameterType="StaffDto">

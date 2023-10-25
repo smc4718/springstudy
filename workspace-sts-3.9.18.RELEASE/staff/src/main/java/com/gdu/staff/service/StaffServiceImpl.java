@@ -1,6 +1,7 @@
 package com.gdu.staff.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ public class StaffServiceImpl implements StaffService {
 
   private final StaffMapper staffMapper;
   
+  // 사원 등록
   @Override
   public ResponseEntity<Map<String, Object>> registerStaff(StaffDto staff) {
     int addResult = 0;
@@ -29,7 +31,19 @@ public class StaffServiceImpl implements StaffService {
     } catch (Exception e) {
       map.put("addResult", addResult);
       return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR); // 여기 map은 error로 간다.
-    }
+    }   // OK = 성공했을 때 jsp의 success 로 간다. ERROR = 실패했을 때 jsp의 error로 간다.
+  }
+  
+  // 사원 목록 조회
+  @Override
+  public List<StaffDto> getStaffList() {
+      return staffMapper.getStaffList();
+  }
+  
+  // 사원 넘버 조회
+  @Override
+  public StaffDto getStaff(String sno) {
+   return staffMapper.getStaff(sno);
   }
   
 }

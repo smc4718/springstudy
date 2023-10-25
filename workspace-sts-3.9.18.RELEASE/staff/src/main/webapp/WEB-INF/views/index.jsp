@@ -15,10 +15,41 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
 
-	$(() => {
-	  fnRegisterStaff();
-	})
-	
+    $(() => {
+        fnRegisterStaff();
+        fnGetStaffList();
+    })
+    
+    
+    // 사원 목록 조회
+    const fnGetStaffList = () => {
+        $.ajax({
+            type: 'get',
+            url: '${contextPath}/getStaffList.do',
+            dataType: 'json',
+            success: (resData) => {
+                if (resData.staffList) {
+                    const staffList = resData.staffList;
+                    const $staffList = $('#staff_list');
+                    $staffList.empty();
+    
+                    for (const staff of staffList) {
+                        const $tr = $('<tr>');
+                        $tr.append($('<td>').text(staff.sno));
+                        $tr.append($('<td>').text(staff.name));
+                        $tr.append($('<td>').text(staff.dept));
+                        $tr.append($('<td>').text(staff.salary));
+                        $staffList.append($tr);
+                    }
+                }
+            },
+            error: (jqXHR) => {
+                alert('사원 목록을 불러오는데 실패했습니다.');
+            }
+        });
+    }
+    
+	// 사원 등록하기
 	const fnRegisterStaff = () => {
 	  $('#btn_register').click(() => {
 		$.ajax({
@@ -29,8 +60,11 @@
 		  success: (resData) => {
 			if(resData.addResult === 1){
 			  alert('사원 등록이 성공했습니다.');
-			  //아직 구현 안해서 주석처리 fnGetStaffList();	// 사원 등록 후 목록부르기
-			  //아직 구현 안해서 주석처리 fnInit();	// 사원 등록 후 입력란 초기화
+			  fnGetStaffList();
+		      // 입력란 초기화
+              $('#sno').val('');
+              $('#name').val('');
+              $('#dept').val('');
 			} else {
 			  alert('사원 등록이 실패했습니다.');
 			}
@@ -43,6 +77,36 @@
 		})
 	  })
 	}
+	
+	// 사원 번호로 사원 조회
+	const fnGetStaffBySno = (sno) => {
+	    $.ajax({
+	        type: 'get',
+	        url: '${contextPath}/getStaff.do?sno=' + sno,
+	        dataType: 'json',
+	        success: (resData) => {
+	            if (resData.staff) {
+	                // 사원 정보
+	                const staff = resData.staff;
+	                const $staffList = $('#staff_list');
+	                $staffList.empty();
+	                const $tr = $('<tr>');
+	                $tr.append($('<td>').text(staff.sno));
+	                $tr.append($('<td>').text(staff.name));
+	                $tr.append($('<td>').text(staff.dept));
+	                $tr.append($('<td>').text(staff.salary));
+	                $staffList.append($tr);
+	            } else {
+	                alert('조회된 사원 정보가 없습니다.');
+	            }
+	        },
+	        error: (jqXHR) => {
+	            alert('사원 조회에 실패했습니다.');
+	        }
+	    });
+	}
+	
+	
 
 </script>
 </head>
@@ -63,13 +127,13 @@
     <hr>
     
     <div>
-      <h1>사원조회</h1>
-      <div>
+    <h1>사원조회</h1>
+    <div>
         <input type="text" name="query" id="query" placeholder="사원번호입력">
         <button type="button" id="btn_query">조회</button>
         <button type="button" id="btn_list">전체</button>
-      </div>
     </div>
+</div>
     
     <hr>
     
