@@ -7,33 +7,32 @@
 <c:set var="dt" value="<%=System.currentTimeMillis()%>" />
 
 <jsp:include page="../layout/header.jsp">
-  <jsp:param value="휴면해제" name="title"/>
+  <jsp:param value="게시글작성" name="title"/>  <!-- 제목 -->
 </jsp:include>
 
 <div>
 
-  <h1>휴면계정안내</h1>
-  
-  <div>
-    안녕하세요. ${sessionScope.inactiveUser.email}님은 1년 이상 로그인하지 않아
-    관계 법령에 의해서 휴면회원으로 전환되었습니다.
-  </div>
-  <div>
-    휴면전환일 : ${sessionScope.inactiveUser.inactivedAt}
-  </div>
-  
-  <div>
-    <div>휴면해제를 위해서 휴면해제 버튼을 클릭하세요.</div>
-    <div><button type="button" id="btn_active">휴면해제</button></div>
-  </div>
-  <script>
-    const fnActive = () => {
-    	$('#btn_active').click(() => {
-    		location.href = '${contextPath}/user/active.do';
-    	})
-    }
-    fnActive();
-  </script>
+  <form id="frm_free_add" method="post" action="${contextPath}/free/add.do">
+    
+    <h1>자유게시글을 작성하세요</h1>
+    
+    
+    <div>
+      <label for="email">이메일</label>        <!-- session에있는 유저의 이메일을 갖다 놓은 뒤 수정할 수 없게 readonly 한다. -->
+      <input type="text" name="email" id="email" value="${sessionScope.user.email}" readonly>  <!-- value 값이 꼭 필요함 -->
+    </div>
+    
+    <div>
+      <label for="contents">내용</label>
+      <textarea id="contents" name="contents"></textarea>
+    </div>
+    
+    
+    <div>
+      <button type="submit">작성완료</button>
+    </div>
+    
+  </form>
 
 </div>
 
