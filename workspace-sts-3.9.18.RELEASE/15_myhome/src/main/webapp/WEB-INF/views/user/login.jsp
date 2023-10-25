@@ -37,8 +37,8 @@
     </ul>
     <hr>
     <div>
-       <a href="${naverLoginURL}">
-      <img src="${contextPath}/resources/image/btnD_완성형.png" width="200px">
+      <a href="${naverLoginURL}">
+        <img src="${contextPath}/resources/image/btnD_완성형.png" width="200px">
       </a>
     </div>
   </div>

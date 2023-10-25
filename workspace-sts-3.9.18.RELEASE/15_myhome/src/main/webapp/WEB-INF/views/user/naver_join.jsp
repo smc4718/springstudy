@@ -13,16 +13,17 @@
 <script>
   
   $(() => {
-	fnNaverJoin();
+    fnNaverJoin();
   })
   
   const fnNaverJoin = () => {
-	$('#frm_naver_join').submit((ev) => {
-	  if(!$('#service').is(':checked')) {	// 체크가 안돼있다면.
-		alert('이용약관에 동의하세요.');
-	    ev.preventDefault(); // submit 취소
+    $('#frm_naver_join').submit((ev) => {
+      if(!$('#service').is(':checked')){ // 체크가 안돼있다면.
+        alert('이용약관에 동의하세요.');
+        ev.preventDefault(); // submit 취소
+        return;
       }
-	})
+    })
   }
   
 </script>
@@ -33,17 +34,16 @@
     
     <h1>네이버간편가입</h1>
     
-    
     <div>
-        <label for="email">이메일</label>              <!-- 정보를 바꾸지 못하게 readonly 처리 -->
-        <input type="text" name="email" id="email" value="${naverProfile.email}" readonly>
+      <label for="email">이메일</label>              <!-- 정보를 바꾸지 못하게 readonly 처리 -->
+      <input type="text" name="email" id="email" value="${naverProfile.email}" readonly>
     </div>
-    
+  
     <div>
       <label for="name">이름</label>              <!-- 정보를 바꾸지 못하게 readonly 처리 -->
       <input type="text" name="name" id="name" value="${naverProfile.name}" readonly>
     </div>
-    
+  
     <div>
       <input type="radio" name="gender" value="M" id="man">
       <label for="man">남자</label>
@@ -55,13 +55,12 @@
       // 네이버프로필에 value부분이 F냐 M이냐에 따라서, 그것으로 체크하겠다.
       $(':radio[value=${naverProfile.gender}]').prop('checked', true);
     </script>
-    
+  
     <div>
       <label for="mobile">휴대전화번호</label>
-      <input type="text" name="mobile" id="mobile" value="${naverProfile.mobile}">
-      <span id="msg_mobile"></span>
+      <input type="text" name="mobile" id="mobile" value="${naverProfile.mobile}" readonly>
     </div>
-    
+
     <hr>
     
     <div>
@@ -81,7 +80,7 @@
     </div>
     
     <hr>
-    
+
     <div>
       <button type="submit">회원가입하기</button>
     </div>

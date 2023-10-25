@@ -41,7 +41,6 @@ public class UserServiceImpl implements UserService {
   private final String client_id = "0ZmDGyDBmv6fI7U_AB5y";
   private final String client_secret = "Q5iw70bf6I";
   
-  
   @Override
   public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
     
@@ -99,8 +98,6 @@ public class UserServiceImpl implements UserService {
     sb.append("&client_id=").append(client_id);
     sb.append("&redirect_uri=").append(redirect_uri);
     sb.append("&state=").append(state);
-    
-    request.getSession().setAttribute("state", state);
     
     return sb.toString();
     
@@ -202,7 +199,7 @@ public class UserServiceImpl implements UserService {
   }
   
   @Override
-  public void naverjoin(HttpServletRequest request, HttpServletResponse response) {
+  public void naverJoin(HttpServletRequest request, HttpServletResponse response) {
     
     String email = request.getParameter("email");
     String name = request.getParameter("name");
@@ -221,28 +218,50 @@ public class UserServiceImpl implements UserService {
     int naverJoinResult = userMapper.insertNaverUser(user);
     
     try {
-          
-        response.setContentType("text/html; charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        out.println("<script>");
-        if(naverJoinResult == 1) {
-          // 로그인 = 세션에 유저를 올린다
-          request.getSession().setAttribute("user", userMapper.getUser(Map.of("email", email)));
-          // 로그인 기록을 남긴다.
-          userMapper.insertAccess(email);
-          out.println("alert('네이버 간편가입이 완료되었습니다.')");
-        } else {
-          out.println("alert('네이버 간편가입이 실패했습니다.')");
-        }
-        // 성공하든 실패하든 main으로 간다.
-        out.println("location.href='" + request.getContextPath() + "/main.do'");
-        out.println("</script>");
-        out.flush();
-        out.close();
-        
-      } catch (Exception e) {
-        e.printStackTrace();
+      
+      response.setContentType("text/html; charset=UTF-8");
+      PrintWriter out = response.getWriter();
+      out.println("<script>");
+      if(naverJoinResult == 1) {
+        // 로그인 = 세션에 유저를 올린다
+        request.getSession().setAttribute("user", userMapper.getUser(Map.of("email", email)));
+        // 로그인 기록을 남긴다.
+        userMapper.insertAccess(email);
+        out.println("alert('네이버 간편가입이 완료되었습니다.')");
+      } else {
+        out.println("alert('네이버 간편가입이 실패했습니다.')");
       }
+      // 성공하든 실패하든 main으로 간다.
+      out.println("location.href='" + request.getContextPath() + "/main.do'");
+      out.println("</script>");
+      out.flush();
+      out.close();
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+  }
+
+  @Override
+  public void naverLogin(HttpServletRequest request, HttpServletResponse response, UserDto naverProfile) throws Exception {
+    
+    String email = naverProfile.getEmail();
+    UserDto user = userMapper.getUser(Map.of("email", email));
+    
+    if(user != null) {
+      request.getSession().setAttribute("user", user);
+      userMapper.insertAccess(email);
+    } else {
+      response.setContentType("text/html; charset=UTF-8");
+      PrintWriter out = response.getWriter();
+      out.println("<script>");
+      out.println("alert('일치하는 회원 정보가 없습니다.')");
+      out.println("location.href='" + request.getContextPath() + "/main.do'");
+      out.println("</script>");
+      out.flush();
+      out.close();
+    }
     
   }
   
@@ -325,9 +344,7 @@ public class UserServiceImpl implements UserService {
       PrintWriter out = response.getWriter();
       out.println("<script>");
       if(joinResult == 1) {
-        // 로그인 = 세션에 유저를 올린다
         request.getSession().setAttribute("user", userMapper.getUser(Map.of("email", email)));
-        // 로그인 기록을 남긴다.
         userMapper.insertAccess(email);
         out.println("alert('회원 가입되었습니다.')");
         out.println("location.href='" + request.getContextPath() + "/main.do'");
@@ -512,5 +529,6 @@ public class UserServiceImpl implements UserService {
     }
     
   }
+
   
 }

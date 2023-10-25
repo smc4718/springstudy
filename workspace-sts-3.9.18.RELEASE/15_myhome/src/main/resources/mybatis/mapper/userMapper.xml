@@ -160,20 +160,15 @@
     ) VALUES (
         USER_SEQ.NEXTVAL
       , #{email}
-      , #{name}  
-      , #{gender}  
-      , #{mobile}  
-      , #{agree}  
+      , #{name}
+      , #{gender}
+      , #{mobile}
+      , #{agree}
       , 1
       , SYSDATE
-      , SYSDATE  
+      , SYSDATE
     )
   </insert>
-  
-  
-  
-  
-  
   
   
   
