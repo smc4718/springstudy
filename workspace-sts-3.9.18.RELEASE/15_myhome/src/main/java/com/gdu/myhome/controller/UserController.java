@@ -45,10 +45,18 @@ public class UserController {
   }
   
   @GetMapping("/naver/getProfile.do")
-  public void getProfile(@RequestParam String accessToken) throws Exception {
+  public String getProfile(@RequestParam String accessToken, Model model) throws Exception {
     // 네이버로그인-3
-    UserDto user = userService.getNaverProfile(accessToken);
-    System.out.println(user);
+    UserDto naverProfile = userService.getNaverProfile(accessToken);
+    // 네이버로그인 후속 작업(처음 시도 : 간편가입, 이미 가입 : 로그인)
+    UserDto user = userService.getUser(naverProfile.getEmail());  // 이메일을 가지고 있는지 확인.
+    if(user == null) {
+      model.addAttribute("naverProfile", naverProfile); // 네이버 프로필로 전달할 정보를 저장 시키기.
+      return "user/naver_join";  // 포워딩하기 ( 포워딩하려고 위에 Map을 만듦)
+    } else {
+      // naverProfile로 로그인 처리하기
+      return "";
+    }
   }
   
   @PostMapping("/login.do")

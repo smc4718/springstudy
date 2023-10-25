@@ -197,6 +197,11 @@ public class UserServiceImpl implements UserService {
   }
   
   @Override
+  public UserDto getUser(String email) {
+    return userMapper.getUser(Map.of("email", email));
+  }
+  
+  @Override
   public void logout(HttpServletRequest request, HttpServletResponse response) {
     
     HttpSession session = request.getSession();
