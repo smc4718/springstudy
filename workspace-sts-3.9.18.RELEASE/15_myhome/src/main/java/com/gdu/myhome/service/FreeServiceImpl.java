@@ -1,5 +1,6 @@
 package com.gdu.myhome.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -120,9 +121,32 @@ public class FreeServiceImpl implements FreeService {
       String query = request.getParameter("query");
       
       // 검색결과 개수 구하기
+      Map<String, Object> map = new HashMap<>();
+      map.put("column", column);
+      map.put("query", query);
+      
+      int total = freeMapper.getSearchCount(map); // 전체 갯수
+      
+      Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
+      String strPage = opt.orElse("1");
+      int page = Integer.parseInt(strPage);
+     
+      int display = 10; // 한 화면에 표시할 갯수.
+     
+      myPageUtils.setPaging(page, total, display);  //setPaging을 호출하면 begin과 end가 계산된다. 그리고 페이징처리에 필요한 모든 것이 계산 된다.
+      
+      map.putIfAbsent("begin", myPageUtils.getBegin()); // myPageUtils 에서 계산이 끝난 begin을 가져온다.
+      map.put("end", myPageUtils.getEnd()); // myPageUtils 에서 계산이 끝난 end를 가져온다.
+      
+      List<FreeDto> freeList = freeMapper.getSearchList(map);
+      
+      model.addAttribute("freeList", freeList);
+      model.addAttribute("paging", myPageUtils.getMvcPaging(request.getContextPath() + "/free/list.do"));
+      model.addAttribute("beginNo", total - (page - 1) * display);
+    
       
     }
 
-
+    
 
 }

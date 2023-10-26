@@ -398,7 +398,7 @@ const fnRemove = () => {
     <div>
       <form method="get" action="${contextPath}/free/search.do">  <!-- search.do 는 우리가 지금 설정해 준 url 주소 이름이다. -->
         <select name="column">  <!-- (중요) select가 변수처리 될 거다. column으로 EMAIL과 CONTENTS가 갈 것이다. -->
-          <option value="EMAIL">작성자</option>
+          <option value="EMAIL">작성자</option>		<!-- 매퍼.xml로 보내려고 대문자로 씀 -->
           <option value="CONTENTS">내용</option>
         </select>                             
         <input type="text" name="query" placeholder="검색어 입력"> <!-- 검색할 내용을 query로 보내겠다. -->
@@ -425,5 +425,113 @@ public void loadSearchList(HttpServletRequest request, Model model);
 
 
 4. 서비스임플 작성
+@Override
+public void loadSearchList(HttpServletRequest request, Model model) {
+ 
+  String column = request.getParameter("column");
+  String query = request.getParameter("query");
+  
+}
+
+
+
+
+5. 매퍼.xml 작성
+<!-- 검색 결과 개수 -->
+  <!-- 
+  [ 묶어줄 때 사용할 수 있는 방법 2가지 ]
+   1.  ${} 전달된 값을 그대로 사용한다. ($ 사용하는 경우 : 쿼리문을 구성하는  구문 자체를 처리할 때 사용한다.
+   2.  #{} 전달된 값을 따옴표('')로 묶어서 사용한다.
+   -->
+  <select id="getSearchCount" parameterType="Map" resultType="int"> <!-- column, query 둘 다 저장해주기 위해 Map을 쓴다. -->
+    SELECT COUNT(*)
+      FROM FREE_T
+     WHERE ${column} LIKE '%' || #{query} || '%'
+  </select>
+  
+
+  
+6. 매퍼.java 작성
+public int getSearchCount(Map<String, Object> map); // column과 query를 하나로 저장한 Map.
+
+
+
+7. 다시 서비스 임플로 가서 loadSearchList 마저 작성
+@Override
+public void loadSearchList(HttpServletRequest request, Model model) {
+ 
+  String column = request.getParameter("column");
+  String query = request.getParameter("query");
+  
+  // 검색결과 개수 구하기
+  Map<String, Object> map = new HashMap<>();
+  map.put("column", column);
+  map.put("query", query);
+  
+  int total = freeMapper.getSearchCount(map); // 전체 갯수
+  
+  Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
+  String strPage = opt.orElse("1");
+  int page = Integer.parseInt(strPage);
+ 
+  int display = 10; // 한 화면에 표시할 갯수.
+ 
+  myPageUtils.setPaging(page, total, display);  //setPaging을 호출하면 begin과 end가 계산된다. 그리고 페이징처리에 필요한 모든 것이 계산 된다.
+  
+  map.putIfAbsent("begin", myPageUtils.getBegin()); // myPageUtils 에서 계산이 끝난 begin을 가져온다.
+  map.put("end", myPageUtils.getEnd()); // myPageUtils 에서 계산이 끝난 end를 가져온다.
+  
+}
+
+
+7. 매퍼.xml 작성
+<!-- 검색 결과 목록 -->
+  <select id="getSearchList" parameterType="Map" resultType="FreeDto">
+    SELECT FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, GROUP_ORDER ASC) AS RN, FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
+              FROM FREE_T
+             WHERE ${column} LIKE '%' || #{query} || '%')
+     WHERE RN BETWEEN #{begin} AND #{end}
+  </select>  
+
+
+8. 매퍼.java 작성
+public List<FreeDto> getSearchList(Map<String, Object> map);
+
+
+
+9.다시 서비스 임플로 가서 loadSearchList 마저 작성
+@Override
+    public void loadSearchList(HttpServletRequest request, Model model) {
+     
+      String column = request.getParameter("column");
+      String query = request.getParameter("query");
+      
+      // 검색결과 개수 구하기
+      Map<String, Object> map = new HashMap<>();
+      map.put("column", column);
+      map.put("query", query);
+      
+      int total = freeMapper.getSearchCount(map); // 전체 갯수
+      
+      Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
+      String strPage = opt.orElse("1");
+      int page = Integer.parseInt(strPage);
+     
+      int display = 10; // 한 화면에 표시할 갯수.
+     
+      myPageUtils.setPaging(page, total, display);  //setPaging을 호출하면 begin과 end가 계산된다. 그리고 페이징처리에 필요한 모든 것이 계산 된다.
+      
+      map.putIfAbsent("begin", myPageUtils.getBegin()); // myPageUtils 에서 계산이 끝난 begin을 가져온다.
+      map.put("end", myPageUtils.getEnd()); // myPageUtils 에서 계산이 끝난 end를 가져온다.
+      
+      List<FreeDto> freeList = freeMapper.getSearchList(map);
+      
+      model.addAttribute("freeList", freeList);
+      model.addAttribute("paging", myPageUtils.getMvcPaging(request.getContextPath() + "/free/list.do"));
+      model.addAttribute("beginNo", total - (page - 1) * display);
+    
+      
+    }
 
 

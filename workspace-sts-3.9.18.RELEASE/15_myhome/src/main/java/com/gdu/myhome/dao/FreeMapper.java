@@ -15,4 +15,6 @@ public interface FreeMapper {
   public int updateGroupOrder(FreeDto free); // free 이름은 자유
   public int insertReply(FreeDto free);
   public int deleteFree(int freeNo);
+  public int getSearchCount(Map<String, Object> map); // column과 query를 하나로 저장한 Map.
+  public List<FreeDto> getSearchList(Map<String, Object> map);
 }
