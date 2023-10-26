@@ -39,19 +39,38 @@
           <c:forEach items="${freeList}" var="free" varStatus="vs">
             <tr class="list">
               <td>${beginNo - vs.index}</td>  <!-- 최근 것을 위로 올려준다. -->
-              <td>${free.email}</td>
-              <td>
-              <!-- depth에 따른 들여쓰기 (depth 하나당 2칸씩 공백) -->
-              <c:forEach begin="1" end="${free.depth}" step="1">&nbsp;&nbsp;</c:forEach>
-              <!-- 폰트어썸에서 댓글버튼 이미지 코드 가져오기. -->
-                <c:if test="${free.depth != 0}">   <!-- 댓글인지 아닌지는 depth가 1인지 2인지로 알 수 있다.-->
-                  <i class="fa-solid fa-comment-dots"></i>  <!-- 폰트어썸 사이트에서 가져다 쓴 버튼 이미지 코드 -->
-                </c:if>
-              ${free.contents}
-              <!-- 댓글작성버튼 -->
-              <button type="button" class="btn_reply">댓글</button>
-              </td>
-              <td>${free.createdAt}</td>
+              <!--  정상 게시글 -->
+              <c:if test="${free.status == 1}">
+                <td>${free.email}</td>
+                <td>
+                <!-- depth에 따른 들여쓰기 (depth 하나당 2칸씩 공백) -->
+                <c:forEach begin="1" end="${free.depth}" step="1">&nbsp;&nbsp;</c:forEach>
+                <!-- 폰트어썸에서 댓글버튼 이미지 코드 가져오기. -->
+                  <c:if test="${free.depth != 0}">   <!-- 댓글인지 아닌지는 depth가 1인지 2인지로 알 수 있다.-->
+                    <i class="fa-solid fa-comment-dots"></i>  <!-- 폰트어썸 사이트에서 가져다 쓴 버튼 이미지 코드 -->
+                  </c:if>
+                <!-- 게시글내용 -->
+                ${free.contents}
+                <!-- 댓글작성버튼 -->
+                <button type="button" class="btn_reply">댓글</button>
+                <!-- 게시글(댓글)삭제버튼 -->
+                <form class="frm_remove" method="post" action="${contextPath}/free/remove.do" style="display: inline;"> <!-- style="display: inline; = 삭제버튼이 한 줄에 뜨게 함. -->
+                  <c:if test="${free.email == sessionScope.user.email}">  <!-- 해석 : 게시글작성자(free.email) 와 로그인한 사용자가 같으면.-->
+                  <input type="hidden" name="freeNo" value="${free.freeNo}">
+                  <button type="submit">삭제</button>
+                  </c:if>
+                </form>
+                </td>
+                <td>${free.createdAt}</td>                 
+              </c:if>
+              <!-- 삭제된 게시글 -->
+              <c:if test="${free.status == 0}">
+                <tr>
+                  <td colspan="3">
+                    삭제된 게시글입니다.
+                  </td>
+                </tr>  
+              </c:if>
             </tr>
             <tr class="blind write_tr">    <!-- 사용자에게 숨겨놓을 정보 --> <!--클래스끼리는 공백으로 구분하면 된다. -->
               <td colspan="4">
@@ -138,10 +157,32 @@
 	  }
   }
   
+  const fnRemove = () => {
+	$('.frm_remove').submit((ev) => {  //폼이 서브밋할 때 동작
+	   if(!confirm('게시글을 삭제할까요?')){
+		 ev.preventDefault();	// 이벤트 객체 'ev' 가 들어가면 return 필수 적기
+		 return;
+	   }
+	})		
+  }
+  
+  const fnRemoveResult = () => {
+	  let removeResult = '${removeResult}';
+	  if(removeResult !== ''){
+		  if(removeResult === '1'){
+			  alert('게시글이 삭제되었습니다.');
+		  } else {
+			  alert('게시글이 삭제되지 않았습니다.');
+		  }
+	  }
+  }
+  
   // 함수 호출
   fnAddResult();
   fnBlind();
   fnAddReplyResult();
+  fnRemove();
+  fnRemoveResult();
   
 
 </script>

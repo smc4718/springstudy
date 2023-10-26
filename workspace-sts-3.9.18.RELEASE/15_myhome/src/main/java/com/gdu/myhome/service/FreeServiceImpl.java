@@ -108,7 +108,10 @@ public class FreeServiceImpl implements FreeService {
       return addReplyResult;  // 실제 사용자에게 서비스할 내용 전달.
     }
 
-
+    @Override
+    public int removeFree(int freeNo) {
+    return freeMapper.deleteFree(freeNo); // 삭제할 번호만 받아와서 그대로 DB에 전달.
+    }
 
 
 

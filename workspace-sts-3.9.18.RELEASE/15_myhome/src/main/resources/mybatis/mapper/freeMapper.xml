@@ -72,6 +72,12 @@
     )
   </insert>
   
+  <!-- 게시글 삭제 -->
+  <update id="deleteFree" parameterType="int">
+    UPDATE FREE_T
+       SET STATUS = 0
+     WHERE FREE_NO = #{freeNo}
+  </update>
   
   
   

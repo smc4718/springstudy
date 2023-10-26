@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdu.myhome.service.FreeService;
@@ -41,7 +42,15 @@ public class FreeController {
   @PostMapping("/addReply.do")
   public String addReply(HttpServletRequest request, RedirectAttributes redirectAttributes) { // addReplyResult 를 저장해서 보내기 위해 리다이렉트를 써준다.
   int addReplyResult = freeService.addReply(request); // 댓글 결과 받아오기.
-  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); // 리다이렉트로 저장하기.
+  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); // 댓글 결과를 리다이렉트에 저장하기.
   return "redirect:/free/list.do";  // 리다이렉트해서 리스트로 보내기.
   }
+  
+  @PostMapping("/remove.do")
+  public String remove(@RequestParam(value="freeNo") int freeNo, RedirectAttributes redirectAttributes) {
+    int removeResult = freeService.removeFree(freeNo);  // 삭제 결과 받아오기.
+    redirectAttributes.addFlashAttribute("removeResult", removeResult); // 삭제 결과를 리다이렉트에 저장하기
+    return "redirect:/free/list.do";  // 삭제 후 목록보기로 되돌아가기(리다이렉트)
+  }
+  
 }

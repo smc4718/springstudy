@@ -1,6 +1,6 @@
-< 댓글 기능 실제 작업 순서 >
+< 댓글 기능 실제 작업 순서 : 15장 기준>
 
-
+[ 댓글 달기]
 
 1. 매퍼.xml 작성
 -------------------------------
@@ -254,10 +254,128 @@ cdnjs.com 에서 font-awesome 검색
   @PostMapping("/addReply.do")	   // 서비스임플에 addReplyResult 를 가져와서 리다이렉트로 저장해서 보내기 위해 리다이렉트를 써준다.
   public String addReply(HttpServletRequest request, RedirectAttributes redirectAttributes) {
   int addReplyResult = freeService.addReply(request); 	// 댓글 결과 받아오기.
-  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); 	// 리다이렉트로 저장하기.
+  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); 	// 댓글 결과를 리다이렉트에 저장하기
   return "redirect:/free/list.do";  	// 리다이렉트해서 리스트로 보내기.
   }
   
 -----------------------------
 
 끝
+
+===========================================
+
+
+
+[ 댓글 삭제하기 ]
+
+
+1. list.jsp 작성 (댓글작성버튼 아래에 삭제 복붙하기)
+<!-- 댓글작성버튼 -->
+<button type="button" class="btn_reply">댓글</button>
+<!-- 댓글삭제버튼 -->
+<form method="post" action="${contextPath}/free/remove.do" style="display: inline;">  // style="display: inline; = 삭제버튼이 한 줄에 뜨게 함.
+  <input type="hidden" name="freeNo" value="${free.freeNo}">
+  <button type="submit">삭제</button>
+</form>
+
+
+
+2. 매퍼.xml 작성 (delete 안 쓰고 update로 사용했다.)
+<!-- 게시글 삭제 -->
+  <update id="deleteFree" parameterType="int">
+    UPDATE FREE_T
+       SET STATUS = 0
+     WHERE FREE_NO = #{freeNo}
+  </update>
+
+
+3.매퍼.java 작성
+public int deleteFree(int freeNo);
+
+
+4.서비스 작성
+ // 삭제할 때 번호만 넘기면 되니까 request써서 꺼내서 전달하면 번거로우니 'int free로 번호만 전달한다. HttpServletrequest로도 가능.
+ public int removeFree(int freeNo);
+ 
+ 
+5.서비스 임플 작성
+@Override
+public int removeFree(int freeNo) {
+return freeMapper.deleteFree(freeNo); // 삭제할 번호만 받아와서 그대로 DB에 전달.
+}
+
+
+6.컨트롤러 작성
+@PostMapping("/remove.do")
+ public String remove(@RequestParam(value="freeNo") int freeNo, RedirectAttributes redirectAttributes) {
+   int removeResult = freeService.removeFree(freeNo);  // 삭제 결과 받아오기.
+   redirectAttributes.addFlashAttribute("removeResult", removeResult); // 삭제 결과를 리다이렉트에 저장하기
+   return "redirect:/free/list.do";  // 삭제 후 목록보기로 되돌아가기(리다이렉트)
+ }
+ 
+
+
+7.list.jsp <script>에 작성
+const fnRemoveResult = () => {
+	  let removeResult = '${removeResult}';
+	  if(removeResult !== ''){
+		  if(removeResult === '1'){
+			  alert('게시글이 삭제되었습니다.');
+		  } else {
+			  alert('게시글이 삭제되지 않았습니다.');
+		  }
+	  }
+  }
+  
+  / 함수 호출
+  fnAddResult();
+  fnBlind();
+  fnAddReplyResult();
+  fnRemove();
+  fnRemoveResult();
+  
+  
+  ---------------↓ 상단에 내용확인해서 맞는 곳에 복붙---------------
+  
+  </c:if>
+    <!-- 게시글내용 -->
+    ${free.contents}
+    <!-- 댓글작성버튼 -->
+    <button type="button" class="btn_reply">댓글</button>
+    <!-- 게시글(댓글)삭제버튼 -->
+    <form class="frm_remove" method="post" action="${contextPath}/free/remove.do" style="display: inline;"> <!-- style="display: inline; = 삭제버튼이 한 줄에 뜨게 함. -->
+      <c:if test="${free.email == sessionScope.user.email}">  <!-- 해석 : 게시글작성자(free.email) 와 로그인한 사용자가 같으면.-->
+      <input type="hidden" name="freeNo" value="${free.freeNo}">
+      <button type="submit">삭제</button>
+      </c:if>
+    </form>
+    </td>
+    <td>${free.createdAt}</td>                 
+  </c:if>
+  <!-- 삭제된 게시글 -->
+  <c:if test="${free.status == 0}">
+    <tr>
+      <td colspan="3">
+        삭제된 게시글입니다.
+      </td>
+    </tr>  
+  </c:if>
+  
+------------------ ↓ 하단에 내용확인해서 맞는 곳에 복붙----------------
+
+const fnRemove = () => {
+	$('.frm_remove').submit((ev) => {  //폼이 서브밋할 때 동작
+	   if(!confirm('게시글을 삭제할까요?')){
+		 ev.preventDefault();	// 이벤트 객체 'ev' 가 들어가면 return 필수 적기
+		 return;
+	   }
+	})		
+  }
+  
+  
+  // 함수 호출
+  fnAddResult();
+  fnBlind();
+  fnAddReplyResult();
+  fnRemove();
+  fnRemoveResult();
