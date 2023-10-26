@@ -12,4 +12,6 @@ public interface FreeMapper {
   public int insertFree(FreeDto free);
   public int getFreeCount();
   public List<FreeDto> getFreeList(Map<String, Object> map);
+  public int updateGroupOrder(FreeDto free); // free 이름은 자유
+  public int insertReply(FreeDto free);
 }

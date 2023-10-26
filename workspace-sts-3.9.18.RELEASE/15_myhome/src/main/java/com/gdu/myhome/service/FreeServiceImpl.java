@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import com.gdu.myhome.dao.FreeMapper;
@@ -16,6 +17,7 @@ import com.gdu.myhome.util.MySecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
+@Transactional(readOnly = true)  // insert 와 update가 동시에 수행되어야 할 때 트랜잭션 사용해야함. 읽기 전용 처리해준다(readOnly로 성능 향상 처리)
 @RequiredArgsConstructor
 @Service
 public class FreeServiceImpl implements FreeService {
@@ -68,4 +70,48 @@ public class FreeServiceImpl implements FreeService {
                                                        // 목록에서 목록을 넘겨주는 주소를 넘겨준다.
       model.addAttribute("beginNo", total - (page - 1) * display); // 페이지 시작값 계산
     }  //이제 컨트롤러로 가서 호출해 준다.
+
+    @Override
+    public int addReply(HttpServletRequest request) {
+    
+      // 요청 파라미터(댓글 작성 화면에서 받아오는 정보들)
+      // 댓글 정보(EDITOR, CONTENTS)        
+      // 원글 정보(DEPTH, GROUP_NO, GROUP_ORDER)
+      String email = request.getParameter("email");
+      String contents = request.getParameter("contents");
+      int depth = Integer.parseInt(request.getParameter("depth"));
+      int groupNo = Integer.parseInt(request.getParameter("groupNo"));
+      int groupOrder = Integer.parseInt(request.getParameter("groupOrder"));
+      
+      // 원글DTO
+      // 기존댓글업데이트(원글DTO)
+      FreeDto free = FreeDto.builder()
+                      .groupNo(groupNo)
+                      .groupOrder(groupOrder)
+                      .build();
+      // ↑ groupNo 와 groupOrder 정보만들기.
+      freeMapper.updateGroupOrder(free);    // 수정된 정보가 넘어옴.
+  
+      
+      // 댓글DTO
+      // 댓글삽입(댓글DTO)
+      FreeDto reply = FreeDto.builder()
+                       .email(email)
+                       .contents(contents)
+                       .depth(depth + 1)            // 원글의 depth + 1
+                       .groupNo(groupNo)            // 원글의 groupNo는 그대로 가져가기.
+                       .groupOrder(groupOrder + 1)  // 원글의 groupOrder + 1
+                       .build();
+      // ↑ 댓글 만들기
+      int addReplyResult = freeMapper.insertReply(reply); // 만든 댓글을 addReplyResult로 전달. 사용자에게 실제 서비스할 수 있는 정보.
+      
+      return addReplyResult;  // 실제 사용자에게 서비스할 내용 전달.
+    }
+
+
+
+
+
+
+
 }

@@ -36,9 +36,54 @@
 
   <select id="getFreeList" parameterType="Map" resultType="FreeDto">
     SELECT FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
-      FROM (SELECT ROW_NUMBER() OVER(ORDER BY FREE_NO DESC) AS RN, FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, GROUP_ORDER ASC) AS RN, FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
               FROM FREE_T)
      WHERE RN BETWEEN #{begin} AND #{end}
   </select>
+  
+  <!-- 댓글 달기 1: 기존 댓글들의 GROUP_ORDER를 증가시키기 -->
+  <update id="updateGroupOrder" parameterType="FreeDto"> <!-- parameterType="FreeDto"는 원글을 의미함 -->
+    UPDATE FREE_T
+       SET GROUP_ORDER = GROUP_ORDER + 1
+     WHERE GROUP_NO = #{groupNo}     <!-- <= FreeDto의 groupNo임. FreeDto에 들어있는 GROUP_NO 와 같은 값을 가졌다. -->
+       AND GROUP_ORDER > #{groupOrder}
+  </update>
+  
+  <!-- 댓글 달기 2 : 댓글 삽입하기 -->
+  <insert id="insertReply" parameterType="FreeDto"> <!-- 여기에서의 FreeDto는 원글DTO가 아니라, 댓글의DTO이다. (사실 같은 DTO를 공유하기 때문에 같지만, 의미부여상 다르게 말한다. -->
+    INSERT INTO FREE_T (
+        FREE_NO
+      , EMAIL
+      , CONTENTS
+      , CREATED_AT
+      , STATUS
+      , DEPTH
+      , GROUP_NO
+      , GROUP_ORDER
+    ) VALUES (
+        FREE_SEQ.NEXTVAL
+      , #{email}
+      , #{contents}
+      , SYSTIMESTAMP
+      , 1
+      , #{depth}   <!-- 이미 전달된 댓글에 작업이 되어 있으니 꺼내서 쓰기만 하면 된다. -->
+      , #{groupNo}
+      , #{groupOrder}
+    )
+  </insert>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 </mapper>

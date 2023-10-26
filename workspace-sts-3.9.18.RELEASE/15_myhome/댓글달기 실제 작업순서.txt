@@ -1,0 +1,263 @@
+< 댓글 기능 실제 작업 순서 >
+
+
+
+1. 매퍼.xml 작성
+-------------------------------
+<!-- 댓글 달기 1: 기존 댓글들의 GROUP_ORDER를 증가시키기 -->
+  <update id="updateGroupOrder" parameterType="FreeDto"> <!-- parameterType="FreeDto"는 원글을 의미함 -->
+    UPDATE FREE_T
+       SET GROUP_ORDER = GROUP_ORDER + 1
+     WHERE GROUP_NO = #{groupNo}     <!-- <= FreeDto의 groupNo임. FreeDto에 들어있는 GROUP_NO 와 같은 값을 가졌다. -->
+       AND GROUP_ORDER > #{groupOrder}
+  </update>
+  
+ <!-- 댓글 달기 2 : 댓글 삽입하기 -->
+  <insert id="insertReply" parameterType="FreeDto"> <!-- 여기에서의 FreeDto는 원글DTO가 아니라, 댓글의DTO이다. (사실 같은 DTO를 공유하기 때문에 같지만, 의미부여상 다르게 말한다. -->
+    INSERT INTO FREE_T (
+        FREE_NO
+      , EMAIL
+      , CONTENTS
+      , CREATED_AT
+      , STATUS
+      , DEPTH
+      , GROUP_NO
+      , GROUP_ORDER
+    ) VALUES (
+        FREE_SEQ.NEXTVAL
+      , #{email}
+      , #{contents}
+      , SYSTIMESTAMP
+      , 1
+      , #{depth}   <!-- 이미 전달된 댓글에 작업이 되어 있으니 꺼내서 쓰기만 하면 된다. -->
+      , #{groupNo}
+      , #{groupOrder}
+    )
+  </insert>
+-------------------------------
+  
+  
+  
+ 2. 매퍼.java 작성
+  
+  public int updateGroupOrder(FreeDto free);  -> 댓글정렬업데이트  // free 이름은 자유
+  public int insertReply(FreeDto free);	      -> 댓글삽입
+  
+  
+  
+  
+ 3. 서비스 작성
+ 
+  public int addReply(HttpServletRequest request);  // 댓글 삽입 : addReply
+ 
+ 
+ 
+  
+ 4. 서비스임플 작성
+-------------------------------
+     @Override
+    public int addReply(HttpServletRequest request) {
+    
+      // 요청 파라미터(댓글 작성 화면에서 받아오는 정보들)
+      // 댓글 정보(EDITOR, CONTENTS)        
+      // 원글 정보(DEPTH, GROUP_NO, GROUP_ORDER)
+      String email = request.getParameter("email");							   - 댓글 정보 EDITOR
+      String contents = request.getParameter("contents"); 					   - 댓글 정보 CONTENTS
+      int depth = Integer.parseInt(request.getParameter("depth"));			   - 원글 정보 DEPTH
+      int groupNo = Integer.parseInt(request.getParameter("groupNo"));		   - 원글 정보 GROUP_NO
+      int groupOrder = Integer.parseInt(request.getParameter("groupOrder"));   - 원글 정보 GROUP_ORDER
+      
+      // 원글DTO
+      // 기존댓글업데이트(원글DTO)
+      FreeDto free = FreeDto.builder()
+                      .groupNo(groupNo)
+                      .groupOrder(groupOrder)
+                      .build();
+      // ↑ 댓글 만들기
+      freeMapper.updateGroupOrder(free);    // 수정된 정보가 넘어옴.
+  
+      
+      // 댓글DTO
+      // 댓글삽입(댓글DTO)
+      FreeDto reply = FreeDto.builder()
+                       .email(email)
+                       .contents(contents)
+                       .depth(depth + 1)            // 원글의 depth + 1
+                       .groupNo(groupNo)            // 원글의 groupNo는 그대로 가져가기.
+                       .groupOrder(groupOrder + 1)  // 원글의 groupOrder + 1
+                       .build();
+      // ↑ 댓글 만들기
+      int addReplyResult = freeMapper.insertReply(reply); // 만든 댓글을 addReplyResult로 전달. 사용자에게 실제 서비스할 수 있는 정보.
+      
+      return addReplyResult;  // 실제 사용자에게 서비스할 내용 전달.
+    }
+    
+-----서비스임플 클래스 위로 올라가기----------   
+    
+  + 서비스임플 클래스 이름으로 가서 아래와 같이 트랜잭션 추가해주기 ↓↓↓
+  ※ insert 와 update가 동시에 수행되어야 할 때 트랜잭션 사용해야함. 읽기 전용 처리해준다(readOnly로 성능 향상 처리시켜준다.)
+
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+@Service
+public class FreeServiceImpl implements FreeService {
+
+-------------------------------
+ 
+ 
+ 
+ 
+5. 매퍼.xml 로 돌아가서 정렬해주기
+-------------------------------
+<select id="getFreeList" parameterType="Map" resultType="FreeDto">
+    SELECT FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, GROUP_ORDER ASC) AS RN, FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
+              FROM FREE_T)
+     WHERE RN BETWEEN #{begin} AND #{end}
+  </select>
+  
+ ※ 위 쿼리문에서 OVER(ORDER BY GROUP_NO DESC, GROUP_ORDER ASC) 이렇게 적어줘야함.
+ GROUP_NO DESC 은 1차 정렬이고, GROUP_ORDER ASC 는 2차 정렬이다.
+-------------------------------
+  
+  
+  
+  
+6. list.jsp에 댓글작성버튼 만들어주고 폼 만들기
+-------------------------------
+   <tr class="list">
+      <td>${beginNo - vs.index}</td>  <!-- 최근 것을 위로 올려준다. -->
+      <td>${free.email}</td>
+      <td>
+      <!-- depth에 따른 들여쓰기 (depth 하나당 2칸씩 공백) -->
+      <c:forEach begin="1" end="${free.depth}" step="1">&nbsp;&nbsp;</c:forEach>
+      <!-- 폰트어썸에서 댓글버튼 이미지 코드 가져오기. -->
+        <c:if test="${free.depth != 0}">   <!-- 댓글인지 아닌지는 depth가 1인지 2인지로 알 수 있다.-->
+          <i class="fa-solid fa-comment-dots"></i>   <!-- 폰트어썸 사이트에서 가져다 쓴 버튼 이미지 코드 -->
+        </c:if>
+      ${free.contents}
+      <!-- 댓글작성버튼 -->
+      <button type="button" class="btn_reply">댓글</button>
+      </td>
+  	  <td>${free.createdAt}</td>
+   </tr>
+  
+   화면 전체 ↓
+    <tr class="blind write_tr">   <!-- 사용자에게 숨겨놓을 정보이니 blind 를 쓰고 Style에 blind 추가한다. --> <!--클래스끼리는 공백으로 구분하면 된다. -->
+      <td colspan="4">
+        <form method="post" action="${contextPath}/free/addReply.do">
+          <div>
+            <label for="email">작성자</label>        <!-- session에있는 유저의 이메일을 갖다 놓은 뒤 수정할 수 없게 readonly 한다. -->
+            <input type="text" name="email" id="email" value="${sessionScope.user.email}" readonly>   <!-- value 값이 꼭 필요함 -->
+          </div>
+          <div>
+            <label for="contents">내용</label>
+            <input type="text" name="contents" id="contents">
+          </div>  <!-- 원래 '내용'은 textarea로 하는 게 맞음.(여기에서는 그냥 text 써봤음) -->
+          <div>
+            <input type="hidden" name="depth" value="${free.depth}">
+            <input type="hidden" name="groupNo" value="${free.groupNo}">
+            <input type="hidden" name="groupOrder" value="${free.groupOrder}">
+            <button type="submit">댓글달기</button>
+          </div>
+        </form>
+      </td>
+    </tr>
+    
+===================================
+
+외전)
+
+< 댓글 버튼 이미지 입히기전에 해야 할 사전 작업 >
+* 댓글 버튼 이미지 코드를 '폰트 어썸 사이트'에서 가져다 사용하기 위한 사전 작업
+
+cdnjs.com 에서 font-awesome 검색 
+첫번째 all.min.css 를 가져다 쓴다. (주소 복사와 태그 복사로 사용하는 방법이 있다)
+
+● 두 가지중 택1로 사용
+1.검색 결과로 나오는 주소를 가져다 쓰는 방법
+만든 css 파일에 들어가서
+상단에 주소만 등록하면 된다.
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css');
+
+2.태그를 복사해서 사용하는 방법
+만든 css 파일에 들어가서
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+추가해준다. (넣는 위치는 스프링 15장 파일 참고)
+
+
+===================================    
+
+
+이어서 다음 작업 순서 계속 >>
+ 
+----------위쪽 상단에 스타일 추가---------------
+
+<style>
+  .blind {
+    display: none;
+  }
+</style>
+------------하단에 스크립트 추가----------------
+
+<script>
+
+
+  const fnBlind = () => {
+    $('.btn_reply').click((ev) => {			// ev = 이벤트 객체의 줄임말.
+     if('${sessionScope.user}' === ''){ // 로그인 풀리면 댓글버튼이 안 보임. 세션에 올라간 유저 점검
+      	if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+      	  location.href = '${contextPath}/user/login.form';	// 로그인하는 곳으로 이동.	
+      	}
+      }
+      // 화살표 함수는 this 객체가 지원되지 않기 때문에
+      // 이벤트 대상을 "이벤트 객체"의 "target" 속성으로 처리한다.
+      
+      //    ↓ 댓글작성하는 폼이 포함될 tr이다.
+      let writeTr = $(ev.target).closest('.list').next()	  // closest : 가장 가까운.  // 가장 가까운 list 클래스.
+      
+      // 버튼 누를 때마다 열렸다 닫혔다 한다.
+      // class="blind"를 가진 상태 : 숨김 상태이므로 열어 준다.
+      if(writeTr.hasClass('blind')){		// blind 클래스를 가지고 있다.
+    	 $('.write_tr').addClass('blind');	// 모든 작성화면 닫기
+    	 writeTr.removeClass('blind');  	// 현재 작성화면 열기
+      } 
+      // class="blind"가 없는 상태 : 이미 열린 상태이므로 다시 숨긴다.
+      else {
+    	writeTr.addClass('blind');
+      }
+    })
+	  
+  }
+  
+  const fnAddReplyResult = () => {
+	  let addReplyResult = '${addReplyResult}';
+	  if(addReplyResult !== ''){
+		  if(addReplyResult === '1'){
+			  alert('댓글이 등록되었습니다.');
+		  } else {
+			  alert('댓글이 등록되지 않았습니다.');
+		  }
+	  }
+  }
+  
+  
+  // 함수 호출
+  fnBlind();
+  fnAddReplyResult();
+  
+  
+  
+7. Controller 작성
+-----------------------------
+ 
+  @PostMapping("/addReply.do")	   // 서비스임플에 addReplyResult 를 가져와서 리다이렉트로 저장해서 보내기 위해 리다이렉트를 써준다.
+  public String addReply(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+  int addReplyResult = freeService.addReply(request); 	// 댓글 결과 받아오기.
+  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); 	// 리다이렉트로 저장하기.
+  return "redirect:/free/list.do";  	// 리다이렉트해서 리스트로 보내기.
+  }
+  
+-----------------------------
+
+끝

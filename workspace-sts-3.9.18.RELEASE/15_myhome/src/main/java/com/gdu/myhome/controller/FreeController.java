@@ -38,4 +38,10 @@ public class FreeController {
     return "free/list";
   }
   
+  @PostMapping("/addReply.do")
+  public String addReply(HttpServletRequest request, RedirectAttributes redirectAttributes) { // addReplyResult 를 저장해서 보내기 위해 리다이렉트를 써준다.
+  int addReplyResult = freeService.addReply(request); // 댓글 결과 받아오기.
+  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); // 리다이렉트로 저장하기.
+  return "redirect:/free/list.do";  // 리다이렉트해서 리스트로 보내기.
+  }
 }
