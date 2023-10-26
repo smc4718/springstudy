@@ -113,7 +113,15 @@ public class FreeServiceImpl implements FreeService {
     return freeMapper.deleteFree(freeNo); // 삭제할 번호만 받아와서 그대로 DB에 전달.
     }
 
-
+    @Override
+    public void loadSearchList(HttpServletRequest request, Model model) {
+     
+      String column = request.getParameter("column");
+      String query = request.getParameter("query");
+      
+      // 검색결과 개수 구하기
+      
+    }
 
 
 

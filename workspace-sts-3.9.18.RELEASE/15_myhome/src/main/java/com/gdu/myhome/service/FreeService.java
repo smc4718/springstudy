@@ -9,4 +9,5 @@ public interface FreeService {
   public void loadFreeList(HttpServletRequest request, Model model);
   public int addReply(HttpServletRequest request);
   public int removeFree(int freeNo);  // 삭제할 때 번호만 넘기면 되니까 request써서 꺼내서 전달하면 번거로우니 'int free로 번호만 전달한다. HttpServletrequest로도 가능. 
+  public void loadSearchList(HttpServletRequest request, Model model);
 }

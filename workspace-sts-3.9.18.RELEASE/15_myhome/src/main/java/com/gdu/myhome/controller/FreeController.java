@@ -53,4 +53,10 @@ public class FreeController {
     return "redirect:/free/list.do";  // 삭제 후 목록보기로 되돌아가기(리다이렉트)
   }
   
+  @GetMapping("/search.do")
+  public String search(HttpServletRequest request, Model model) {
+    freeService.loadSearchList(request, model);  //column과 query를 모델에 저장한 건 포워딩해서 확인가능하다.
+    return "free/list";   // list 가 검색결과로 바뀌어서 나오게 끔 구성할 것이다.
+  }
+  
 }

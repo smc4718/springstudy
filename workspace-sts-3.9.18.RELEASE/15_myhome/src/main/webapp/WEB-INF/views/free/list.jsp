@@ -21,7 +21,11 @@
   
     <!-- 새글작성으로 무조건 가면 안 되고, 로그인되어 있는지 확인해야 한다. -->
     <!-- Servlet-context 파일에서 인터셉터에 <mapping path="/free/write.form"/> 작성해준다. -->
-    <div><a href="${contextPath}/free/write.form">새글작성</a></div>
+    <div>
+      <a href="${contextPath}/free/write.form">
+        <button type="button" class="btn btn-primary">새글작성</button>
+      </a>
+    </div>
   
   <hr>
   
@@ -101,6 +105,16 @@
         </tfoot>
       </table>
     </div>
+    <div>   <!-- name이 column 하고 query가 있다. 이 둘을 백단으로 보낸다. -->
+      <form method="get" action="${contextPath}/free/search.do">  <!-- search.do 는 우리가 지금 설정해 준 url 주소 이름이다. list.jsp에서 만들어준 이름. -->
+        <select name="column">  <!-- (중요) select가 변수처리 될 거다. column으로 EMAIL과 CONTENTS가 갈 것이다. -->
+          <option value="EMAIL">작성자</option>
+          <option value="CONTENTS">내용</option>
+        </select>                             
+        <input type="text" name="query" placeholder="검색어 입력"> <!-- 검색할 내용을 query로 보내겠다. -->
+        <button type="submit" class="btn btn-outline-info">검색</button> <!-- 모양을 만드는 것은 class 이다. 건들지x -->  
+      </form>
+    </div>
   
   </div>
   
@@ -124,6 +138,8 @@
      if('${sessionScope.user}' === ''){ // 로그인 풀리면 댓글버튼이 안 보임. 세션에 올라간 유저 점검
       	if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
       	  location.href = '${contextPath}/user/login.form';	// 로그인하는 곳으로 이동.	
+      	} else {
+      	  return;
       	}
       }
       // 화살표 함수는 this 객체가 지원되지 않기 때문에
