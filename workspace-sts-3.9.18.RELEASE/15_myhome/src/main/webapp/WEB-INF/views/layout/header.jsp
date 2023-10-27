@@ -26,7 +26,7 @@
     <div class="login_wrap">
       <c:if test="${sessionScope.user == null}">
         <ul class="ul_menu right_wrap">
-          <li><a href="${contextPath}/user/login.form">로그인</a></li>
+          <li><a href="${contextPath}/user/login.form" >로그인</a></li>
           <li><a href="${contextPath}/user/agree.form">회원가입</a></li>
         </ul>
       </c:if>
@@ -36,14 +36,12 @@
       </c:if>
     </div>
     <div class="gnb_wrap">
-    <nav class="navbar" style="background-color: #e3f2fd;">
       <ul class="gnb">
         <li><a href="${contextPath}/free/list.do">계층게시판</a></li>
         <li><a href="${contextPath}/blog/list.do">댓글형게시판</a></li>
         <li><a href="${contextPath}">첨부게시판</a></li>
         <li><a href="${contextPath}/user/mypage.form">MY</a></li>
       </ul>
-    </nav>
     </div>
   </div>
   

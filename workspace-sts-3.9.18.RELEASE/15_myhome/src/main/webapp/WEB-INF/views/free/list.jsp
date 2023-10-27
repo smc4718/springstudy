@@ -16,21 +16,21 @@
   }
 </style>
 
-  <div>
+  <div style="text-align: center;">
     <!-- ↑ 위에 jsp 태그에 아무것도 적지 말기. 에러남 -->
   
     <!-- 새글작성으로 무조건 가면 안 되고, 로그인되어 있는지 확인해야 한다. -->
     <!-- Servlet-context 파일에서 인터셉터에 <mapping path="/free/write.form"/> 작성해준다. -->
     <div>
       <a href="${contextPath}/free/write.form">
-        <button type="button" class="btn btn-primary">새글작성</button>
+        <button type="button" class="btn btn-success">새글작성</button>
       </a>
     </div>
   
   <hr>
   
-    <div>
-      <table border="1">
+    <div style="text-align: center;">
+      <table border="1"  >
         <thead>
           <tr>
             <td>순번</td>
@@ -106,7 +106,7 @@
       </table>
     </div>
     <div>   <!-- name이 column 하고 query가 있다. 이 둘을 백단으로 보낸다. -->
-      <form method="get" action="${contextPath}/free/search.do">  <!-- search.do 는 우리가 지금 설정해 준 url 주소 이름이다. list.jsp에서 만들어준 이름. -->
+      <form style="text-align: center;" method="get" action="${contextPath}/free/search.do">  <!-- search.do 는 우리가 지금 설정해 준 url 주소 이름이다. list.jsp에서 만들어준 이름. -->
         <select name="column">  <!-- (중요) select가 변수처리 될 거다. column으로 EMAIL과 CONTENTS가 갈 것이다. -->
           <option value="EMAIL">작성자</option>  <!-- 매퍼.xml로 보내려고 대문자로 씀 -->
           <option value="CONTENTS">내용</option>

@@ -15,9 +15,9 @@
   
     <!-- 새글작성으로 무조건 가면 안 되고, 로그인되어 있는지 확인해야 한다. -->
     <!-- Servlet-context 파일에서 인터셉터에 <mapping path="/free/write.form"/> 작성해준다. -->
-    <div>
+    <div style="text-align: center;">
       <a href="${contextPath}/blog/write.form">
-        <button type="button" class="btn btn-primary">새글작성</button>
+        <button type="button" class="btn btn-success">새글작성</button>
       </a>
     </div>
   

@@ -48,6 +48,9 @@ public class CommentDto {
 --------------------------------------------------
 [ 파일 첨부 기능 ]
 
+< ===================파일 첨부를 위한 사전작업과============================
+=====================새 글 작성시 이미지 첨부하는 기능 =================>
+
 < 블로그 작성시 첨부한 이미지가 작성 후에도 저장되게 하기 >
 
 1. pom.xml에 파일첨부 넣기 (나는 이미 pom에 들어가있음, 추가 X)
@@ -157,15 +160,32 @@ public class BlogController {
 
 
 9. write.jsp 작성
-<div>
+------------------------------------------------------
+<jsp:include page="../layout/header.jsp">
+  <jsp:param value="블로그작성" name="title"/>
+</jsp:include>
 
-  <form id="frm_free_add" method="post" action="${contextPath}/free/add.do">
+<style>
+  .ck.ck-editor {
+    max-width: 800px;
+  }
+  .ck-editor__editable {
+    min-height: 400px;
+  }
+  .ck-content {
+    color: gray;
+  }
+</style>
+
+<div>
+    <!-- form id="frm_blog_add"는 title의 공백을 검사할 때 사용한다.(지금은 사용 안한 버젼 -->
+  <form id="frm_blog_add" method="post" action="${contextPath}/blog/addBlog.do">
     
-    <h1>자유게시글을 작성하세요</h1>
+    <h1>블로그를 작성하세요</h1>
     
     <div>
-      <label for="email">작성자</label>        <!-- session에있는 유저의 이메일을 갖다 놓은 뒤 수정할 수 없게 readonly 한다. -->
-      <input type="text" name="email" id="email" value="${sessionScope.user.email}" readonly>   <!-- value 값이 꼭 필요함 -->
+      <label for="title">제목</label>
+      <input type="text" name="title" id="title">
     </div>
     
     <div>
@@ -174,15 +194,241 @@ public class BlogController {
     </div>
     
     <div>
+      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}"> <!-- 세션에 있는 유저에 있는 유저넘버 -->
       <button type="submit">작성완료</button>
     </div>
     
   </form>
 
+  <script>
+    const fnCkeditor = () => {		// 화살표 함수로 변수로 전달하는 방식
+  		 
+  	  ClassicEditor
+  	    .create(document.getElementById('contents'), {	//	getElementById('?')  <- 물음표 자리는 상황에 따라 이름을 바꿔서 써야 한다. 
+  		    toolbar: {
+  			    items: [
+  		        'undo', 'redo',
+  		        '|', 'heading',
+  		        '|', 'fontfamily', 'fontsize', 'fontColor', 'fontBackgroundColor',
+  		        '|', 'bold', 'italic', 'strikethrough', 'subscript', 'superscript', 'code',
+  		        '|', 'link', 'uploadImage', 'blockQuote', 'codeBlock',
+  		        '|', 'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent'
+    		    ],
+    		    shouldNotGroupWhenFull: false
+    	   },
+         heading: {
+           options: [
+             { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+             { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+             { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+             { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+             { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+             { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+             { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+           ]
+         },
+         ckfinder: {
+      	   // 업로드 경로 (블로그 경로로 이미지 업로드를 하겠다.)
+      	   uploadUrl: '${contextPath}/blog/imageUpload.do'
+         }
+  	   })
+  	   .catch(err => {
+  		   console.log(err)
+  	   });
+  	  
+    }
+    
+    // 함수 호출
+    fnCkeditor();
+    
+  </script>
+
 </div>
 
+<%@ include file="../layout/footer.jsp" %>
+----------------------------------------------
 
 
-10. 
+10. servlet-context.xml 작성
+<interceptor>
+  <mapping path="/user/mypage.form"/>
+  <mapping path="/user/modifyPw.form"/>
+  <mapping path="/free/write.form"/>
+  <mapping path="/blog/write.form"/>	<-- 이걸 추가 (로그인 되어있는지 검사)
+  <beans:bean class="com.gdu.myhome.intercept.RequiredLoginInterceptor" />  <!-- 필수 로그인 인터셉터 : RequiredLoginInterceptor -->
+</interceptor>
 
 
+11. BlogService 인터페이스와 BlogServiceImpl.java(BlogService 인터페이스 추가) 만들기.
+
+12. BlogController에 작성
+private final BlogService blogService;
+
+그리고 클래스 상단에 @RequiredArgsConstructor 붙이기.
+
+추가 작성 :
+// produces 가 있으면, 무조건 @ResponseBody 가 붙는다 (ajax처럼 동작하기 때문) 
+  // 첨부 파일 관련된 것은 전부 다 POST 다. (주소창에 파일 못 붙임)
+  // json을 반환할 때 최적화된 것 : Map
+  @ResponseBody
+  @PostMapping(value="/imageUpload.do", produces="application/json") // value만 작성할 때는 value를 생략할 수 있지만, 또 적을 게 있다면 value를 꼭 적어주어야 함.
+  public Map<String, Object> imageUpload(MultipartHttpServletRequest multipartRequest) {   // MultipartHttpServletRequest : 파일을 받을 수 있는 MultipartHttpServletRequest 
+    return blogService.imageUpload(multipartRequest);
+  }
+  
+  
+13. BlogService 작성
+public interface BlogService {
+  public Map<String, Object> imageUpload(MultipartHttpServletRequest multipartRequest);
+}
+
+
+14.BlogServiceImpl 작성
+--------------------------------------------------------------- 
+@RequiredArgsConstructor
+@Service
+public class BlogServiceImpl implements BlogService {
+  
+  private final MyFileUtils myFileUtils;
+  
+  @Override
+  public Map<String, Object> imageUpload(MultipartHttpServletRequest multipartRequest) {
+   
+    // 이미지가 저장될 경로
+    String imagePath = myFileUtils.getBlogImagePath();
+    File dir = new File(imagePath);
+    if(!dir.exists()) {
+      dir.mkdirs();
+    }
+    
+    // 이미지 파일 (CKEditor는 이미지를 upload 라는 이름으로 보냄)
+    MultipartFile upload = multipartRequest.getFile("upload");
+    
+    // 이미지가 저장될 이름
+    String originalFilename = upload.getOriginalFilename();
+    String filesystemName = myFileUtils.getFilesystemName(originalFilename);  // 저장될 이름을 제공한다.
+    
+    // 이미지 File 객체
+    File file = new File(dir, filesystemName);   // 경로는 dir , 저장된 이름은 filesystemName
+    
+    // 저장
+    try {
+      upload.transferTo(file);  // file을 보내라.
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    // CKEditor로 저장된 이미지의 경로를 JSON 형식으로 반환해야 함
+    return Map.of("uploaded", true  // 업로드 되었다, 그렇다.
+                , "url", multipartRequest.getContextPath() + imagePath + "/" + filesystemName);  // 이미지가 저장될 경로. 
+  
+    // url: "http://localhost:8080/myhome/blog/2023/10/27/파일명"  <- CKEditor로 이 주소를 보냈다.
+    // servlet-context.xml에
+    // /blog/** 주소 요청을 실제 저장될 디렉토리인  /blog 디렉터리로 연결하는 <resources> 태그를 추가해야 함.
+  
+  }
+--------------------------------------------------------------- 
+
+
+15. servlet-context.xml에 작성
+<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+ <resources mapping="/resources/**" location="/resources/" />
+ <resources mapping="/blog/**" location="file:///blog/" />   <!-- file:// 를 붙이면 프로젝트 내부 폴더가 아닌, 외부 폴더 경로로 인식한다. --> 
+
+===================여기까지 새 글 작성시 이미지 첨부하는 기능============================
+ 
+< 블로그 작성 기능 >
+
+1. 블로그컨트롤러 작성
+@PostMapping("/addBlog.do")
+  public String addBlog(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    blogService.addBlog(request);
+    return "";
+  }
+  
+  
+2. 블로그서비스 작성
+public int addBlog(HttpServletRequest request);
+
+
+3. 블로그서비스임플 작성
+@Override
+  public int addBlog(HttpServletRequest request) {
+    
+    String title = request.getParameter("title");
+    String contents = request.getParameter("contents");
+    int userNo = Integer.parseInt(request.getParameter("userNo"));
+    
+    return 0;
+  }
+  
+  
+4. BlogMapper.java 인터페이스로 만들기
+
+5. BlogMapper.xml 만들기
+<mapper namespace="com.gdu.myhome.dao.BlogMapper">
+
+  <insert id="insertBlog" parameterType="BlogDto">
+    INSERT INTO BLOG_T(
+        BLOG_NO
+      , TITLE
+      , CONTENTS
+      , USER_NO
+      , IP
+      , CREATED_AT
+      , MODIFIED_AT
+    ) VALUES(
+        BLOG_SEQ.NEXTVAL
+      , #{title}
+      , #{contents}
+      , #{userNo}
+      , #{ip}
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
+    )
+  </insert>
+  
+  </mapper>
+
+6. BlogMapper.java 이어서 작성.
+@Mapper
+public interface BlogMapper {
+  public int insertBlog(BlogDto blog);
+}
+
+8. BlogServiceImpl 작성
+---------------------------------------------------------
+상단에 작성
+private final BlogMapper blogMapper;
+
+하단에 작성
+@Override
+  public int addBlog(HttpServletRequest request) {
+    
+    String title = request.getParameter("title");
+    String contents = request.getParameter("contents");
+    int userNo = Integer.parseInt(request.getParameter("userNo"));
+    String ip = request.getRemoteAddr();
+    
+    BlogDto blog = BlogDto.builder()
+                    .title(title)
+                    .contents(contents)
+                    .userNo(userNo)
+                    .ip(ip)
+                    .build();
+    
+    int addResult = blogMapper.insertBlog(blog);
+    
+    return addResult;
+  }
+--------------------------------------------------------
+  
+  
+ 9.블로그컨트롤러 이어서 작성
+ @PostMapping("/addBlog.do")
+  public String addBlog(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    int addResult = blogService.addBlog(request);
+    redirectAttributes.addFlashAttribute("addResult", addResult);
+    return "redirect:/blog/list.do";
+  }
+  

@@ -17,26 +17,28 @@
 </style>
 
   <div class="login_form_wrap center_wrap">
-    <form method="post" action="${contextPath}/user/login.do">
+    <form style="text-align: center;" method="post" action="${contextPath}/user/login.do">
       <div>
-        <label for="email">아이디</label>
+        <label for="email">아이디&nbsp&nbsp&nbsp&nbsp</label>
         <input type="text" name="email" id="email" placeholder="admin@gmail.com">
       </div>
       <div>
-        <label for="pw">비밀번호</label>
+        <label for="pw">비밀번호&nbsp</label>
         <input type="password" name="pw" id="pw" placeholder="●●●●●●">
       </div>
       <div>
+      <br>
         <input type="hidden" name="referer" value="${referer}">
         <button type="submit">로그인</button>
       </div>
     </form>
+    <br>
     <ul class="ul_menu center_wrap">
       <li><a href="${contextPath}">자동로그인</a>
       <li><a href="${contextPath}">아이디/비밀번호 찾기</a>
     </ul>
     <hr>
-    <div>
+    <div style="text-align: center;">
       <a href="${naverLoginURL}">
         <img src="${contextPath}/resources/image/btnD_완성형.png" width="200px">
       </a>
