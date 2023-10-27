@@ -1,7 +1,10 @@
 package com.gdu.myhome.service;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -104,6 +107,30 @@ public class BlogServiceImpl implements BlogService {
     
     return addResult;
     
+  }
+  
+  public void blogImageBatch() {
+      
+ // 1. 어제 작성된 블로그의 이미지 목록 (DB)
+    List<BlogImageDto> blogImageList = blogMapper.getBlogImageInYesterday();
+    
+    // 2. List<BlogImageDto> -> List<Path> (Path는 경로+파일명으로 구성)                             * 패쓰형태 : /blog/2023/10/26
+    List<Path> blogImagePathList = blogImageList.stream() // ↓ 해석 : blogImageDto를 경로하고 이름만 사용한 패쓰형태(경로형태)로 전부 다 바꿔서 리스트로 만들어달라.
+                                                .map(blogImageDto -> new File(blogImageDto.getImagePath(), blogImageDto.getFilesystemName()).toPath())
+                                                .collect(Collectors.toList());
+    // 3. 어제 저장된 블로그 이미지 목록 (디렉토리)
+    File dir = new File(myFileUtils.getBlogImagePathInYesterday());
+    
+    // 4. 삭제할 File 객체들   // ↓ 해석 : 디렉토리에 저장된 모든 애들을 파일이라고 하고 하나씩 불러서 경로에 포함되어있는지 확인하고 true인 대상들만 넘겨줄 것이다.
+    File[] targets = dir.listFiles(file -> !blogImagePathList.contains(file.toPath()));
+                                  //   ↑ 람다식으로 함 (for문으로 하면 구문이 길어지고 이상해짐)
+    // 5. 삭제
+    if(targets != null && targets.length !=0) {
+      for(File target : targets) {
+        target.delete();
+      }
+    }
+  
   }
   
 }

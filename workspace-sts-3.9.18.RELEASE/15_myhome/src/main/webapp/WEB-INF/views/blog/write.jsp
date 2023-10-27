@@ -14,12 +14,15 @@
 
   .ck.ck-editor {
     max-width: 1000px;
+
   }
   .ck-editor__editable {
     min-height: 400px;
+
   }
   .ck-content {
     color: gray;
+
   }
 </style>
 

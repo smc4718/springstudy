@@ -32,5 +32,12 @@ public class MyFileUtils {   // @Component 해놓고 불러다가 @Autowired 로
     return UUID.randomUUID().toString().toString().replace("-", "") + "." + extName; // ← 원래 이름과 저장된 이름 구성하기.
   }
   
+  //블로그 이미지가 저장된 어제 경로를 반환
+   public String getBlogImagePathInYesterday() {
+     LocalDate date = LocalDate.now();
+     date = date.minusDays(1);  // 1일 전
+     return "/blog/" + DateTimeFormatter.ofPattern("yyyy/MM/dd").format(date);
+   }
+  
   
 }
