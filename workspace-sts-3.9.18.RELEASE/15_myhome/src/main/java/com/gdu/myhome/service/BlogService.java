@@ -9,4 +9,5 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 public interface BlogService {
   public Map<String, Object> imageUpload(MultipartHttpServletRequest multipartRequest);
   public int addBlog(HttpServletRequest request);
+  
 }

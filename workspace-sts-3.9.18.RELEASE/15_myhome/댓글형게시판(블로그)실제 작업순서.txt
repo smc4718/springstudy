@@ -368,7 +368,16 @@ public int addBlog(HttpServletRequest request);
 5. BlogMapper.xml 만들기
 <mapper namespace="com.gdu.myhome.dao.BlogMapper">
 
+  <!-- 
+    처리 순서
+    1. BLOG_SEQ.NEXTVAL 값을 먼저(order="BEFORE") 파라미터로 전달된 BlogDto의 blogNo에 저장(keyProperty="blogNo")한다.
+    2. 저장된 blogNo를 INSERT문에서 사용한다. 
+   -->
   <insert id="insertBlog" parameterType="BlogDto">
+    <selectKey order="BEFORE" keyProperty="blogNo" resultType="int">
+      SELECT BLOG_SEQ.NEXTVAL
+        FROM DUAL
+    </selectKey>
     INSERT INTO BLOG_T(
         BLOG_NO
       , TITLE
@@ -378,7 +387,7 @@ public int addBlog(HttpServletRequest request);
       , CREATED_AT
       , MODIFIED_AT
     ) VALUES(
-        BLOG_SEQ.NEXTVAL
+        #{blogNo}
       , #{title}
       , #{contents}
       , #{userNo}
@@ -432,3 +441,97 @@ private final BlogMapper blogMapper;
     return "redirect:/blog/list.do";
   }
   
+10. SQL디벨로퍼 BLOG_IMAGE_T 테이블 작성.
+
+11. BlogImageDto 작성
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+public class BlogImageDto {
+  private int blogNo;
+  private String imagePath;
+  private String filesystemName;
+}
+
+
+12. mybatis-config.xml 에 BlogImageDto로 별명 만들기.
+<typeAlias alias="BlogImageDto" type="com.gdu.myhome.dto.BlogImageDto"/>
+
+
+13. pom.xml 에 메이븐 jsoup 추가 (나는 이미 등록함)
+<!-- HTML 분석기 -->
+<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+<dependency>
+    <groupId>org.jsoup</groupId>
+    <artifactId>jsoup</artifactId>
+    <version>1.15.3</version>
+</dependency>
+
+
+14. BlogServiceImpl 작성 (자동완성 임폴트는 jsoup 패키지로 사용하기)
+------------------------------------------------------------
+@Override
+  public int addBlog(HttpServletRequest request) {
+    
+    String title = request.getParameter("title");
+    String contents = request.getParameter("contents");
+    int userNo = Integer.parseInt(request.getParameter("userNo"));
+    String ip = request.getRemoteAddr();
+    
+    // BlogDto 생성
+    BlogDto blog = BlogDto.builder()
+                    .title(title)
+                    .contents(contents)
+                    .userNo(userNo)
+                    .ip(ip)
+                    .build();
+    
+ // BLOG_T에 추가
+    // BlogMapper의 insertBlog() 메소드를 실행하면
+    // insertBlog() 메소드로 전달한 blog 객체에 blogNo값이 저장된다.
+    int addResult = blogMapper.insertBlog(blog);
+    
+    // BLOG 작성시 사용한 이미지 목록 (Jsoup 라이브러리 사용)
+    Document document = Jsoup.parse(contents);
+    Elements elements =  document.getElementsByTag("img");
+    
+    if(elements != null) {
+      for(Element element : elements) {
+        String src = element.attr("src");
+        String filesystemName = src.substring(src.lastIndexOf("/") + 1); 
+        BlogImageDto blogImage = BlogImageDto.builder()
+                                    .blogNo(blog.getBlogNo())
+                                    .imagePath(myFileUtils.getBlogImagePath())
+                                    .filesystemName(filesystemName)
+                                    .build();
+        blogMapper.insertBlogImage(blogImage);
+      }
+    }
+    
+    return addResult;
+    
+  }
+------------------------------------------------------------
+
+15. BlogMapper.xml 작성
+<insert id="insertBlogImage" parameterType="BlogImageDto">
+    INSERT INTO BLOG_IMAGE_T(
+        BLOG_NO
+      , IMAGE_PATH
+      , FILESYSTEM_NAME
+    ) VALUES(
+        #{blogNo}
+      , #{imagePath}
+      , #{filesystemName}
+    )
+  </insert>
+  
+  
+  
+16. BlogMapper.java 작성
+@Mapper
+public interface BlogMapper {
+  public int insertBlog(BlogDto blog);
+  public int insertBlogImage(BlogImageDto blogImage);
+}
