@@ -1,5 +1,7 @@
 < 댓글 기능 실제 작업 순서 : 15장 기준>
 
+< 계층형 게시판 작업 >
+
 [ 댓글 달기]
 
 1. 매퍼.xml 작성
@@ -96,8 +98,9 @@
     
   + 서비스임플 클래스 이름으로 가서 아래와 같이 트랜잭션 추가해주기 ↓↓↓
   ※ insert 와 update가 동시에 수행되어야 할 때 트랜잭션 사용해야함. 읽기 전용 처리해준다(readOnly로 성능 향상 처리시켜준다.)
+  ※ 매퍼.xml에 select로 구성된 애들만 @Transactional(readOnly=true)를 붙여주면 된다. ( DB수정이 없는 애들만 쓰는 것, ex: 검색 )
 
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class FreeServiceImpl implements FreeService {
@@ -268,7 +271,7 @@ cdnjs.com 에서 font-awesome 검색
 
 
 
-[ 댓글 삭제하기 ]
+[ 댓글 삭제하기 ] - 진짜 삭제 말고 업데이트하는 방식으로 작업했음.
 
 
 1. list.jsp 작성 (댓글작성버튼 아래에 삭제 복붙하기)
@@ -446,7 +449,8 @@ public void loadSearchList(HttpServletRequest request, Model model) {
   <select id="getSearchCount" parameterType="Map" resultType="int"> <!-- column, query 둘 다 저장해주기 위해 Map을 쓴다. -->
     SELECT COUNT(*)
       FROM FREE_T
-     WHERE ${column} LIKE '%' || #{query} || '%'
+     WHERE STATUS = 1      <!-- 1일 때 검색된다. 0일 때는 비정상게시물로 검색되지 않는다. -->
+       AND ${column} LIKE '%' || #{query} || '%'
   </select>
   
 
@@ -490,7 +494,8 @@ public void loadSearchList(HttpServletRequest request, Model model) {
     SELECT FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
       FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, GROUP_ORDER ASC) AS RN, FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDER
               FROM FREE_T
-             WHERE ${column} LIKE '%' || #{query} || '%')
+             WHERE STATUS = 1   <!-- 1일 때 검색된다. 0일 때는 비정상게시물로 검색되지 않는다. -->
+               AND ${column} LIKE '%' || #{query} || '%')
      WHERE RN BETWEEN #{begin} AND #{end}
   </select>  
 
@@ -501,37 +506,40 @@ public List<FreeDto> getSearchList(Map<String, Object> map);
 
 
 9.다시 서비스 임플로 가서 loadSearchList 마저 작성
+@Transactional(readOnly=true)		// 매퍼.xml에 select로 구성된 애들만 @Transactional(readOnly=true)를 붙여주면 된다. ( DB수정이 없는 애들만 쓰는 것, ex: 검색 )
 @Override
-    public void loadSearchList(HttpServletRequest request, Model model) {
-     
-      String column = request.getParameter("column");
-      String query = request.getParameter("query");
-      
-      // 검색결과 개수 구하기
-      Map<String, Object> map = new HashMap<>();
-      map.put("column", column);
-      map.put("query", query);
-      
-      int total = freeMapper.getSearchCount(map); // 전체 갯수
-      
-      Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
-      String strPage = opt.orElse("1");
-      int page = Integer.parseInt(strPage);
-     
-      int display = 10; // 한 화면에 표시할 갯수.
-     
-      myPageUtils.setPaging(page, total, display);  //setPaging을 호출하면 begin과 end가 계산된다. 그리고 페이징처리에 필요한 모든 것이 계산 된다.
-      
-      map.putIfAbsent("begin", myPageUtils.getBegin()); // myPageUtils 에서 계산이 끝난 begin을 가져온다.
-      map.put("end", myPageUtils.getEnd()); // myPageUtils 에서 계산이 끝난 end를 가져온다.
-      
-      List<FreeDto> freeList = freeMapper.getSearchList(map);
-      
-      model.addAttribute("freeList", freeList);                       // search.do 의 동작이 가능하도록 칼럼과 쿼리가 전달될 수 있는 상황이 된다.
-      model.addAttribute("paging", myPageUtils.getMvcPaging(request.getContextPath() + "/free/search.do?column=" + column + "&query=" + query));
-      model.addAttribute("beginNo", total - (page - 1) * display);
-    
-      
-    }
+public void loadSearchList(HttpServletRequest request, Model model) {
+ 
+  String column = request.getParameter("column");
+  String query = request.getParameter("query");
+  
+  // 검색결과 개수 구하기
+  Map<String, Object> map = new HashMap<>();
+  map.put("column", column);
+  map.put("query", query);
+  
+  int total = freeMapper.getSearchCount(map); // 전체 갯수
+  
+  Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
+  String strPage = opt.orElse("1");
+  int page = Integer.parseInt(strPage);
+ 
+  int display = 10; // 한 화면에 표시할 갯수.
+ 
+  myPageUtils.setPaging(page, total, display);  //setPaging을 호출하면 begin과 end가 계산된다. 그리고 페이징처리에 필요한 모든 것이 계산 된다.
+  
+  map.putIfAbsent("begin", myPageUtils.getBegin()); // myPageUtils 에서 계산이 끝난 begin을 가져온다.
+  map.put("end", myPageUtils.getEnd()); // myPageUtils 에서 계산이 끝난 end를 가져온다.
+  
+  List<FreeDto> freeList = freeMapper.getSearchList(map);
+  
+  model.addAttribute("freeList", freeList);                       // search.do 의 동작이 가능하도록 칼럼과 쿼리가 전달될 수 있는 상황이 된다.
+  model.addAttribute("paging", myPageUtils.getMvcPaging(request.getContextPath() + "/free/search.do?column=" + column + "&query=" + query));
+  model.addAttribute("beginNo", total - (page - 1) * display);
 
+  
+}
 
+====================================
+
+진짜 끝

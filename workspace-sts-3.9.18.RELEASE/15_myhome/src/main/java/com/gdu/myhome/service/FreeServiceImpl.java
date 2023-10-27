@@ -17,8 +17,8 @@ import com.gdu.myhome.util.MyPageUtils;
 import com.gdu.myhome.util.MySecurityUtils;
 
 import lombok.RequiredArgsConstructor;
-
-@Transactional(readOnly = true)  // insert 와 update가 동시에 수행되어야 할 때 트랜잭션 사용해야함. 읽기 전용 처리해준다(readOnly로 성능 향상 처리)
+                // select로 구성된 애들만 @Transactional(readOnly=true)를 붙여주면 된다.
+@Transactional  // insert 와 update가 동시에 수행되어야 할 때 트랜잭션 사용해야함. 읽기 전용 처리해준다(readOnly로 성능 향상 처리)
 @RequiredArgsConstructor
 @Service
 public class FreeServiceImpl implements FreeService {
@@ -113,7 +113,8 @@ public class FreeServiceImpl implements FreeService {
     public int removeFree(int freeNo) {
     return freeMapper.deleteFree(freeNo); // 삭제할 번호만 받아와서 그대로 DB에 전달.
     }
-
+    
+    @Transactional(readOnly=true)    
     @Override
     public void loadSearchList(HttpServletRequest request, Model model) {
      

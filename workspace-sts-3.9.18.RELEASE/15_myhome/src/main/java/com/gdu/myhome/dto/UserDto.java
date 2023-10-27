@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder
+@Builder    // 쉬운 생성을 도와주는 빌더패턴
 public class UserDto {
   private int userNo;
   private String email;
@@ -23,6 +23,7 @@ public class UserDto {
   private String jibunAddress;
   private String detailAddress;
   private int agree;
+  private int state;
   private Date pwModifiedAt ;
   private Date joinedAt ;
 }

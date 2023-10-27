@@ -1,0 +1,188 @@
+< 댓글형 게시판 작업 >
+
+[ 블로그 작업 ]
+
+1. UserDto 와 InactiveUserDto 작성
+private int state; 추가
+
+
+2. BlogDto 만들어서 작성.
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder		// 쉬운 생성을 도와주는 빌더패턴
+public class BlogDto {
+  private int blogNo;
+  private String title;
+  private String contents;
+  private int userNo;
+  private int hit;
+  private String ip;
+  private String createdAt;
+  private String modifiedAt;
+}
+
+
+3. CommentDto 만들어서 작성.
+@NoArgsConstructorㅒ
+@AllArgsConstructor
+@Data
+@Builder		// 쉬운 생성을 도와주는 빌더패턴
+public class CommentDto {
+  private int commentNo;
+  private String contents;
+  private int userNo;
+  private int blogNo;
+  private String createdAt;
+  private int status;
+  private int depth;
+  private int groupNo;
+}
+
+
+4.  Dto의 원래 타입이름이 길기 때문에(패키지 이름으로 나옴) mybatis-config.xml 에 가서 별명 만들기.
+<typeAlias alias="BlogDto" type="com.gdu.myhome.dto.BlogDto"/>
+<typeAlias alias="CommentDto" type="com.gdu.myhome.dto.CommentDto"/>
+
+
+--------------------------------------------------
+[ 파일 첨부 기능 ]
+
+< 블로그 작성시 첨부한 이미지가 작성 후에도 저장되게 하기 >
+
+1. pom.xml에 파일첨부 넣기 (나는 이미 pom에 들어가있음, 추가 X)
+ <!-- 파일 첨부(commons-io + commons-fileupload) -->
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.5</version>
+    </dependency>
+
+
+2. FileConfig.java 작성
+@Configuration
+public class FileConfig {
+
+  // MultipartResolver 라는 빈이 없으면 파일첨부가 불가능하다.
+  @Bean
+  public MultipartResolver multipartResolver() {  // 항상 인터페이스가 있으면 인터페이스 타입으로 잡기.
+    CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+    commonsMultipartResolver.setDefaultEncoding("UTF-8");
+    commonsMultipartResolver.setMaxUploadSize(1024 * 1024 * 100); // 전체 첨부 파일의 크기 100메가 = 1mg x 1mg x 100 : 100메가.
+    commonsMultipartResolver.setMaxUploadSizePerFile(1024 * 1024 * 10); // 개별 첨부 파일의 최대 크기 10메가 = 1mg x 1mg x 10 :  10메가.
+    return commonsMultipartResolver;
+  }
+  
+}
+
+
+3. MyFileUtils.java 작성
+@Component
+public class MyFileUtils {   // @Component 해놓고 불러다가 @Autowired 로 쓸 것.
+
+  // 블로그 작성시 사용된 이미지가 저장될 경로 반환하기
+  public String getBlogImagePath() {
+    /*  /storage/yyyy/MM/dd */
+    LocalDate today = LocalDate.now();  // 오늘을 구하는 방법
+   return "/blog/" + DateTimeFormatter.ofPattern("yyyy/MM/DD").format(today);
+  }
+  
+  // 파일이 저장될 이름 반환하기 (파일을 올릴 때 이름과, 실제 저장될 때 이름은 다르다)
+  public String getFilesystemName(String originalFileName) { // Filesystem 은 한 단어임.
+    
+    /*  UUID.확장자  */
+    
+    String extName = null;
+    if(originalFileName.endsWith("tar.gz")) { // 확장자에 마침표가 포함되는 예외 경우를 처리한다.
+      extName = "tar.gz";
+    } else {                                    // 자동완성시 regex 있으면 정규식 입력하라는 의미. 정규식에서 '.' 는 모든 문자라는 성격을 가지고 있음.
+      String[] arr = originalFileName.split("\\.");  // 마침표를 문자로 만들어주려면, [.] 또는 \\. 으로 입력.
+      extName = arr[arr.length-1];
+    }   
+    //   ↑↑↑ 확장자 만드는 식
+    
+    return UUID.randomUUID().toString().toString().replace("-", "") + "." + extName; // ← 원래 이름과 저장된 이름 구성하기.
+  }
+
+--------------------------------------------------
+  
+< 블로그 작업 이어서 >
+  
+5. header.jsp 작성
+<li><a href="${contextPath}/blog/list.do">댓글형게시판</a></li>
+
+
+
+6. BlogController 만들기
+@RequestMapping("/blog")
+@Controller
+public class BlogController {
+
+  @GetMapping("/list.do")
+  public String list(HttpServletRequest request, Model model) {
+    return "blog/list";
+  }
+  
+}
+
+
+
+7. view에 blog폴더 만들고 list.jsp 작성
+<div>
+  <a href="${contextPath}/blog/write.form">
+    <button type="button" class="btn btn-primary">새글작성</button>
+  </a>
+</div>
+
+
+
+8. blogController 이어서 작성
+@GetMapping("/list.do")
+  public String list(HttpServletRequest request, Model model) {
+    return "blog/list";
+  }
+  
+  @GetMapping("/write.form")
+  public String write() {
+    return "blog/write";
+  }
+
+
+
+9. write.jsp 작성
+<div>
+
+  <form id="frm_free_add" method="post" action="${contextPath}/free/add.do">
+    
+    <h1>자유게시글을 작성하세요</h1>
+    
+    <div>
+      <label for="email">작성자</label>        <!-- session에있는 유저의 이메일을 갖다 놓은 뒤 수정할 수 없게 readonly 한다. -->
+      <input type="text" name="email" id="email" value="${sessionScope.user.email}" readonly>   <!-- value 값이 꼭 필요함 -->
+    </div>
+    
+    <div>
+      <label for="contents">내용</label>
+      <textarea name="contents" id="contents"></textarea>
+    </div>
+    
+    <div>
+      <button type="submit">작성완료</button>
+    </div>
+    
+  </form>
+
+</div>
+
+
+
+10. 
+
+

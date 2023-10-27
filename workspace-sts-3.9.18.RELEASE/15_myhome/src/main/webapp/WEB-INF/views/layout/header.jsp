@@ -36,12 +36,14 @@
       </c:if>
     </div>
     <div class="gnb_wrap">
+    <nav class="navbar" style="background-color: #e3f2fd;">
       <ul class="gnb">
         <li><a href="${contextPath}/free/list.do">계층게시판</a></li>
-        <li><a href="${contextPath}">댓글형게시판</a></li>
+        <li><a href="${contextPath}/blog/list.do">댓글형게시판</a></li>
         <li><a href="${contextPath}">첨부게시판</a></li>
         <li><a href="${contextPath}/user/mypage.form">MY</a></li>
       </ul>
+    </nav>
     </div>
   </div>
   
