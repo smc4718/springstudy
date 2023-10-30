@@ -13,9 +13,9 @@ public class BlogDto {
   private int blogNo;
   private String title;
   private String contents;
-  private int userNo;      // 사용자와의 관계를 userNo 로 맺었음
   private int hit;
   private String ip;
   private String createdAt;
   private String modifiedAt;
+  private UserDto userDto;  // = private int userNo;  // 매퍼.xml에서 association 태그를 쓴 것은 맨 아래에 놓기.
 }

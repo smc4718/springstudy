@@ -614,3 +614,172 @@ public void blogImageBatch() {
     }
   }
 ===========블로그 이미지 첨부하고 폴더 저장되는 기능까지 했다.==============
+
+< 이어서 >
+
+23. SQL 추가 작성
+
+
+24. list.jsp 작성
+<div>
+    순번  제목  조회수  작성자(이메일) 작성일
+</div>
+
+
+
+25. blogDto 작성
+
+
+private UserDto userDto;  // = private int userNo;  -  매퍼.xml에서 association 태그를 쓴 것은 맨 아래에 놓기.
+
+26. blogMapper.xml 수정 및 작성
+----------------------------------------------
+수정할 것(resultType) : <select id="getBlogList" parameterType="Map" resultMap="BlogMap">
+
+작성할 것 :
+<resultMap type="BlogDto"      id="BlogMap">
+    <id     column="BLOG_NO"     property="blogNo" />
+    <result column="TITLE"       property="title" />
+    <result column="CONTENTS"    property="contents" />
+    <result column="HIT"         property="hit" />
+    <result column="IP"          property="ip" />
+    <result column="CREATED_AT"  property="createdAt" />
+    <result column="MODIFIED_AT" property="modifiedAt" />
+    <association javaType="UserDto"      property="userDto">
+      <id        column="USER_NO"        property="userNo"/>
+      <result    column="EMAIL"          property="email" />
+      <result    column="PW"             property="pw" />
+      <result    column="NAME"           property="name" />
+      <result    column="GENDER"         property="gender" />
+      <result    column="MOBILE"         property="mobile" />
+      <result    column="POSTCODE"       property="postcode" />
+      <result    column="ROAD_ADDRESS"   property="roadAddress" />
+      <result    column="JIBUN_ADDRESS"  property="jibunAddress" />
+      <result    column="DETAIL_ADDRESS" property="detailAddress" />
+      <result    column="AGREE"          property="agree" />
+      <result    column="STATE"          property="state" />
+      <result    column="PW_MODIFIED_AT" property="pwModifiedAt" />
+      <result    column="JOINED_AT"      property="joinedAt" />
+    </association>
+  </resultMap>
+  
+  <select id="getBlogCount" resultType="int">
+    SELECT COUNT(*)
+      FROM BLOG_T
+  </select>
+  
+  <select id="getBlogList" parameterType="Map" resultType="BlogMap">
+    SELECT A.BLOG_NO, A.TITLE, A.CONTENTS, A.USER_NO, A.HIT, A.IP, A.CREATED_AT, A.MODIFIED_AT, A.EMAIL
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY B.BLOG_NO DESC) AS RN, B.BLOG_NO, B.TITLE, B.CONTENTS, B.USER_NO, B.HIT, B.IP, B.CREATED_AT, B.MODIFIED_AT, U.EMAIL
+              FROM USER_T U INNER JOIN BLOG_T B
+                ON B.USER_NO = U.USER_NO) A
+     WHERE A.RN BETWEEN #{begin} AND #{end}
+  </select>
+  ----------------------------------------------
+
+
+27. 서비스임플 작성 (기존 작성에서 수정)
+ // BlogDto 생성
+    BlogDto blog = BlogDto.builder()
+                    .title(title)
+                    .contents(contents)
+                    .userDto(UserDto.builder()
+                              .userNo(userNo)
+                              .build())
+                    .ip(ip)
+                    .build();
+                    
+     
+
+
+28.매퍼.xml 수정
+insertBlog 부분 insert 태그 내용에
+#{userNo} 를 #{userDto.userNo} 로 수정.
+
+
+29.매퍼.java 작성
+public int getBlogCount();
+public List<BlogDto> getBlogList(Map<String, Object> map);
+
+
+30.서비스 작성
+public void loadBlogList(HttpServletRequest request, Model model);
+
+
+31.서비스임플 작성
+클래스 상단에 추가 : 
+@Transactional
+@RequiredArgsConstructor
+@Service
+public class BlogServiceImpl implements BlogService {
+
+하단에 추가 :
+@Transactional(readOnly=true)
+  @Override
+  public void loadBlogList(HttpServletRequest request, Model model) {
+    
+    Optional<String> opt = Optional.ofNullable(request.getParameter("page")); // page 파라미터를 Optional로 감싸기.
+    int page = Integer.parseInt(opt.orElse("1")); // 페이지 파라미터가 없으면 1을 대신 꺼내 쓰세요.
+    int total = blogMapper.getBlogCount();
+    int display = 10;
+    
+    myPageUtils.setPaging(page, total, display);
+    
+    Map<String, Object> map = Map.of("begin", myPageUtils.getBegin()
+                                   , "end", myPageUtils.getEnd());
+    
+    List<BlogDto> blogList = blogMapper.getBlogList(map);
+    
+    model.addAttribute("blogList", blogList);
+    model.addAttribute("paging", myPageUtils.getMvcPaging(request.getContextPath() + "/blog/list.do"));
+    model.addAttribute("beginNo", total - (page - 1) * display); // 페이지당 첫 순서의 시작번호 계산.
+    
+  }
+
+  
+32.컨트롤러 작성
+@GetMapping("/list.do")
+  public String list(HttpServletRequest request, Model model) {
+    blogService.loadBlogList(request, model);
+    return "blog/list";
+  }
+
+
+33. list.jsp 작성
+-----------------------------------------
+<div>
+    <table border="1">
+      <thead>
+        <tr>
+          <td>순번</td>
+          <td>제목</td>
+          <td>조회수</td>
+          <td>작성자(이메일)</td>
+          <td>작성일자</td>
+        </tr>
+      </thead>
+      <tbody>
+        <c:forEach items="${blogList}" var="b" varStatus="vs">
+          <tr>
+            <td>${beginNo - vs.index}</td>
+            <td>${b.title}</td>
+            <td>${b.hit}</td>
+            <td>${b.userDto.email}</td> <!-- userDto 에서 email을 꺼내야 한다. -->
+            <td>${b.createdAt}</td>
+          </tr>
+        </c:forEach>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5">${paging}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+--------------------------------------------
+
+34. write.jsp 수정
+<div>
+   <input type="hidden" name="userNo" value="${sessionScope.user.userDto.userNo}">   <- 이것 수정
+   <button type="submit" class="btn btn-success">작성완료</button>
+</div>
