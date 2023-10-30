@@ -2,6 +2,7 @@ package com.gdu.myhome.service;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -184,7 +185,9 @@ public class BlogServiceImpl implements BlogService {
     
     CommentDto comment = CommentDto.builder()
                            .contents(contents)
-                           .userNo(userNo)
+                           .userDto(UserDto.builder()
+                                     .userNo(userNo)
+                                     .build())
                            .blogNo(blogNo)
                            .build();
     
@@ -192,5 +195,31 @@ public class BlogServiceImpl implements BlogService {
     
     return Map.of("addCommentResult",addCommentResult);
   }
+  
+  @Override
+  public Map<String, Object> loadCommentList(HttpServletRequest request) {
+
+    int blogNo = Integer.parseInt(request.getParameter("blogNo"));
+    
+    int page = Integer.parseInt(request.getParameter("page"));
+    int total = blogMapper.getCommentCount(blogNo);
+    int display = 10;
+    
+    myPageUtils.setPaging(page, total, display);
+    
+    Map<String, Object> map = Map.of("blogNo", blogNo
+                                   , "begin", myPageUtils.getBegin()
+                                   , "end", myPageUtils.getEnd());
+    
+    List<CommentDto> commentList = blogMapper.getCommentList(map);
+    String paging = myPageUtils.getAjaxPaging();
+    
+    Map<String, Object> result = new HashMap<String, Object>();
+    result.put("commentList", commentList);
+    result.put("paging", paging);
+    return result;
+    
+  }
+  
   
 }

@@ -617,7 +617,7 @@ public void blogImageBatch() {
 
 < 이어서 >
 
-23. SQL 추가 작성
+23(2). SQL 추가 작성
 
 
 24. list.jsp 작성(틀만 잡기)
@@ -781,7 +781,7 @@ public class BlogServiceImpl implements BlogService {
 
 34. write.jsp 수정
 <div>
-   <input type="hidden" name="userNo" value="${sessionScope.user.userDto.userNo}">   <- 이것 수정
+   <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">   <- 이것 수정
    <button type="submit" class="btn btn-success">작성완료</button>
 </div>
 
@@ -789,8 +789,7 @@ public class BlogServiceImpl implements BlogService {
 
 -------------------------------------------
 
-[ 블로그 상세보기 작업 순서] 
-(SQL은 오로지 구동되는지 확인용이고, 실제로는 매퍼.xml 에서 sql 작성해서 돌리는 것.)
+[ 블로그 상세보기 작업 순서]
 1. SQL 작성
 -- 2. 상세
 
@@ -1052,5 +1051,116 @@ public Map<String, Object> addComment(HttpServletRequest request);
 
 
 14. 매퍼.java 작성
+public int getCommentCount(int blogNo);
+public List<CommentDto> getCommentList(Map<String, Object> map);
 
-14. 
+
+15. CommentDto 작성 (맨 하단에 적기)
+private UserDto userDto;  	// private int userNo;
+
+
+16. 매퍼.xml작성
+<resultMap type="CommentDto"    id="CommentMap">     <!-- 사용자에 관한 모든 정보를 댓글과 함께 나타낼 수 있습니다. -->  
+    <id      column="COMMENT_NO"  property="commentNo" />
+    <result  column="CONTENTS"    property="contents" />
+    <result  column="BLOG_NO"    property="blogNo" />
+    <result  column="CREATED_AT"    property="createdAt" />
+    <result  column="STATUS"    property="status" />
+    <result  column="DEPTH"    property="depth" />
+    <result  column="GROUP_NO"    property="groupNo" />
+    <association javaType="UserDto"      property="userDto">
+      <id        column="USER_NO"        property="userNo"/>
+      <result    column="EMAIL"          property="email" />
+      <result    column="PW"             property="pw" />
+      <result    column="NAME"           property="name" />
+      <result    column="GENDER"         property="gender" />
+      <result    column="MOBILE"         property="mobile" />
+      <result    column="POSTCODE"       property="postcode" />
+      <result    column="ROAD_ADDRESS"   property="roadAddress" />
+      <result    column="JIBUN_ADDRESS"  property="jibunAddress" />
+      <result    column="DETAIL_ADDRESS" property="detailAddress" />
+      <result    column="AGREE"          property="agree" />
+      <result    column="STATE"          property="state" />
+      <result    column="PW_MODIFIED_AT" property="pwModifiedAt" />
+      <result    column="JOINED_AT"      property="joinedAt" />
+    </association>
+  </resultMap>
+  
+-- 추가할 부분 :  <select id="getCommentList" parameterType="Map" resultMap="CommentMap">   <-- resultMap 부분 추가.
+
+ 
+17. 서비스임플 수정
+CommentDto comment = CommentDto.builder()
+                           .contents(contents)
+                           .userDto(UserDto.builder()
+                                     .userNo(userNo)
+                                     .build())
+                           .blogNo(blogNo)
+                           .build();
+                           
+                           
+                           
+                           
+18. detail.jsp 작성
+  // 전역 변수
+  var page = 1;
+  
+  const fnCommentList = () => {
+	$.ajax({
+	  // 요청
+	  type: 'get',
+	  url: '${contextPath}/blog/commentList.do'
+	  data: 'page=' + page + '&blogNo=${blog.blogNo}'
+	  // 응답
+	  dataType: 'json',
+	  success: (resData) => {
+		console.log(resData);
+	  }
+	})
+  }
+  
+  fnRequiredLogin();
+  fnCommentAdd();
+  fnCommentList();
+  
+  
+  
+19. 서비스 작성
+public Map<String, Object> loadCommentList(HttpServletRequest request);
+
+
+
+20. 서비스 임플 작성
+  @Override
+  public Map<String, Object> loadCommentList(HttpServletRequest request) {
+
+    int blogNo = Integer.parseInt(request.getParameter("blogNo"));
+    
+    int page = Integer.parseInt(request.getParameter("page"));
+    int total = blogMapper.getCommentCount(blogNo);
+    int display = 10;
+    
+    myPageUtils.setPaging(page, total, display);
+    
+    Map<String, Object> map = Map.of("blogNo", blogNo
+                                   , "begin", myPageUtils.getBegin()
+                                   , "end", myPageUtils.getEnd());
+    
+    List<CommentDto> commentList = blogMapper.getCommentList(map);
+    String paging = myPageUtils.getAjaxPaging();
+    
+    Map<String, Object> result = new HashMap<String, Object>();
+    result.put("commentList", commentList);
+    result.put("paging", paging);
+    return result;
+    
+  }
+  
+
+
+21. 컨트롤러 작성
+  @ResponseBody
+  @GetMapping(value="/commentList.do", produces="application/json")
+  public Map<String, Object> commentList(HttpServletRequest request){
+    return blogService.loadCommentList(request);
+  }
