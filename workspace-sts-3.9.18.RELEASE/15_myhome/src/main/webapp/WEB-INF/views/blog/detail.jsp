@@ -31,60 +31,93 @@
   <!-- 댓글 작성 화면 -->
   <div>
     <form id="frm_comment_add">
-      <textarea rows="3" cols="50" name="contents" placeholder="댓글을 작성해 주세요"></textarea>
+      <textarea rows="3" cols="50" name="contents" id="contents" placeholder="댓글을 작성해 주세요"></textarea>
       <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">   <!-- 세션에 있는 유저에 유저넘버 -->
       <input type="hidden" name="blogNo" value="${blog.blogNo}">
       <button type="button" id="btn_comment_add">작성완료</button>
     </form>
-    <script>
+  </div>
+  
+  <!-- 블로그 댓글 목록 -->
+  <div style="width: 100%; border-bottom: 1px solid gray;"></div>  <!-- div로 써놨지만, 사실은 회색 선이다. -->
+  <div id="comment_list"></div>
+  <div id="paging"></div>
+  
+  <script>
     
-    const fnRequiredLogin = () => {    	  
+    const fnRequiredLogin = () => {       
         // 로그인을 안하고 작성을 시도하면 로그인 페이지로 보내기
         $('#contents, #btn_comment_add').click(() => {
-      	  if('${sessionScope.user}' === ''){
-      		  if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
-      			  location.href = '${contextPath}/user/login.form';
-      		  } else {
-      			  return;
-      		  }
-      	  }
+          if('${sessionScope.user}' === ''){
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+              location.href = '${contextPath}/user/login.form';
+            } else {
+              return;
+            }
+          }
         })
       }
       
       const fnCommentAdd = () => {
-    	  $('#btn_comment_add').click(() => {
-    		  $.ajax({
-    			  // 요청
-    			  type: 'post',
-    			  url: '${contextPath}/blog/addComment.do',
-    			  data: $('#frm_comment_add').serialize(),
-    			  // 응답
-    			  dataType: 'json',
-    			  success: (resData) => {		// {"addCommentResult": 1}
-    				if(resData.addCommentResult === 1){
-    					alert('댓글이 등록되었습니다.');
-    					fnCommentList();
-    				}
-    			  }
-    		  })
-    	  })
+        $('#btn_comment_add').click(() => {
+          $.ajax({
+           // 요청
+           type: 'post',
+           url: '${contextPath}/blog/addComment.do',
+           data: $('#frm_comment_add').serialize(),
+           // 응답
+           dataType: 'json',
+           success: (resData) => {   // {"addCommentResult": 1}
+            if(resData.addCommentResult === 1){
+              alert('댓글이 등록되었습니다.');
+              $('#contents').val(''); 	// 댓글 등록 후 내용창 비우기.
+              fnCommentList();
+            }
+           }
+          })
+        })
       }
       
       // 전역 변수
       var page = 1;
       
       const fnCommentList = () => {
-    	$.ajax({
-    	  // 요청
-    	  type: 'get',
-    	  url: '${contextPath}/blog/commentList.do'
-    	  data: 'page=' + page + '&blogNo=${blog.blogNo}'
-    	  // 응답
-    	  dataType: 'json',
-    	  success: (resData) => {	// resData = {"commentList": [], "paging": "<div>...</di>"}
-    		console.log(resData);
-    	  }
-    	})
+      $.ajax({
+        // 요청
+        type: 'get',
+        url: '${contextPath}/blog/commentList.do',
+        data: 'page=' + page + '&blogNo=${blog.blogNo}',
+        // 응답
+        dataType: 'json',
+        success: (resData) => { // resData = {"commentList": [], "paging": "<div>...</di>"}
+		  $('#comment_list').empty();
+          $('#paging').empty();
+          if(resData.commentList.length === 0){
+			$('#comment_list').text('첫 번째 댓글의 주인공이 되어 보세요');
+			$('#paging').text('');
+		  	return;
+          }
+          $.each(resData.commentList, (i, c) => {
+            let str = '';
+            if(c.depth === 0){
+              str += '<div style="width: 100%; border-bottom: 1px solid gray;">';
+            } else {															  // 꼭 구현할 모양을 같이 적어가면서 쓰기.
+              str += '<div style="width: 100%; border-bottom: 1px solid gray; margin-left: 32px;">';							// <div>
+            }																	   // <div style="width: 100%; border-bottom: 1px solid gray;">
+            str += '<div>' + c.userDto.name + '</div>';							    // <div>이름</div>
+            str += '<div>' + c.contents + '</div>';		    						// <div>내용</div>
+            str += '<div style="font-size: 12px;">' + c.createdAt + '</div>';	   // <div style="font-size: 12px;">작성일자</div>
+            str += '</div>';												 		// </div>
+            $('#comment_list').append(str);  // comment_list 에 저장.
+          })
+          $('#paging').append(resData.paging);  // fnAjaxPaging() 함수가 호출되는 곳
+        }
+      })
+    }
+      
+      const fnAjaxPaging = (p) => {
+    	page = p;  // 페이지를 막아줘
+    	fnCommentList(); // 몇페이지로 바뀔거다. 라는 새 목록 갱신.
       }
       
       fnRequiredLogin();
@@ -92,21 +125,9 @@
       fnCommentList();
       
       
-    </script>
-  </div>
-  
-  <!-- 블로그 댓글 목록 -->
-  <div id="comment_list"></div>
-  <script>
-  	
-  </script>
+    </script>  	
 
 </div>
 
-<script>
-  
-  
-
-</script>
 
 <%@ include file="../layout/footer.jsp" %>

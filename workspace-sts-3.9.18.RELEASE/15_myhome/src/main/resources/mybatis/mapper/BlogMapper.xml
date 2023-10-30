@@ -169,12 +169,12 @@
   </select>
   
   <select id="getCommentList" parameterType="Map" resultMap="CommentMap">
-    SELECT A.COMMENT_NO, A.CONTENTS, A.USER_NO, A.BLOG_NO, A.CREATED_AT, A.STATUS, A.DEPTH, A.GROUP_NO, A.USER_NO, A.NAME
-      FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, DEPTH ASC, COMMENT_NO DESC) AS RN, C.COMMENT_NO, C.CONTENTS, C.USER_NO, C.BLOG_NO, C.CREATED_AT, C.STATUS, C.DEPTH, C.GROUP_NO, U.USER_NO, U.NAME
+    SELECT A.COMMENT_NO, A.CONTENTS, A.BLOG_NO, A.CREATED_AT, A.STATUS, A.DEPTH, A.GROUP_NO, A.USER_NO, A.NAME
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, DEPTH ASC, COMMENT_NO DESC) AS RN, C.COMMENT_NO, C.CONTENTS, C.BLOG_NO, C.CREATED_AT, C.STATUS, C.DEPTH, C.GROUP_NO, U.USER_NO, U.NAME
               FROM USER_T U INNER JOIN COMMENT_T C
                 ON U.USER_NO = C.USER_NO
-             WHERE C.BLOG_NO = #{blogNo) A
-     WHERE A.RN BETWEEN #{begin} AND #{end};  <!-- Map에 들어있는 게 blog_no , begin, end. 이렇게 3개다. -->  
+             WHERE C.BLOG_NO = #{blogNo}) A
+     WHERE A.RN BETWEEN #{begin} AND #{end}  <!-- Map에 들어있는 게 blog_no , begin, end. 이렇게 3개다. -->  
   </select>
 
 
