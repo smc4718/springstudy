@@ -1,6 +1,6 @@
 10월 26일 (목)
 
-< 계층형 게시판  >
+< 계층형 게시판 > - N차.
 
 * 계층형 게시판은 댓글을 달 줄 알아야 할 줄 아는 것.
 
@@ -74,3 +74,37 @@ FREE_NO 	 CONTENTS(댓글)      	 DEPTH    GROUP_NO   GROUP_ORDER
 
 5.
 댓글삽입 = DTO 전달해서 저장시키기
+
+==============================================================
+
+
+< 계층형게시판 > - 1차
+
+1.원글 작성
+DEPTH	     
+GROUP_NO     원글 번호
+
+
+2.댓글 작성
+DEPTH     			  1
+GROUP_NO        원글 GROUP_NO
+
+
+COMMENT_NO		CONTENTS		DEPTH		GROUP_NO	 정렬이 X인 상태
+    1          반갑습니다	      0            1
+    2		    ㄴ넵              1            1
+    3	       안녕하세요         0            3	   -> 원글의 경우에는 COMMENT_NO하고 GROUP_NO가 동일하다.
+    4          헬로 			  0            4
+    5           ㄴ넵              1            3       -> 안녕하세요에 달린 댓글.
+    6 			ㄴ넵			  1            4       -> 헬로에 달린 댓글.
+  
+  
+< GROUP_NO DESC, DEPTH ASC, COMMENT_NO DESC로 정렬처리시 ↓↓↓ >
+    
+COMMENT_NO		CONTENTS		DEPTH		GROUP_NO    
+    4          헬로 			  0            4
+    6 			ㄴ넵			  1            4       
+    3	       안녕하세요         0            3	    
+    5           ㄴ넵              1            3    
+    1          반갑습니다	      0            1
+    2		    ㄴ넵              1            1
