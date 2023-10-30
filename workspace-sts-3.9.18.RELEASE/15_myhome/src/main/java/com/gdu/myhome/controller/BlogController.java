@@ -9,10 +9,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdu.myhome.dto.BlogDto;
 import com.gdu.myhome.service.BlogService;
 
 import lombok.RequiredArgsConstructor;
@@ -51,4 +53,34 @@ public class BlogController {
     return "redirect:/blog/list.do";
   }
   
+  @GetMapping("/increaseHit.do")
+  public String increaseHit(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo) {
+  int increaseResult = blogService.increaseHit(blogNo);
+  if(increaseResult == 1) {
+    return "redirect:/blog/detail.do?blogNo=" + blogNo; // 위에서 조회수 증가가 나오고, 여기서 상세보기가 나온다.
+  } else {
+    return "redirect:/blog/list.do";
+  }
+  }
+  
+  @GetMapping("/detail.do")
+  public String detail(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo
+                     , Model model) {
+    BlogDto blog = blogService.getBlog(blogNo);
+    model.addAttribute("blog", blog);
+    return "blog/detail";  // 내가 작성한 블로그는 조회수가 늘지 않도록 detail로 보내기.  // 내가 작성하지 않은 블로그는 조회수가 늘도록 increaseHit 로 보내기.
+  }
+
+  @ResponseBody
+  @PostMapping(value="/addComment.do", produces="application/json")
+  public Map<String, Object> addComment(HttpServletRequest request) {
+    return blogService.addComment(request);
+  }
+  
+  
+  
+  
+  
+  
+
 }

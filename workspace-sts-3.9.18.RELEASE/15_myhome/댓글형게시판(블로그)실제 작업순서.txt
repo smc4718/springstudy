@@ -620,7 +620,7 @@ public void blogImageBatch() {
 23. SQL 추가 작성
 
 
-24. list.jsp 작성
+24. list.jsp 작성(틀만 잡기)
 <div>
     순번  제목  조회수  작성자(이메일) 작성일
 </div>
@@ -628,9 +628,9 @@ public void blogImageBatch() {
 
 
 25. blogDto 작성
-
-
 private UserDto userDto;  // = private int userNo;  -  매퍼.xml에서 association 태그를 쓴 것은 맨 아래에 놓기.
+
+
 
 26. blogMapper.xml 수정 및 작성
 ----------------------------------------------
@@ -676,6 +676,7 @@ private UserDto userDto;  // = private int userNo;  -  매퍼.xml에서 associat
      WHERE A.RN BETWEEN #{begin} AND #{end}
   </select>
   ----------------------------------------------
+
 
 
 27. 서비스임플 작성 (기존 작성에서 수정)
@@ -783,3 +784,245 @@ public class BlogServiceImpl implements BlogService {
    <input type="hidden" name="userNo" value="${sessionScope.user.userDto.userNo}">   <- 이것 수정
    <button type="submit" class="btn btn-success">작성완료</button>
 </div>
+
+
+
+-------------------------------------------
+
+[ 블로그 상세보기 작업 순서] 
+(SQL은 오로지 구동되는지 확인용이고, 실제로는 매퍼.xml 에서 sql 작성해서 돌리는 것.)
+1. SQL 작성
+-- 2. 상세
+
+-- 1) 조회수 증가
+UPDATE BLOG_T
+   SET HIT = HIT + 1
+ WHERE BLOG_NO = 1;
+
+-- 2) 블로그 상세 정보 조회
+SELECT B.BLOG_NO, B.TITLE, B.CONTENTS, B.HIT, B.IP, B.CREATED_AT, B.MODIFIED_AT, U.USER_NO, U.EMAIL, U.NAME
+  FROM USER_T U, BLOG_T B
+ WHERE U.USER_NO = B.USER_NO
+   AND B.BLOG_NO = 1;
+   
+   
+   
+   
+2. 매퍼.xml 작성
+<update id="updateHit" parameterType="int">
+  UPDATE BLOG_T
+     SET HIT = HIT + 1
+   WHERE BLOG_NO = #{blogNo}
+</update>
+
+<select id="getBlog" parameterType="int" resultMap="BlogMap">
+ <!-- 오라클 문법 (위,아래 둘 중 하나만 써) -->
+  SELECT B.BLOG_NO, B.TITLE, B.CONTENTS, B.HIT, B.IP, B.CREATED_AT, B.MODIFIED_AT, U.USER_NO, U.EMAIL, U.NAME
+    FROM USER_T U, BLOG_T B
+   WHERE U.USER_NO = B.USER_NO
+     AND B.BLOG_NO = #{blogNo}
+</select>
+
+
+
+
+2. 매퍼.java 작성
+public int updateHit(int blogNo);
+public BlogDto getBlog(int blogNo);
+
+
+
+3. 서비스 작성
+public int increaseHit(int blogNo);
+public BlogDto getBlog(int blogNo);
+
+
+
+4. 서비스 임플 작성
+  @Override
+  public int increaseHit(int blogNo) {
+    return blogMapper.updateHit(blogNo);
+  }
+  
+  @Override
+  public BlogDto getBlog(int blogNo) {
+    return blogMapper.getBlog(blogNo);
+  }
+  
+ 
+  
+5. 컨트롤러 작성
+-----------------------------------------
+@GetMapping("/increaseHit.do")
+  public String increaseHit(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo) {
+  int increaseResult = blogService.increaseHit(blogNo);
+  if(increaseResult == 1) {
+    return "redirect:/blog/detail.do?blogNo=" + blogNo; // 위에서 조회수 증가가 나오고, 여기서 상세보기가 나온다.
+  } else {
+    return "redirect:/blog/list.do";
+  }
+  }
+  
+  @GetMapping("/detail.do")
+  public String detail(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo
+                     , Model model) {
+    BlogDto blog = blogService.getBlog(blogNo);
+    model.addAttribute("blog", blog);
+    return "blog/detail";  // 내가 작성한 블로그는 조회수가 늘지 않도록 detail로 보내기.  // 내가 작성하지 않은 블로그는 조회수가 늘도록 increaseHit 로 보내기.
+  }
+---------------------------------------------
+
+
+
+6. list.jsp 에 추가작성
+--------------------------------------
+<tr>
+  <td>${beginNo - vs.index}</td>
+  <td>
+<!-- 내가 작성한 블로그의 조회수는 증가하지 않는다. -->
+   <c:if test="${sessionScope.user.userNo == b.userDto.userNo}">
+     <a href="${contextPath}/blog/detail.do?blogNo=${b.blogNo}">${b.title}</a>
+   </c:if>
+<!-- 내가 작성하지 않았다면 조회수를 증가시킨 뒤 상세보기 요청을 한다. -->
+   <c:if test="${sessionScope.user.userNo !== b.userDto.userNo}">
+     <a href="${contextPath}/blog/increaseHit.do?blogNo=${b.blogNo}">${b.title}</a>
+   </c:if>
+  </td>
+  <td>${b.title}</td>
+  <td>${b.hit}</td>
+  <td>${b.userDto.email}</td> <!-- userDto 에서 email을 꺼내야 한다. -->
+  <td>${b.createdAt}</td>
+</tr>
+----------------------------------------
+
+
+
+7. detail.jsp 만들기
+--------------------------------------------------
+<div>
+
+  <!-- 블로그 상세보기 -->
+  <div>
+    <h1>${blog.title}</h1>
+    <div>작성자 : ${blog.userDto.name}</div>
+    <div>조회수 : ${blog.hit}</div>
+    <div>작성IP : ${blog.ip}</div>
+    <div>작성일 : ${blog.createdAt}</div>
+    <div>수정일 : ${blog.modifiedAt}</div>
+    <div>
+      버튼구역
+    </div>
+    <div>${blog.contents}</div>
+  </div>
+  
+  <hr>
+  
+  <!-- 댓글 작성 화면 -->
+  <div>
+    <form id="frm_comment_add">
+      <textarea rows="3" cols="50" name="contents" placeholder="댓글을 작성해 주세요"></textarea>
+      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">   <!-- 세션에 있는 유저에 유저넘버 -->
+      <input type="hidden" name="blogNo" value="${blog.blogNo}">
+      <button type="button" id="btn_comment_add">작성완료</button>
+    </form>
+    <script>
+    
+      const fnRequiredLogin = () => {    	  
+        // 로그인을 안하고 작성을 시도하면 로그인 페이지로 보내기
+        $('#contents, #btn_comment_add').click(() => {
+      	  if('${sessionScope.user}' === ''){
+      		  if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+      			  location.href = '${contextPath}/user/login.form';
+      		  } else {
+      			  return;
+      		  }
+      	  }
+        })
+      }
+      
+      const fnCommentAdd = () => {
+    	  $('#btn_comment_add').click(() => {
+    		  $.ajax({
+    			  // 요청
+    			  type: 'post',
+    			  url: '${contextPath}/blog/addComment.do',
+    			  data: $('#frm_comment_add').serialize(),
+    			  // 응답
+    			  dataType: 'json',
+    			  success: (resData) => {
+    				  console.log(resData);
+    			  }
+    		  })
+    	  })
+      }
+      
+      fnRequiredLogin();
+      fnCommentAdd();
+      
+      
+    </script>
+  </div>
+  
+  <!-- 블로그 댓글 목록 -->
+  <div id="comment_list"></div>
+  <script>
+  	
+  </script>
+
+</div>
+------------------------------------------------------
+
+
+8.매퍼.xml 작성
+<insert id="insertComment" parameterType="CommentDto">
+    INSERT INTO COMMENT_T(
+        COMMENT_NO
+      , CONTENTS
+      , USER_NO
+      , BLOG_NO
+      , CREATED_AT
+      , STATUS
+      , DEPTH
+      , GROUP_NO
+    ) VALUES(
+        COMMENT_SEQ.NEXTVAL
+      , #{contents}
+      , #{userNo}
+      , #{blogNo}
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')  <!-- CREATED_AT -->
+      , 1   <!-- DEPTH -->
+      , 0   <!-- GROUP_NO -->
+      , COMMENT_SEQ.CURRVAL
+    )
+</insert>
+
+
+
+9. 매퍼.java 작성
+public int insertComment(CommentDto comment);
+
+
+10. 서비스작성
+public Map<String, Object> addComment(HttpServletRequest request); 
+
+11. 서비스임플 작성
+  @Override
+  public Map<String, Object> addComment(HttpServletRequest request) {
+    
+    String contents = request.getParameter("contents");
+    int userNo = Integer.parseInt(request.getParameter("userNo"));
+    int blogNo = Integer.parseInt(request.getParameter("blogNo"));
+    
+    CommentDto comment = CommentDto.builder()
+                           .contents(contents)
+                           .userNo(userNo)
+                           .blogNo(blogNo)
+                           .build();
+    
+    int addCommentResult = blogMapper.insertComment(comment);
+    
+    return Map.of("addCommentResult",addCommentResult);
+  }
+  
+
+12. 컨트롤러 작성

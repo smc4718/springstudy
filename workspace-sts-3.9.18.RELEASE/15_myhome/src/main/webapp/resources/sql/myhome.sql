@@ -164,6 +164,22 @@ COMMIT;
 
 
 
+-- 2. 상세
+
+-- 1) 조회수 증가
+UPDATE BLOG_T
+   SET HIT = HIT + 1
+ WHERE BLOG_NO = 1;
+
+-- 2) 블로그 상세 정보 조회
+SELECT B.BLOG_NO, B.TITLE, B.CONTENTS, B.HIT, B.IP, B.CREATED_AT, B.MODIFIED_AT, U.USER_NO, U.EMAIL, U.NAME
+  FROM USER_T U, BLOG_T B
+ WHERE U.USER_NO = B.USER_NO
+   AND B.BLOG_NO = 1;
+   
+-- 3) 댓글 목록
+
+
 
 
 -- 계층 쿼리 테스트
