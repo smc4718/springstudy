@@ -87,21 +87,15 @@
   
   <script>
     
-    const fnRequiredLogin = () => {       
-        // 로그인을 안하고 작성을 시도하면 로그인 페이지로 보내기
-        $('#contents, #btn_comment_add').click(() => {
-          if('${sessionScope.user}' === ''){
-            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
-              location.href = '${contextPath}/user/login.form';
-            } else {
-              return;
-            }
-          }
-        })
-      }
-      
       const fnCommentAdd = () => {
         $('#btn_comment_add').click(() => {
+      	 if('${sessionScope.user}' === ''){
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+                location.href = '${contextPath}/user/login.form';
+            } else {
+                return;
+            }
+         }
           $.ajax({
            // 요청
            type: 'post',
@@ -188,13 +182,13 @@
       
       const fnBlind = () => {
     	  $(document).on('click', '.btn_open_reply', (ev) => {
-            if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
-              if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
-                location.href = '${contextPath}/user/login.form';
-              } else {
-                return;
-              }
-            }
+  		    if('${sessionScope.user}' === ''){
+  	          if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+  	                location.href = '${contextPath}/user/login.form';
+  	          } else {
+  	            return;
+  	          }
+  	        }
             var blindTarget = $(ev.target).parent().next();
             if(blindTarget.hasClass('blind')){
               $('.frm_add_reply_wrap').addClass('blind'); // 모든 답글 입력화면 닫기
@@ -207,14 +201,13 @@
       
       const fnCommentReplyAdd = () => {
     	$(document).on('click', '.btn_add_reply', (ev) => {	// 위 상황처럼 버튼을 사용할 수 없을 때 사용하는 방법 : document 방식.
-    	// 로그인 여부 확인
-          if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
+  		if('${sessionScope.user}' === ''){
             if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
-              location.href = '${contextPath}/user/login.form';
+                location.href = '${contextPath}/user/login.form';
             } else {
               return;
             }
-          }
+        }
     	  var frmAddReply = $(ev.target).closest('.frm_add_reply'); 
        	  $.ajax({
        		 // 요청
@@ -260,7 +253,6 @@
       	})
       }
       
-      fnRequiredLogin();
       fnCommentAdd();
       fnCommentList();
       fnBlind();

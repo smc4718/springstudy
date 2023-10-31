@@ -1564,14 +1564,6 @@ public Map<String, Object> addCommentReply(HttpServletRequest request);
 ----------------------------------------------------------
 const fnCommentReplyAdd = () => {
     	$(document).on('click', '.btn_add_reply', (ev) => {	// 위 상황처럼 버튼을 사용할 수 없을 때 사용하는 방법 : document 방식.
-    	// 로그인 여부 확인
-          if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
-            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
-              location.href = '${contextPath}/user/login.form';
-            } else {
-              return;
-            }
-          }
     	  var frmAddReply = $(ev.target).closest('.frm_add_reply'); 
        	  $.ajax({
        		 // 요청
@@ -1778,13 +1770,13 @@ const fnCommentRemove = () => {
 
    const fnBlind = () => {
 	  $(document).on('click', '.btn_open_reply', (ev) => {
-        if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
-          if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
-            location.href = '${contextPath}/user/login.form';
-          } else {
-            return;
-          }
-        }
+	  if('${sessionScope.user}' === ''){
+  	      if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+  	         location.href = '${contextPath}/user/login.form';
+  	      } else {
+  	        return;
+  	      }
+  	  }
         var blindTarget = $(ev.target).parent().next();
         if(blindTarget.hasClass('blind')){
           $('.frm_add_reply_wrap').addClass('blind'); // 모든 답글 입력화면 닫기
@@ -1803,3 +1795,69 @@ const fnCommentRemove = () => {
   fnCommentReplyAdd();
   fnCommentRemove();
 
+------------ 이 부분 아예 다 지우기 ↓↓↓↓↓ --------------
+ const fnRequiredLogin = () => {       
+        // 로그인을 안하고 작성을 시도하면 로그인 페이지로 보내기
+        $('#contents, #btn_comment_add, .btn_open_reply, .btn_add_reply').click(() => {   // <-- 4개의 요소들은 클릭했을 때 로그인여부 검사.
+          if('${sessionScope.user}' === ''){
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+              location.href = '${contextPath}/user/login.form';
+            } else {
+              return;
+            }
+          }
+        })
+      }
+      
+      
+------------------ 기존내용에 추가하기 ---------------------
+      const fnCommentAdd = () => {
+        $('#btn_comment_add').click(() => {
+      	 if('${sessionScope.user}' === ''){
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+                location.href = '${contextPath}/user/login.form';
+            } else {
+                return;
+            }
+         }
+          $.ajax({
+           // 요청
+           
+           
+------------------ 기존내용에 추가하기2 ---------------------
+        const fnBlind = () => {
+    	  $(document).on('click', '.btn_open_reply', (ev) => {
+  		    if('${sessionScope.user}' === ''){
+  	          if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+  	                location.href = '${contextPath}/user/login.form';
+  	          } else {
+  	            return;
+  	          }
+  	        }
+            var blindTarget = $(ev.target).parent().next();
+            if(blindTarget.hasClass('blind')){
+              $('.frm_add_reply_wrap').addClass('blind'); // 모든 답글 입력화면 닫기
+            	blindTarget.removeClass('blind');		  // 지금 타겟의 답글만 입력화면 열기
+            } else {
+              blindTarget.addClass('blind');
+            }
+    	 })
+      }
+      
+      
+------------------ 기존내용에 추가하기3 ---------------------  
+      const fnCommentReplyAdd = () => {
+    	$(document).on('click', '.btn_add_reply', (ev) => {	// 위 상황처럼 버튼을 사용할 수 없을 때 사용하는 방법 : document 방식.
+  		if('${sessionScope.user}' === ''){
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+                location.href = '${contextPath}/user/login.form';
+            } else {
+              return;
+            }
+        }
+    	  var frmAddReply = $(ev.target).closest('.frm_add_reply'); 
+       	  $.ajax({
+       		 // 요청
+       		 
+       		 
+==================== 댓글형 게시판 끝 =======================
