@@ -22,4 +22,5 @@ public interface BlogService {
   public Map<String, Object> addComment(HttpServletRequest request); 
   public Map<String, Object> loadCommentList(HttpServletRequest request);
   public Map<String, Object> addCommentReply(HttpServletRequest request); 
+  public Map<String, Object> removeComment(int commentNo);
 }

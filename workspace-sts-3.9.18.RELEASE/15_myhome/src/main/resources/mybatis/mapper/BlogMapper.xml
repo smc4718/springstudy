@@ -211,7 +211,11 @@
     )
   </insert>
 
-
+  <update id="deleteComment" parameterType="int">
+    UPDATE COMMENT_T
+       SET STATUS = 0
+     WHERE COMMENT_NO = #{commentNo}
+  </update>  <!-- status 값을 0 에서 1로 바꿔주는 것이기 때문에 delete가 아니라 update이다. -->
 
 
 

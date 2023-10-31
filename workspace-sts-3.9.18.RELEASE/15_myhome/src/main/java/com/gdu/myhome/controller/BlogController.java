@@ -112,6 +112,10 @@ public class BlogController {
     return blogService.addCommentReply(request);
   }
   
-  
+  @ResponseBody
+  @PostMapping(value="/removeComment.do", produces="application/json")              // defaultValue를 안하면 에러날 수도 있어서 넣음
+  public Map<String, Object> removeComment(@RequestParam(value="commentNo", required = false, defaultValue = "0") int commentNo) { 
+    return blogService.removeComment(commentNo);
+  }
 
 }

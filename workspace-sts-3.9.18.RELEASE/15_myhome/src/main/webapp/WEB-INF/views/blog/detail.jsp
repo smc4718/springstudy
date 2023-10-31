@@ -142,17 +142,21 @@
             if(c.depth === 0){		// depth가 0이면 답글달기 버튼을 보여주자.
               str += '  <div><button type="button" class="btn_open_reply"> 답글달기</button></div>'; 
             }
-            /********************************* 답글 입력 창 ****************************************/
+            /************************** 답글 입력 창 **************************/
             str += '  <div class="blind">';
-            str += '    <form class="frm_add_reply"';
+            str += '    <form class="frm_add_reply">';
             str += '      <textarea rows="3" cols="50" name="contents" placeholder="답글을 입력하세요"></textarea>';
-            str += '      <input type="hidden" name="userNo" vlaue="${sessionScope.user.userNo}">';
-            str += '      <input type="hidden" name="blogNo" vlaue="${blog.blogNo}">';
-            str += '      <input type="hidden" name="groupNo" vlaue="' + c.groupNo + '">';
+            str += '      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">';
+            str += '      <input type="hidden" name="blogNo" value="${blog.blogNo}">';
+            str += '      <input type="hidden" name="groupNo" value="' + c.groupNo + '">';
             str += '      <button type="button" class="btn_add_reply">답글작성완료</button>';
             str += '    </form>';
             str += '  </div>';
-            /***************************************************************************************/
+            /******************************************************************/
+            str += '  <div>';
+            str += '    <input type="hidden" value="' + c.commentNo + '">';
+            str += '    <button type="button" class="btn_remove_comment">삭제</button>';
+            str += '  </div>';												 			  		
             str += '</div>';												 			  		
             $('#comment_list').append(str);  // comment_list 에 저장.
           })
@@ -197,11 +201,35 @@
     	})
       }
       
+      const fnCommentRemove = () => {
+      	$(document).on('click', '.btn_remove_comment', (ev) => {
+      		if(!confirm('해당 댓글을 삭제할까요?')){
+      			return;
+      		}
+      		$.ajax({
+      			// 요청
+      			type: 'post',
+      			url: '${contextPath}/blog/removeComment.do',
+      			data: 'commentNo=' + $(ev.target).prev().val(),	  // prev() : 인접형제.
+      			// 응답
+      			dataType: 'json',
+      			success: (resData) => {  // resData = {"removeResult": 1}
+      				if(resData.removeResult === 1){
+      					alert('해당 댓글이 삭제되었습니다.');
+      					fnCommentList();
+      				} else {
+      					alert('댓글이 삭제되지 않았습니다.');
+      				}
+      			}
+      		})
+      	})
+      }
       
       fnRequiredLogin();
       fnCommentAdd();
       fnCommentList();
       fnCommentReplyAdd();
+      fnCommentRemove();
       
       /*
       <div style="width: 100%; border-bottom: 1px solid gray;">
@@ -218,6 +246,8 @@
           <button type="button" class="btn_add_reply">답글작성완료</button>
           </form>
         </div>
+        <input type="hidden" value="commentNo">
+        <div><button type="button" class="btn_remove_comment">삭제</button></div>
       </div>
       */
       

@@ -268,5 +268,11 @@ public class BlogServiceImpl implements BlogService {
     
   }
   
+  @Override
+  public Map<String, Object> removeComment(int commentNo) {
+    int removeResult = blogMapper.deleteComment(commentNo);
+    return Map.of("removeResult", removeResult);
+    
+  }
   
 }
