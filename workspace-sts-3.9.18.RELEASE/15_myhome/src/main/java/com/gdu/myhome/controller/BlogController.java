@@ -71,6 +71,21 @@ public class BlogController {
     return "blog/detail";  // 내가 작성한 블로그는 조회수가 늘지 않도록 detail로 보내기.  // 내가 작성하지 않은 블로그는 조회수가 늘도록 increaseHit 로 보내기.
   }
 
+  @PostMapping("/edit.form")
+  public String edit(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo
+                   , Model model) {
+    BlogDto blog = blogService.getBlog(blogNo);
+    model.addAttribute("blog", blog);
+    return "blog/edit";  // edit.jsp 에 가서 블로그 편집을 하겠다.
+  }
+  
+  @PostMapping("/modifyBlog.do")
+  public String modifyBlog(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    int modifyResult = blogService.modifyBlog(request);
+    redirectAttributes.addFlashAttribute("modifyResult", modifyResult);
+    return "redirect:/blog/detail.do?blogNo=" + request.getParameter("blogNo");  // 수정이후에 상세보기로 넘어가는 걸 볼 수 있다.
+  }
+  
   @ResponseBody
   @PostMapping(value="/addComment.do", produces="application/json")
   public Map<String, Object> addComment(HttpServletRequest request) {

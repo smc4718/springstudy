@@ -1255,3 +1255,146 @@ public Map<String, Object> loadCommentList(HttpServletRequest request);
       
       
     </script>  	
+    
+    
+    
+23. detail.jsp 작성
+<!-- 블로그 상세보기 -->
+  <div>
+    <h1>${blog.title}</h1>
+    <div>작성자 : ${blog.userDto.name}</div>
+    <div>조회수 : ${blog.hit}</div>
+    <div>작성IP : ${blog.ip}</div>
+    <div>작성일 : ${blog.createdAt}</div>
+    <div>수정일 : ${blog.modifiedAt}</div>
+    <div>
+      <c:if test="${sessionScope.user.userNo == blog.userDto.userNo}"> <!-- 작성자가 맞다면(로그인되어있다면) -->
+      <form id="frm_btn" method="post">
+       <input type="hidden" name="blogNo" value="${blog.blogNo}"> <!-- blogNo : 블로그 번호를 키값으로 포함시켜야 된다. -->
+        <button type="button" id="btn_edit">편집</button>
+        <button type="button" id="btn_remove">삭제</button>
+      </form>
+     </c:if>
+    </div>
+    <div>${blog.contents}</div>
+  </div>
+  <script>
+  
+   var frmBtn = $('#frm_btn');
+   
+  	const fnEditBlog = () => {  // 변수를 저장할 때, 함수를 등록시키면 변수가 함수가 된다.
+  		$('#btn_edit').click(() => {
+  		  frmBtn.attr('action', '${contextPath}/blog/edit.form');
+  		  frmBtn.submit();
+  		})		
+  	}
+  	
+  	const fnRemoveBlog = () = {
+  		$('#btn_remove').click(() => {
+  		  if(confirm('블로그를 삭제하면 모든 댓글이 함께 삭제됩니다. 삭제할까요?')){
+  	 		frmBtn.attr('action', '${contextPath}/blog/remove.do');
+  	  		frmBtn.submit();
+  		  }
+  		})
+  	}
+  
+  	fnEditBlog();
+  	fnRemoveBlog();
+  	
+24. servlet-context.xml 작성
+<interceptor>
+    <mapping path="/user/mypage.form"/>
+    <mapping path="/user/modifyPw.form"/>
+    <mapping path="/free/write.form"/>
+    <mapping path="/blog/write.form"/>
+    <mapping path="/blog/edit.form"/>		// 이거 추가
+    <mapping path="/blog/remove.do"/>	    // 이거 추가
+    <beans:bean class="com.gdu.myhome.intercept.RequiredLoginInterceptor" />  <!-- 로그인체크가 필요할 때 : 필수 로그인 인터셉터 : RequiredLoginInterceptor -->
+</interceptor>
+
+
+
+25. 컨트롤러 작성
+  @PostMapping("/edit.form")
+  public String edit(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo
+                   , Model model) {
+    BlogDto blog = blogService.getBlog(blogNo);
+    model.addAttribute("blog", blog);
+    return "blog/edit";  // edit.jsp 에 가서 블로그 편집을 하겠다.
+  }
+
+
+26. edit.jsp 만들기
+<div>
+  <!-- form id="frm_blog_add"는 title의 공백을 검사할 때 사용한다.(지금은 사용 안한 버젼 -->
+  <form style="text-align: center;" id="frm_blog_modify" method="post" action="${contextPath}/blog/modifyBlog.do">
+    
+    <h1 style="text-align: center;">${blog.blogNo}번 블로그 편집</h1>
+    
+    <div>
+     <label for="title">제목</label>
+     <input type="text" name="title" id="title" class="form-control" value="${blog.title}">
+    </div>
+    
+    <div>
+     <label for="contents">내용</label>
+     <textarea name="contents" id="contents">${blog.contents}e</textarea>
+    </div>
+    
+    <div>
+     <input type="hidden" name="blogNo" value="${blog.blogNo}"> <!-- 세션에 있는 유저에 있는 유저넘버 -->
+     <button type="submit" class="btn btn-success">수정완료</button>
+</div>
+
+
+
+27. 매퍼.xml 작성
+  <update id="updateBlog" parameterType="BlogDto">
+    UPDATE BLOG_T
+       SET TITLE = #{title}
+         , CONTENTS = #{contents}
+         , MODIFIED_AT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
+     WHERE BLOG_NO = #{blogNo}
+  </update>
+
+  
+  
+28. 매퍼.java 작성
+public int updateBlog(BlogDto blog);
+
+
+29. 서비스 작성
+public int modifyBlog(HttpServletRequest request);
+
+
+
+30. 서비스임플 작성
+  @Override
+  public int modifyBlog(HttpServletRequest request) {
+    
+    String title = request.getParameter("title");
+    String contents = request.getParameter("contents");
+    int blogNo = Integer.parseInt(request.getParameter("blogNo"));
+    
+    BlogDto blog = BlogDto.builder()
+                    .title(title)
+                    .contents(contents)
+                    .blogNo(blogNo)
+                    .build();
+    
+    int modifyResult = blogMapper.updateBlog(blog);
+    
+    return modifyResult;
+
+  }
+
+31. 컨트롤러 작성
+  @PostMapping("/modifyBlog.do")
+  public String modifyBlog(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    int modifyResult = blogService.modifyBlog(request);
+    redirectAttributes.addFlashAttribute("modifyResult", modifyResult);
+    return "redirect:/blog/detail.do?blogNo=" + request.getParameter("blogNo");  // 수정이후에 상세보기로 넘어가는 걸 볼 수 있다.
+  }
+  
+  
+  

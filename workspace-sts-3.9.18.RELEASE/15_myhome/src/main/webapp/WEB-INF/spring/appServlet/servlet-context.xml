@@ -31,7 +31,9 @@
       <mapping path="/user/modifyPw.form"/>
       <mapping path="/free/write.form"/>
       <mapping path="/blog/write.form"/>
-      <beans:bean class="com.gdu.myhome.intercept.RequiredLoginInterceptor" />  <!-- 필수 로그인 인터셉터 : RequiredLoginInterceptor -->
+      <mapping path="/blog/edit.form"/>
+      <mapping path="/blog/remove.do"/>
+      <beans:bean class="com.gdu.myhome.intercept.RequiredLoginInterceptor" />  <!-- 로그인체크가 필요할 때 : 필수 로그인 인터셉터 : RequiredLoginInterceptor -->
     </interceptor>
     
     <interceptor>

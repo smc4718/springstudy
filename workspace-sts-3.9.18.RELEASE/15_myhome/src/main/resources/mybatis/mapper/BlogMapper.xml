@@ -137,6 +137,14 @@
          WHERE B.BLOG_NO = #{blogNo}
        -->
   </select>
+  
+  <update id="updateBlog" parameterType="BlogDto">
+    UPDATE BLOG_T
+       SET TITLE = #{title}
+         , CONTENTS = #{contents}
+         , MODIFIED_AT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
+     WHERE BLOG_NO = #{blogNo}
+  </update>
 
   <insert id="insertComment" parameterType="CommentDto">
     INSERT INTO COMMENT_T(
