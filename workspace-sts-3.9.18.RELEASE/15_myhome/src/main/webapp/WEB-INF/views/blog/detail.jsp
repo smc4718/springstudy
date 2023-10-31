@@ -43,7 +43,7 @@
   		})		
   	}
   	
-  	const fnRemoveBlog = () = {
+  	const fnRemoveBlog = () => {
   		$('#btn_remove').click(() => {
   		  if(confirm('블로그를 삭제하면 모든 댓글이 함께 삭제됩니다. 삭제할까요?')){
   	 		frmBtn.attr('action', '${contextPath}/blog/remove.do');
