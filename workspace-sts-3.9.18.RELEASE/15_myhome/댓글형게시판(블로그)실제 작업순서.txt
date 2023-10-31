@@ -1487,3 +1487,109 @@ public int removeBlog(int blogNo);
         }
       })
     }
+    
+
+2. 매퍼.xml 작성
+  <insert id="insertCommentReply" parameterType="CommentDto">
+    INSERT INTO COMMENT_T(
+        COMMENT_NO
+      , CONTENTS
+      , USER_NO
+      , BLOG_NO
+      , CREATED_AT
+      , STATUS
+      , DEPTH
+      , GROUP_NO
+    ) VALUES(
+        COMMENT_SEQ.NEXTVAL
+      , #{contents}
+      , #{userDto.userNo}
+      , #{blogNo}
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')  <!-- CREATED_AT -->
+      , 1   <!-- DEPTH -->
+      , 1   <!-- GROUP_NO. 답글은 1이다.  --> 
+      , #{groupNo}
+    )
+  </insert>
+  
+  
+  
+3. 매퍼.java 작성
+public int insertCommentReply(CommentDto comment);
+
+
+
+4. 서비스 작성
+public Map<String, Object> addCommentReply(HttpServletRequest request);
+
+
+
+5. 서비스임플 작성 (addComment 와 본문이 흡사함)
+  @Override
+  public Map<String, Object> addCommentReply(HttpServletRequest request) {
+
+    String contents = request.getParameter("contents");
+    int userNo = Integer.parseInt(request.getParameter("userNo"));
+    int blogNo = Integer.parseInt(request.getParameter("blogNo"));
+    int groupNo = Integer.parseInt(request.getParameter("groupNo"));
+    
+    CommentDto comment = CommentDto.builder()
+                           .contents(contents)
+                           .userDto(UserDto.builder()
+                                     .userNo(userNo)
+                                     .build())
+                           .blogNo(blogNo)
+                           .groupNo(groupNo)
+                           .build();
+    
+    int addCommentReplyResult = blogMapper.insertCommentReply(comment);
+    
+    return Map.of("addCommentReplyResult",addCommentReplyResult);
+    
+  }
+  
+  
+
+
+6. 컨트롤러 작성 (addComment와 본문 같음 : 이름들만 바꾸기)
+  @ResponseBody
+  @PostMapping(value="/addCommentReply.do", produces="application/json")
+  public Map<String, Object> addCommentReply(HttpServletRequest request) {
+    return blogService.addCommentReply(request);
+  }
+
+
+
+7. detail.jsp 작성
+----------------------------------------------------------
+const fnCommentReplyAdd = () => {
+    	$(document).on('click', '.btn_add_reply', (ev) => {	// 위 상황처럼 버튼을 사용할 수 없을 때 사용하는 방법 : document 방식.
+    	// 로그인 여부 확인
+          if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+              location.href = '${contextPath}/user/login.form';
+            } else {
+              return;
+            }
+          }
+    	  var frmAddReply = $(ev.target).closest('.frm_add_reply'); 
+       	  $.ajax({
+       		 // 요청
+       		 type: 'post',
+       		 url: '${contextPath}/blog/addCommentReply.do',
+       		 data: frmAddReply.serialize(),	// 클릭한 버튼의 부모(.frm_add_reply)클래스의 모든 요소를 보내 준다.
+       	     // 응답
+       	     dataType: 'json',
+       	     success: (resData) => {	// resData = {"addCommentReplyResult": 1}
+       	       if(resData.addCommentReplyResult === 1){
+       	    	  alert('답글이 등록되었습니다.');
+       	    	  fnCommentList();	 // 목록 갱신하는 함수 호출
+       	    	  frmAddReply.find('textarea').val(''); // 답글내용 초기화 , find : 자식 찾는 메소드
+       	       } else {
+       	    	  alert('답글이 등록되지 않았습니다.');
+       	       }
+       	     }
+       	  })
+    	})
+      }
+------------------------------------------------------------

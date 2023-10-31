@@ -152,7 +152,7 @@
             str += '      <button type="button" class="btn_add_reply">답글작성완료</button>';
             str += '    </form>';
             str += '  </div>';
-            /**************************************************************************************/
+            /***************************************************************************************/
             str += '</div>';												 			  		
             $('#comment_list').append(str);  // comment_list 에 저장.
           })
@@ -162,13 +162,46 @@
     }
       
       const fnAjaxPaging = (p) => {
-    	page = p;  // 페이지를 막아줘
+    	page = p;
     	fnCommentList(); // 몇페이지로 바뀔거다. 라는 새 목록 갱신.
       }
+      
+      const fnCommentReplyAdd = () => {
+    	$(document).on('click', '.btn_add_reply', (ev) => {	// 위 상황처럼 버튼을 사용할 수 없을 때 사용하는 방법 : document 방식.
+    	// 로그인 여부 확인
+          if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
+            if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+              location.href = '${contextPath}/user/login.form';
+            } else {
+              return;
+            }
+          }
+    	  var frmAddReply = $(ev.target).closest('.frm_add_reply'); 
+       	  $.ajax({
+       		 // 요청
+       		 type: 'post',
+       		 url: '${contextPath}/blog/addCommentReply.do',
+       		 data: frmAddReply.serialize(),	// 클릭한 버튼의 부모(.frm_add_reply)클래스의 모든 요소를 보내 준다.
+       	     // 응답
+       	     dataType: 'json',
+       	     success: (resData) => {	// resData = {"addCommentReplyResult": 1}
+       	       if(resData.addCommentReplyResult === 1){
+       	    	  alert('답글이 등록되었습니다.');
+       	    	  fnCommentList();	 // 목록 갱신하는 함수 호출
+       	    	  frmAddReply.find('textarea').val(''); // 답글내용 초기화 , find : 자식 찾는 메소드
+       	       } else {
+       	    	  alert('답글이 등록되지 않았습니다.');
+       	       }
+       	     }
+       	  })
+    	})
+      }
+      
       
       fnRequiredLogin();
       fnCommentAdd();
       fnCommentList();
+      fnCommentReplyAdd();
       
       /*
       <div style="width: 100%; border-bottom: 1px solid gray;">

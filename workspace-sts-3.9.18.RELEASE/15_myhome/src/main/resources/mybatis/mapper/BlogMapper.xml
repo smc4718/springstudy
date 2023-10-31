@@ -174,8 +174,6 @@
     )
   </insert>
   
-  
-  
   <select id="getCommentCount" parameterType="int" resultType="int">    <!-- 항상 목록을 구할 때는 갯수(Count)가 필요했다. -->
     SELECT COUNT(*)
       FROM COMMENT_T
@@ -190,6 +188,35 @@
              WHERE C.BLOG_NO = #{blogNo}) A
      WHERE A.RN BETWEEN #{begin} AND #{end}  <!-- Map에 들어있는 게 blog_no , begin, end. 이렇게 3개다. -->  
   </select>
+
+  <insert id="insertCommentReply" parameterType="CommentDto">
+    INSERT INTO COMMENT_T(
+        COMMENT_NO
+      , CONTENTS
+      , USER_NO
+      , BLOG_NO
+      , CREATED_AT
+      , STATUS
+      , DEPTH
+      , GROUP_NO
+    ) VALUES(
+        COMMENT_SEQ.NEXTVAL
+      , #{contents}
+      , #{userDto.userNo}
+      , #{blogNo}
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')  <!-- CREATED_AT -->
+      , 1   <!-- DEPTH -->
+      , 1   <!-- GROUP_NO. 답글은 1이다.  --> 
+      , #{groupNo}
+    )
+  </insert>
+
+
+
+
+
+
+
 
 
 </mapper>

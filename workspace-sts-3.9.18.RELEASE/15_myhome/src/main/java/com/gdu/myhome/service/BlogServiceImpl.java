@@ -245,5 +245,28 @@ public class BlogServiceImpl implements BlogService {
     
   }
   
+  @Override
+  public Map<String, Object> addCommentReply(HttpServletRequest request) {
+
+    String contents = request.getParameter("contents");
+    int userNo = Integer.parseInt(request.getParameter("userNo"));
+    int blogNo = Integer.parseInt(request.getParameter("blogNo"));
+    int groupNo = Integer.parseInt(request.getParameter("groupNo"));
+    
+    CommentDto comment = CommentDto.builder()
+                           .contents(contents)
+                           .userDto(UserDto.builder()
+                                     .userNo(userNo)
+                                     .build())
+                           .blogNo(blogNo)
+                           .groupNo(groupNo)
+                           .build();
+    
+    int addCommentReplyResult = blogMapper.insertCommentReply(comment);
+    
+    return Map.of("addCommentReplyResult",addCommentReplyResult);
+    
+  }
+  
   
 }
