@@ -28,7 +28,7 @@
 
 <div>
     <!-- form id="frm_blog_add"는 title의 공백을 검사할 때 사용한다.(지금은 사용 안한 버젼 -->
-  <form style="text-align: center;" id="frm_blog_modify" method="post" action="${contextPath}/blog/modifyBlog.do">
+  <form id="frm_blog_modify" method="post" action="${contextPath}/blog/modifyBlog.do">
     
     <h1 style="text-align: center;">${blog.blogNo}번 블로그 편집</h1>
     

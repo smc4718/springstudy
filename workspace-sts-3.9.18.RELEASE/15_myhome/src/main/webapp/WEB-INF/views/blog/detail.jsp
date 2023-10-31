@@ -96,8 +96,8 @@
            // 요청
            type: 'post',
            url: '${contextPath}/blog/addComment.do',
-           data: $('#frm_comment_add').serialize(),
-           // 응답
+           data: $('#frm_comment_add').serialize(),	 // serialize 가 등장하려면 form 안에는 name이 들어가있어야하고(name기준으로 동작함),
+           // 응답								     // 폼 안의 모든 정보를 가져오기 위해 serialize를 쓴다.
            dataType: 'json',
            success: (resData) => {   // {"addCommentResult": 1}
             if(resData.addCommentResult === 1){
@@ -134,12 +134,26 @@
             if(c.depth === 0){
               str += '<div style="width: 100%; border-bottom: 1px solid gray;">';
             } else {															  // 꼭 구현할 모양을 같이 적어가면서 쓰기.
-              str += '<div style="width: 100%; border-bottom: 1px solid gray; margin-left: 32px;">';							// <div>
-            }																	   // <div style="width: 100%; border-bottom: 1px solid gray;">
-            str += '<div>' + c.userDto.name + '</div>';							    // <div>이름</div>
-            str += '<div>' + c.contents + '</div>';		    						// <div>내용</div>
-            str += '<div style="font-size: 12px;">' + c.createdAt + '</div>';	   // <div style="font-size: 12px;">작성일자</div>
-            str += '</div>';												 		// </div>
+              str += '<div style="width: 100%; border-bottom: 1px solid gray; margin-left: 32px;">';						
+            }																	   		     
+            str += '  <div>' + c.userDto.name + '</div>';							         
+            str += '  <div>' + c.contents + '</div>';		    						        
+            str += '  <div style="font-size: 12px;">' + c.createdAt + '</div>';	            
+            if(c.depth === 0){		// depth가 0이면 답글달기 버튼을 보여주자.
+              str += '  <div><button type="button" class="btn_open_reply"> 답글달기</button></div>'; 
+            }
+            /********************************* 답글 입력 창 ****************************************/
+            str += '  <div class="blind">';
+            str += '    <form class="frm_add_reply"';
+            str += '      <textarea rows="3" cols="50" name="contents" placeholder="답글을 입력하세요"></textarea>';
+            str += '      <input type="hidden" name="userNo" vlaue="${sessionScope.user.userNo}">';
+            str += '      <input type="hidden" name="blogNo" vlaue="${blog.blogNo}">';
+            str += '      <input type="hidden" name="groupNo" vlaue="' + c.groupNo + '">';
+            str += '      <button type="button" class="btn_add_reply">답글작성완료</button>';
+            str += '    </form>';
+            str += '  </div>';
+            /**************************************************************************************/
+            str += '</div>';												 			  		
             $('#comment_list').append(str);  // comment_list 에 저장.
           })
           $('#paging').append(resData.paging);  // fnAjaxPaging() 함수가 호출되는 곳
@@ -156,6 +170,23 @@
       fnCommentAdd();
       fnCommentList();
       
+      /*
+      <div style="width: 100%; border-bottom: 1px solid gray;">
+        <div>이름</div>
+        <div>내용</div>
+        <div style="font-size: 12px;">작성일자</div>
+        <div><button type="button" class="btn_open_reply"> 답글달기</button></div>
+        <div class="blind">
+          <form class="frm_add_reply"
+          <textarea rows="3" cols="50" name="contents" placeholder="답글을 입력하세요"></textarea>
+          <input type="hidden" name="userNo" vlaue="">  
+          <input type="hidden" name="blogNo" vlaue="">  
+          <input type="hidden" name="groupNo" vlaue="">  
+          <button type="button" class="btn_add_reply">답글작성완료</button>
+          </form>
+        </div>
+      </div>
+      */
       
     </script>  	
 

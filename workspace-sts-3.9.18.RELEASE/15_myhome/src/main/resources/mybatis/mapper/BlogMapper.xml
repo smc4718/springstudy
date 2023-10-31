@@ -145,6 +145,12 @@
          , MODIFIED_AT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
      WHERE BLOG_NO = #{blogNo}
   </update>
+  
+  <delete id="deleteBlog" parameterType="int">
+    DELETE
+      FROM BLOG_T
+     WHERE BLOG_NO = #{blogNo}
+  </delete>
 
   <insert id="insertComment" parameterType="CommentDto">
     INSERT INTO COMMENT_T(

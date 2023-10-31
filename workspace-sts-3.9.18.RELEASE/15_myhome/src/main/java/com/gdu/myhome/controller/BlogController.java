@@ -86,6 +86,14 @@ public class BlogController {
     return "redirect:/blog/detail.do?blogNo=" + request.getParameter("blogNo");  // 수정이후에 상세보기로 넘어가는 걸 볼 수 있다.
   }
   
+  @PostMapping("/remove.do")
+  public String remove(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo
+                     , RedirectAttributes redirectAttributes) {
+    int removeResult = blogService.removeBlog(blogNo);
+    redirectAttributes.addFlashAttribute("removeResult", removeResult);
+    return "redirect:/blog/list.do";
+  }
+  
   @ResponseBody
   @PostMapping(value="/addComment.do", produces="application/json")
   public Map<String, Object> addComment(HttpServletRequest request) {

@@ -196,6 +196,11 @@ public class BlogServiceImpl implements BlogService {
   }
   
   @Override
+  public int removeBlog(int blogNo) {
+    return blogMapper.deleteBlog(blogNo);
+  }
+  
+  @Override
   public Map<String, Object> addComment(HttpServletRequest request) {
     
     String contents = request.getParameter("contents");
