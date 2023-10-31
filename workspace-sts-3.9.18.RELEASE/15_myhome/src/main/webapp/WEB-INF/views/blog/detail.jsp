@@ -10,6 +10,16 @@
   <jsp:param value="${blog.blogNo}번 블로그" name="title"/>
 </jsp:include>
 
+<!--선택하는 느낌이 나도록 커서 넣어주기-->
+<<style>
+  .blind {
+    display: none;
+  }
+  .ico_remove_comment {
+    cursor: pointer;
+  }
+</style>
+
 <div>
 
   <!-- 블로그 상세보기 -->
@@ -135,28 +145,34 @@
               str += '<div style="width: 100%; border-bottom: 1px solid gray;">';
             } else {															  // 꼭 구현할 모양을 같이 적어가면서 쓰기.
               str += '<div style="width: 100%; border-bottom: 1px solid gray; margin-left: 32px;">';						
-            }																	   		     
-            str += '  <div>' + c.userDto.name + '</div>';							         
-            str += '  <div>' + c.contents + '</div>';		    						        
-            str += '  <div style="font-size: 12px;">' + c.createdAt + '</div>';	            
-            if(c.depth === 0){		// depth가 0이면 답글달기 버튼을 보여주자.
-              str += '  <div><button type="button" class="btn_open_reply"> 답글달기</button></div>'; 
             }
-            /************************** 답글 입력 창 **************************/
-            str += '  <div class="blind">';
-            str += '    <form class="frm_add_reply">';
-            str += '      <textarea rows="3" cols="50" name="contents" placeholder="답글을 입력하세요"></textarea>';
-            str += '      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">';
-            str += '      <input type="hidden" name="blogNo" value="${blog.blogNo}">';
-            str += '      <input type="hidden" name="groupNo" value="' + c.groupNo + '">';
-            str += '      <button type="button" class="btn_add_reply">답글작성완료</button>';
-            str += '    </form>';
-            str += '  </div>';
-            /******************************************************************/
-            str += '  <div>';
-            str += '    <input type="hidden" value="' + c.commentNo + '">';
-            str += '    <button type="button" class="btn_remove_comment">삭제</button>';
-            str += '  </div>';												 			  		
+            if(c.status === 0){
+              str += '<div>삭제된 댓글입니다.</div>';
+            } else {
+              str += '  <div>' + c.userDto.name + '</div>';							         
+              str += '  <div>' + c.contents + '</div>';		    						        
+              str += '  <div style="font-size: 12px;">' + c.createdAt + '</div>';	            
+              if(c.depth === 0){		// depth가 0이면 답글달기 버튼을 보여주자.
+                str += '  <div><button type="button" class="btn_open_reply"> 답글달기</button></div>'; 
+              }
+              /************************** 답글 입력 창 **************************/
+              str += '  <div class="blind frm_add_reply_wrap">';  // 클래스를 더 주고 싶으면 공백으로 구분하여 작성.
+              str += '    <form class="frm_add_reply">';
+              str += '      <textarea rows="3" cols="50" name="contents" placeholder="답글을 입력하세요"></textarea>';
+              str += '      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">';
+              str += '      <input type="hidden" name="blogNo" value="${blog.blogNo}">';
+              str += '      <input type="hidden" name="groupNo" value="' + c.groupNo + '">';
+              str += '      <button type="button" class="btn_add_reply">답글작성완료</button>';
+              str += '    </form>';
+              str += '  </div>';
+              /******************************************************************/
+              if('${sessionScope.user.userNo}' == c.userDto.userNo){	// 자바스크립트의 특징 : 등호 ==. true값 (===와 ==는 다름)            	  
+                str += '  <div>';
+                str += '    <input type="hidden" value="' + c.commentNo + '">';
+                str += '    <i class="fa-solid fa-trash ico_remove_comment"></i>';  // 공백으로 클래스끼리 구분한다.
+                str += '  </div>';												 			  		   	
+              }
+            }
             str += '</div>';												 			  		
             $('#comment_list').append(str);  // comment_list 에 저장.
           })
@@ -168,6 +184,25 @@
       const fnAjaxPaging = (p) => {
     	page = p;
     	fnCommentList(); // 몇페이지로 바뀔거다. 라는 새 목록 갱신.
+      }
+      
+      const fnBlind = () => {
+    	  $(document).on('click', '.btn_open_reply', (ev) => {
+            if('${sessionScope.user}' === ''){	// 세션에 유저가 없다 = 로그인이 안돼있다.
+              if(confirm('로그인이 필요한 기능입니다. 로그인할까요?')){
+                location.href = '${contextPath}/user/login.form';
+              } else {
+                return;
+              }
+            }
+            var blindTarget = $(ev.target).parent().next();
+            if(blindTarget.hasClass('blind')){
+              $('.frm_add_reply_wrap').addClass('blind'); // 모든 답글 입력화면 닫기
+            	blindTarget.removeClass('blind');		  // 지금 타겟의 답글만 입력화면 열기
+            } else {
+              blindTarget.addClass('blind');
+            }
+    	 })
       }
       
       const fnCommentReplyAdd = () => {
@@ -202,7 +237,7 @@
       }
       
       const fnCommentRemove = () => {
-      	$(document).on('click', '.btn_remove_comment', (ev) => {
+      	$(document).on('click', '.ico_remove_comment', (ev) => {
       		if(!confirm('해당 댓글을 삭제할까요?')){
       			return;
       		}
@@ -228,16 +263,24 @@
       fnRequiredLogin();
       fnCommentAdd();
       fnCommentList();
+      fnBlind();
       fnCommentReplyAdd();
       fnCommentRemove();
       
+      
       /*
       <div style="width: 100%; border-bottom: 1px solid gray;">
+      
+        // 삭제된 댓글/답글
+        <div>삭제된 댓글입니다.</div>
+        
+        // 정상 댓글/답글
         <div>이름</div>
         <div>내용</div>
         <div style="font-size: 12px;">작성일자</div>
         <div><button type="button" class="btn_open_reply"> 답글달기</button></div>
         <div class="blind">
+        <div class="blind frm_add_reply_wrap">  
           <form class="frm_add_reply"
           <textarea rows="3" cols="50" name="contents" placeholder="답글을 입력하세요"></textarea>
           <input type="hidden" name="userNo" vlaue="">  
