@@ -5,6 +5,43 @@
 
 <mapper namespace="com.gdu.myhome.dao.UploadMapper">
 
-  
+  <insert id="insertUpload" parameterType="UploadDto">
+    INSERT INTO UPLOAD_T (
+        UPLOAD_NO
+      , TITLE
+      , CONTENTS
+      , USER_NO
+      , CREATED_AT
+      , MODIFIED_AT
+    ) VALUES (
+        UPLOAD_SEQ.NEXTVAL
+      , #{title}
+      , #{contents}
+      , #{userDto.userNo}
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') 
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') 
+    )
+  </insert>
+
+  <insert id="insertAttach" parameterType="AttachDto">
+    INSERT INTO ATTACH_T (
+        ATTACH_NO
+      , PATH
+      , ORIGINAL_FILENAME
+      , FILESYSTEM_NAME
+      , DOWNLOAD_COUNT
+      , HAS_THUMBNAIL
+      , UPLOAD_NO
+    ) VALUES (
+        ATTACH_SEQ.NEXTVAL
+      , #{path}
+      , #{originalFilename}
+      , #{filesystemName}
+      , 0
+      , #{hasThumbnail}
+      , #{uploadNo}
+    )
+    
+  </insert>
 
 </mapper>

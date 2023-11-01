@@ -19,7 +19,11 @@
   </div>
   
   <div id="upload_list"></div>
-  
+
 </div>
+
+<script>
+
+</script>
 
 <%@ include file="../layout/footer.jsp" %>

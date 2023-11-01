@@ -114,28 +114,28 @@ public class UploadController {
 
 <div>
 
-  <h1>Upload 게시글 작성하기</h1>
+  <h1 style="text-align: center;">Upload 게시글 작성하기</h1>
   
   <form method="post" action="${contextPath}/upload/add.do" enctype="multipart/form-data">
     <div>
-      <label for="email">작성자</label>
-      <input type="text" id="email" value="${sessionScope.user.email}" readonly> <!-- name이 없으면 서버로 보내지 않는다. upload 테이블에 사용자번호가 들어있지, 이메일 정보는 안들어있다. 다만 email은 화면에 표시만 해주는 용도이다. -->
+      <label for="email" class="form-label">작성자</label>
+      <input type="text" id="email" class="form-control-plaintext" value="${sessionScope.user.email}" readonly>
     </div>
     <div>
-      <label for="title">제목</label>
-      <input type="text" name="title" id="title">
+      <label for="title" class="form-label">제목</label>
+      <input type="text" name="title" id="title" class="form-control">
     </div>
     <div>
-      <label for="contents">내용</label>
-      <textarea rows="3" cols="50" name="contents" id="contents"></textarea>
+      <label for="contents" class="form-label">내용</label>
+      <textarea rows="3" name="contents" id="contents" class="form-control"></textarea>
     </div>
     <div>
-      <label for="files">첨부</label>
-      <input type="file" name="files" id="files" multiple> <!-- multiple 이 적혀있어야 다중첨부가 가능하다. -->
+      <label for="files" class="form-label">첨부</label>
+      <input type="file" name="files" id="files" class="form-control" multiple>
     </div>
-    <div>
+    <div class="d-grid gap-2 col-6 mx-auto">
       <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">
-      <button type="submit">작성완료</button>
+      <button type="submit" class="btn btn-primary" style="margin: 32px;">작성완료</button>
     </div>
   </form>
   
@@ -181,6 +181,14 @@ public class UploadController {
 
 12. list.jsp 작성
 -------------------------------------------------------
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<c:set var="dt" value="<%=System.currentTimeMillis()%>" />
+
 <jsp:include page="../layout/header.jsp">
   <jsp:param value="업로드게시판" name="title"/>
 </jsp:include>
@@ -194,8 +202,12 @@ public class UploadController {
   </div>
   
   <div id="upload_list"></div>
-  
+
 </div>
+
+<script>
+
+</script>
 
 <%@ include file="../layout/footer.jsp" %>
 ---------------------------------------------------
@@ -231,3 +243,132 @@ public class UploadController {
 
 
 
+16. 매퍼.xml 작성
+<insert id="insertUpload" parameterType="UploadDto">
+    INSERT INTO UPLOAD_T (
+        UPLOAD_NO
+      , TITLE
+      , CONTENTS
+      , USER_NO
+      , CREATED_AT
+      , MODIFIED_AT
+    ) VALUES (
+        UPLOAD_SEQ.NEXTVAL
+      , #{title}
+      , #{contents}
+      , #{userDto.userNo}
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') 
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') 
+    )
+  </insert>
+
+  <insert id="insertAttach" parameterType="AttachDto">
+    INSERT INTO ATTACH_T (
+        ATTACH_NO
+      , PATH
+      , ORIGINAL_FILENAME
+      , FILESYSTEM_NAME
+      , DOWNLOAD_COUNT
+      , HAS_THUMBNAIL
+      , UPLOAD_NO
+    ) VALUES (
+        ATTACH_SEQ.NEXTVAL
+      , #{path}
+      , #{originalFilename}
+      , #{filesystemName}
+      , 0
+      , #{hasThumbnail}
+      , #{uploadNo}
+    )
+    
+  </insert>
+  
+
+  
+17. 매퍼.java 작성
+@Mapper
+public interface UploadMapper {
+  public int insertUpload(UploadDto upload);
+  public int insertAttach(AttachDto attach);
+}
+
+
+18. 서비스 작성
+public interface UploadService {
+  public int addUpload(MultipartHttpServletRequest request); // 파일첨부때문에 일반HttpServletRequest는 사용 못한다.
+}
+
+
+19. 서비스임플 작성
+------------------------------------------
+  @Override
+  public int addUpload(MultipartHttpServletRequest multipartRequest) throws Exception {
+    
+    String title = multipartRequest.getParameter("title");
+    String contents = multipartRequest.getParameter("contents");
+    int userNo = Integer.parseInt(multipartRequest.getParameter("userNo"));
+    
+    UploadDto upload = UploadDto.builder()
+                        .title(title)
+                        .contents(contents)
+                        .userDto(UserDto.builder()
+                                  .userNo(userNo)
+                                  .build())
+                        .build();
+                        
+    int addUploadResult = uploadMapper.insertUpload(upload);
+    
+    List<MultipartFile> files = multipartRequest.getFiles("files");     //첨부된 파일을 'MultipartFile' 이라고 부른다. multiple은 첨부파일이 여러개이기 때문에 List로 잡아야 한다.
+    
+    for(MultipartFile multipartFile : files) {
+      if(multipartFile != null && !multipartFile.isEmpty()) {
+        
+        String path = myFileUtils.getUploadPath();
+        File dir = new File(path);
+        if(!dir.exists()) {
+          dir.mkdirs();
+        }
+        
+        String originalFilename = multipartFile.getOriginalFilename();
+        String filesystemName = myFileUtils.getFilesystemName(originalFilename);  // 원래 이름에 확장자를 그대로 사용하기 위해 전달해주는 작업이 필요함.
+        File file = new File(dir, filesystemName);
+        
+        multipartFile.transferTo(file);
+        
+      }
+    }
+    return 0;
+  }
+------------------------------------------------------
+
+
+20. MyFileUtils.java 추가 작성.
+  // 업로드 게시판 작성시 첨부한 파일이 저장될 경로 반환하기
+  public String getUploadPath() {
+    LocalDate today = LocalDate.now();
+    return "/upload/" + DateTimeFormatter.ofPattern("yyyy/MM/dd").format(today);
+  }
+  
+  
+  
+
+21.서비스 수정
+public interface UploadService {
+  public int addUpload(MultipartHttpServletRequest request) throws Exception; // 파일첨부때문에 일반HttpServletRequest는 사용 못한다.
+}
+
+
+
+
+21. 컨트롤러 작성
+  @PostMapping("/add.do")
+  public String add(MultipartHttpServletRequest multipartRequest
+                  , RedirectAttributes redirectAttributes) throws Exception {
+    int addResult = uploadService.addUpload(multipartRequest);
+    redirectAttributes.addFlashAttribute("addResult", addResult);
+    return "redirect:/upload/list.do";
+  }
+
+  
+  
+22. 

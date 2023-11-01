@@ -15,6 +15,12 @@ public class MyFileUtils {   // @Component 해놓고 불러다가 @Autowired 로
     return "/blog/" + DateTimeFormatter.ofPattern("yyyy/MM/dd").format(today);
   }
   
+  // 업로드 게시판 작성시 첨부한 파일이 저장될 경로 반환하기
+  public String getUploadPath() {
+    LocalDate today = LocalDate.now();
+    return "/upload/" + DateTimeFormatter.ofPattern("yyyy/MM/dd").format(today);
+  }
+  
   // 파일이 저장될 이름 반환하기 (파일을 올릴 때 이름과, 실제 저장될 때 이름은 다르다)
   public String getFilesystemName(String originalFilename) { // Filesystem 은 한 단어임.
     
@@ -39,5 +45,7 @@ public class MyFileUtils {   // @Component 해놓고 불러다가 @Autowired 로
      return "/blog/" + DateTimeFormatter.ofPattern("yyyy/MM/dd").format(date);
    }
   
+   
+   
   
 }

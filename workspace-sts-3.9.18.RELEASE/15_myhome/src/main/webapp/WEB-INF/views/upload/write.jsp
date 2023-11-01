@@ -12,28 +12,28 @@
 
 <div>
 
-  <h1>Upload 게시글 작성하기</h1>
+  <h1 style="text-align: center;">Upload 게시글 작성하기</h1>
   
   <form method="post" action="${contextPath}/upload/add.do" enctype="multipart/form-data">
     <div>
-      <label for="email">작성자</label>
-      <input type="text" id="email" value="${sessionScope.user.email}" readonly> <!-- name이 없으면 서버로 보내지 않는다. upload 테이블에 사용자번호가 들어있지, 이메일 정보는 안들어있다. 다만 email은 화면에 표시만 해주는 용도이다. -->
+      <label for="email" class="form-label">작성자</label>
+      <input type="text" id="email" class="form-control-plaintext" value="${sessionScope.user.email}" readonly>
     </div>
     <div>
-      <label for="title">제목</label>
-      <input type="text" name="title" id="title">
+      <label for="title" class="form-label">제목</label>
+      <input type="text" name="title" id="title" class="form-control">
     </div>
     <div>
-      <label for="contents">내용</label>
-      <textarea rows="3" cols="50" name="contents" id="contents"></textarea>
+      <label for="contents" class="form-label">내용</label>
+      <textarea rows="3" name="contents" id="contents" class="form-control"></textarea>
     </div>
     <div>
-      <label for="files">첨부</label>
-      <input type="file" name="files" id="files" multiple> <!-- multiple 이 적혀있어야 다중첨부가 가능하다. -->
+      <label for="files" class="form-label">첨부</label>
+      <input type="file" name="files" id="files" class="form-control" multiple>
     </div>
-    <div>
+    <div class="d-grid gap-2 col-6 mx-auto">
       <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">
-      <button type="submit">작성완료</button>
+      <button type="submit" class="btn btn-primary" style="margin: 32px;">작성완료</button>
     </div>
   </form>
   
