@@ -11,26 +11,22 @@
 </jsp:include>
 
 <style>
-
   .ck.ck-editor {
     max-width: 1000px;
-
   }
   .ck-editor__editable {
     min-height: 400px;
-
   }
   .ck-content {
     color: gray;
-
   }
 </style>
 
 <div>
-    <!-- form id="frm_blog_add"는 title의 공백을 검사할 때 사용한다.(지금은 사용 안한 버젼 -->
-  <form style="text-align: center;" id="frm_blog_add" method="post" action="${contextPath}/blog/addBlog.do">
+
+  <form id="frm_blog_add" method="post" action="${contextPath}/blog/addBlog.do">
     
-    <h1>블로그를 작성하세요</h1>
+    <h1 style="text-align: center;">블로그를 작성하세요</h1>
     
     <div>
       <label for="title">제목</label>
@@ -39,59 +35,48 @@
     
     <div>
       <label for="contents">내용</label>
-      <textarea name="contents" id="contents"></textarea>
+      <textarea name="contents" id="contents" style="display: none;"></textarea>
+      <div id="toolbar-container"></div>
+      <div id="ckeditor"></div>
     </div>
     
     <div>
-      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}"> <!-- 세션에 있는 유저에 있는 유저넘버 -->
-      <button type="submit" class="btn btn-success">작성완료</button>
+      <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">
+      <button class="btn btn-primary col-12" type="submit">작성완료</button>
     </div>
     
   </form>
 
-  <script>
-    const fnCkeditor = () => {		// 화살표 함수로 변수로 전달하는 방식
-  		 
-  	  ClassicEditor
-  	    .create(document.getElementById('contents'), {	//	getElementById('?')  <- 물음표 자리는 상황에 따라 이름을 바꿔서 써야 한다. 
-  		    toolbar: {
-  			    items: [
-  		        'undo', 'redo',
-  		        '|', 'heading',
-  		        '|', 'fontfamily', 'fontsize', 'fontColor', 'fontBackgroundColor',
-  		        '|', 'bold', 'italic', 'strikethrough', 'subscript', 'superscript', 'code',
-  		        '|', 'link', 'uploadImage', 'blockQuote', 'codeBlock',
-  		        '|', 'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent'
-    		    ],
-    		    shouldNotGroupWhenFull: false
-    	   },
-         heading: {
-           options: [
-             { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-             { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-             { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-             { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-             { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
-             { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
-             { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
-           ]
-         },
-         ckfinder: {
-      	   // 업로드 경로 (블로그 경로로 이미지 업로드를 하겠다.)
-      	   uploadUrl: '${contextPath}/blog/imageUpload.do'
-         }
-  	   })
-  	   .catch(err => {
-  		   console.log(err)
-  	   });
-  	  
-    }
-    
-    // 함수 호출
-    fnCkeditor();
-    
-  </script>
-
 </div>
+
+<script>
+
+  const fnCkeditor = () => {
+	  DecoupledEditor
+      .create(document.getElementById('ckeditor'), {
+    	  ckfinder: {
+          // 이미지 업로드 경로
+          uploadUrl: '${contextPath}/blog/imageUpload.do'    		  
+    		}
+  	  })
+      .then(editor => {
+        const toolbarContainer = document.getElementById('toolbar-container');
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+  
+  const fnBlogAdd = () => {
+	  $('#frm_blog_add').submit(() => {
+		  $('#contents').val($('#ckeditor').html());
+	  })
+  }
+  
+  fnCkeditor();
+  fnBlogAdd();
+  
+</script>
 
 <%@ include file="../layout/footer.jsp" %>
