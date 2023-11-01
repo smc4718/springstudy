@@ -31,7 +31,7 @@ public class UploadController {
   @PostMapping("/add.do")
   public String add(MultipartHttpServletRequest multipartRequest
                   , RedirectAttributes redirectAttributes) throws Exception {
-    int addResult = uploadService.addUpload(multipartRequest);
+    boolean addResult = uploadService.addUpload(multipartRequest);
     redirectAttributes.addFlashAttribute("addResult", addResult);
     return "redirect:/upload/list.do";
   }

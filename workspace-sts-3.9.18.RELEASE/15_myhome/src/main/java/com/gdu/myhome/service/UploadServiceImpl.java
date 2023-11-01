@@ -1,6 +1,7 @@
 package com.gdu.myhome.service;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -9,12 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.gdu.myhome.dao.UploadMapper;
+import com.gdu.myhome.dto.AttachDto;
 import com.gdu.myhome.dto.UploadDto;
 import com.gdu.myhome.dto.UserDto;
 import com.gdu.myhome.util.MyFileUtils;
 import com.gdu.myhome.util.MyPageUtils;
 
 import lombok.RequiredArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
 
 @Transactional
 @RequiredArgsConstructor
@@ -26,7 +29,7 @@ public class UploadServiceImpl implements UploadService {
   private final MyPageUtils myPageUtils;    // 목록 다룰 용도
   
   @Override
-  public int addUpload(MultipartHttpServletRequest multipartRequest) throws Exception {
+  public boolean addUpload(MultipartHttpServletRequest multipartRequest) throws Exception {
     
     String title = multipartRequest.getParameter("title");
     String contents = multipartRequest.getParameter("contents");
@@ -40,11 +43,22 @@ public class UploadServiceImpl implements UploadService {
                                   .build())
                         .build();
                         
-  // int addUploadResult = uploadMapper.insertUpload(upload);
+    int uploadCount = uploadMapper.insertUpload(upload);
     
     List<MultipartFile> files = multipartRequest.getFiles("files");     //첨부된 파일을 'MultipartFile' 이라고 부른다. multiple은 첨부파일이 여러개이기 때문에 List로 잡아야 한다.
     
+    // 첨부 없을 때 : [MultipartFile[field="files", filename=, contentType=application/octet-stream, size=0]]
+    // 첨부 1개 : [MultipartFile[field="files", filename="animal1.jpg", contentType=image.jpg size=0]]
+    
+    int attachCount;
+    if(files.get(0).getSize() == 0) {   // 첨부가 없었으면,
+      attachCount = 1;
+    } else {
+      attachCount = 0;
+    }
+    
     for(MultipartFile multipartFile : files) {
+      
       if(multipartFile != null && !multipartFile.isEmpty()) {
         
         String path = myFileUtils.getUploadPath();
@@ -59,9 +73,32 @@ public class UploadServiceImpl implements UploadService {
         
         multipartFile.transferTo(file);
         
-      }
-    }
-    return 0;
+        String contentType = Files.probeContentType(file.toPath()); // 이미지의 Content-Type : image/jpeg, image/png 등 image로 시작한다.
+        int hasThumbnail = (contentType != null && contentType.startsWith("image")) ? 1 : 0; // null 체크가 필요하면 반드시 앞에 먼저 작성해준다.(contentType != null 가 이 구문과 같이 앞에 먼저 작성되어 있어야 한다는말)
+        
+        if(hasThumbnail == 1) {
+          File thumbnail = new File(dir, "s_" + filesystemName); // small 이미지를 의미하는 s_을 덧붙임.
+          Thumbnails.of(file)
+                    .size(100,  100)
+                    .toFile(thumbnail);
+        }
+      
+        AttachDto attach = AttachDto.builder()
+                             .path(path)
+                             .originalFilename(originalFilename)
+                             .filesystemName(filesystemName)
+                             .hasThumbnail(hasThumbnail)
+                             .uploadNo(userNo)
+                             .build();
+        
+        attachCount += uploadMapper.insertAttach(attach);
+        
+      }  // if
+      
+    }    // for
+    
+    return (uploadCount == 1) && (files.size() == attachCount);   // 1이면 성공. attachCount와 파일사이즈가 같으면 성공. 
+    
   }
   
 }
