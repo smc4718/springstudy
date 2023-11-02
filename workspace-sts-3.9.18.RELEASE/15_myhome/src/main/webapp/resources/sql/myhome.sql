@@ -190,6 +190,35 @@ INSERT INTO FREE_T VALUES (FREE_SEQ.NEXTVAL, 'user1@naver.com', '내용20', SYST
 COMMIT;
 
 
+
+
+
+-- 업로드 게시판 쿼리 테스트
+
+-- 1. 업로드 목록 (업로드 - 첨부 조인, 업로드 - 사용자 조인)
+--    첨부가 없는 업로드 게시글도 조회할 수 있도록 외부 조인을 사용함
+--    작성자가 없는 업로드 게시글도 조회할 수 있도록 외부 조인을 사용함
+SELECT UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT, COUNT(ATC.ATTACH_NO) AS 첨부파일수, USR.USER_NO, USR.EMAIL, USR.NAME
+  FROM UPLOAD_T UP LEFT OUTER JOIN ATTACH_T ATC 
+    ON UP.UPLOAD_NO = ATC.UPLOAD_NO LEFT OUTER JOIN USER_T USR
+    ON UP.USER_NO = USR.USER_NO
+ GROUP BY UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT, USR.USER_NO, USR.EMAIL, USR.NAME;
+ 
+-- 첨부 테이블 정보를 조회하지 않는다면 업로드 - 첨부의 조인을 제거하고 작업을 수행할 수 있음
+SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_COUNT, A.USER_NO, A.EMAIL, A.NAME
+  FROM (SELECT ROW_NUMBER() OVER(ORDER BY UPLOAD_NO DESC) AS RN,
+                UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT,
+               (SELECT COUNT(*) FROM ATTACH_T ATC WHERE UP.UPLOAD_NO = ATC.UPLOAD_NO) AS ATTACH_COUNT,
+                USR.USER_NO, USR.EMAIL, USR.NAME
+                FROM UPLOAD_T UP LEFT OUTER JOIN USER_T USR
+                  ON UP.USER_NO = USR.USER_NO) A
+ WHERE A.RN BETWEEN 1 AND 9;
+    
+    
+
+
+
+
 -- 블로그 쿼리 테스트
 
 -- 1. 블로그 목록 (사용자 - 블로그 조인)
