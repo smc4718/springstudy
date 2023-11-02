@@ -558,11 +558,11 @@ SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_C
   <select id="getUploadList" parameterType="Map" resultMap="UploadMap">
     SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_COUNT, A.USER_NO, A.EMAIL, A.NAME
       FROM (SELECT ROW_NUMBER() OVER(ORDER BY UPLOAD_NO DESC) AS RN,
-                UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT,
-               (SELECT COUNT(*) FROM ATTACH_T ATC WHERE UP.UPLOAD_NO = ATC.UPLOAD_NO) AS ATTACH_COUNT,
-                USR.USER_NO, USR.EMAIL, USR.NAME
-                FROM UPLOAD_T UP LEFT OUTER JOIN USER_T USR
-                  ON UP.USER_NO = USR.USER_NO) A
+                   UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT,
+                   (SELECT COUNT(*) FROM ATTACH_T ATC WHERE UP.UPLOAD_NO = ATC.UPLOAD_NO) AS ATTACH_COUNT,
+                   USR.USER_NO, USR.EMAIL, USR.NAME
+              FROM UPLOAD_T UP LEFT OUTER JOIN USER_T USR
+                ON UP.USER_NO = USR.USER_NO) A
      WHERE A.RN BETWEEN #{begin} AND #{end}
   </select>
   
@@ -578,7 +578,7 @@ SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_C
     <result  column="CONTENTS"      property="contents"/>
     <result  column="CREATED_AT"    property="createdAt"/>
     <result  column="MODIFIED_AT"   property="modifiedAt"/>
-    <result  javaType="int"         property="attachCount"/>
+    <result  column="ATTACH_COUNT"  property="attachCount"/>
     <association javaType="UserDto"      property="userDto">
       <id        column="USER_NO"        property="userNo"/>
       <result    column="EMAIL"          property="email" />
@@ -650,12 +650,105 @@ public List<UploadDto> getUploadList(Map<String, Object> map);  // 매퍼.xml �
   
 
 7. 컨트롤러 작성
+  @ResponseBody
+  @GetMapping(value="/getList.do", produces="application/json")
+  public Map<String, Object> getList(HttpServletRequest request) {  // HttpServletRequest를 최초 선언해서 사용할 수 있는 게 컨트롤러이다.
+    return uploadService.getUploadList(request);
+  }
 
 
 
 
+8. list.jsp 수정 및 작성
+-------------------------------------------------------------------------------------
+<div id="upload_list" class="upload_list"></div>
 
-8. list.jsp 작성
+</div>
+
+<script>
+	
+	// 전역 변수
+	var page = 1;
+	var totalPage = 0;
+	
+	const fnGetUploadList = () => {
+	  $.ajax({
+		  // 요청
+		  type: 'get',
+		  url: '${contextPath}/upload/getList.do',
+		  data: 'page=' + page,
+		  // 응답
+		  dataType: 'json',
+		  success: (resData) => {  // resData = {"uploadList": [], "totalPage": 10}
+			  totalPage = resData.totalPage;
+		    $.each(resData.uploadList, (i, upload) => {
+		    	let str = '<div class="upload">';
+		    	str += '<div>제목: ' + upload.title + '</div>';
+		    	str += '<div>작성: ' + upload.userDto.name + '</div>'; // 작성자는 userDto에 있는 name
+		    	str += '<div>생성: ' + upload.createdAt + '</div>';    // 작성일자
+		    	str += '<div>첨부: ' + upload.attachCount + '개</div>';
+		    	str += '</div>';
+		    	$('#upload_list').append(str);
+		    })
+		  }
+	  })
+  }
+
+
+
+
+	const fnAddResult = () => {
+	  let addResult = '${addResult}';	// '', 'true', 'false'
+	  if(addResult != ''){
+		 if(addResult === 'true'){
+			alert('성공적으로 업로드 되었습니다.');
+			fnGetUploadList();
+		 } else {
+		   alert('업로드가 실패하였습니다.');
+		 }
+	  }
+	  
+	}
+	
+	// 호출
+	fnGetUploadList();
+	fnAddResult();
+
+
+------------------ 최상단에 스타일 추가 ----------------------------
+<!-- "내용물만 200이다." 라고 지정하는 방식은 box-sizing: content-box: 이고, "전체 박스크기가 200이다." 라고 하려면 box-sizing: border-box: 로 한다. -->
+<!-- margin: 상하여백10px 좌우는auto -->
+<!-- 기본 flex는 한 줄에 9개씩 빼곡하게 찬다. 기본값은 flex-wrap:nowrap: 이다. (크기 무시하고 우겨넣음), 그러지 말라고 flex-wrap:wrap: 으로 바꿔주어야 크기 모자르면 다음으로 넘어간다. -->
+<!-- padding-top: 100px;  => 상단 여백 100px -->
+<style>
+  div {
+    box-sizing: border-box;
+  }
+  .upload_list {
+    width: 1000px;
+    margin: 10px auto;  
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .upload {
+    width: 300px;
+    height: 300px;
+    border: 1px solid gray;
+    text-align: center;
+    padding-top: 100px;
+    margin-top: 20px;
+  }
+  .upload:hover {
+    background-color: silver
+    cursor: pointer;
+  }
+</style>
+--------------------------------------------------------------------
+
+
+
+
 
 
 
