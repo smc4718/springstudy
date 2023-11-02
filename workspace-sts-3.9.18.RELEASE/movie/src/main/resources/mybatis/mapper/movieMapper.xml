@@ -5,6 +5,15 @@
 
 <mapper namespace="com.gdu.movie.dao.MovieMapper">  <!-- namespace가 가지는 의미 : 매퍼의 경로 -->
   
+  <select id="getMovieCount" resultType="int">    <!-- 갯수구하는 것이니 반환타입 int -->
+    SELECT COUNT(*)
+      FROM MOVIE
+  </select>
   
+  <select id="getMovieList" resultType="MovieDto">
+    SELECT NO, TITLE, GENRE, DESCRIPTION, STAR
+      FROM MOVIE
+     ORDER BY NO ASC
+  </select>
 
 </mapper>
