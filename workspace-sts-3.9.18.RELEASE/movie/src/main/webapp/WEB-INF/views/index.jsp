@@ -43,6 +43,7 @@
   
   <script>
   
+  
     const fnMovieList = () => {
       $.ajax({
         type: 'get',
@@ -78,6 +79,7 @@
       })
     }
     
+ 
     fnMovieList();
     fnInit();
     fnMovieSearch();
