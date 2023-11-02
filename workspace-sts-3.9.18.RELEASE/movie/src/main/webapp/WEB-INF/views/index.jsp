@@ -12,18 +12,19 @@
 <body>
 
   <div>
-    <form id="frm_search">
+    <form id="frm_search">    
       <select name="column" id="column">
+        <option value="">선택하세요</option>
         <option value="TITLE">제목</option>   <!-- 대문자 값을 직접 쿼리로 전달할 수 있게 대문자로 씀 -->
         <option value="GENRE">장르</option>
         <option value="DESCRIPTION">내용</option>
       </select>
-      <input type="text" name="searchText" id="searchText">
+      <input type="text" name="searchText" id="searText">
       <button type="button" id="btn_search">검색</button>
       <button type="button" id="btn_init">초기화</button>
     </form>
   </div>
-
+  
   <hr>
   
   <div>
@@ -37,45 +38,44 @@
         </tr>
       </thead>
       <tbody id="movie_list"></tbody>
-    </table>  
+    </table>
   </div>
-
+  
   <script>
-  	
-  	const fnMovieList = () => {
+  
+    const fnMovieList = () => {
       $.ajax({
-    	type: 'get',
+        type: 'get',
         url: '${contextPath}/searchAllMovies',
         dataType: 'json',
         success: (resData) => {
           alert(resData.message);
           $('#movie_list').empty();
-          $.each(resDate.list, (i, movie) = {  // 인덱스와 저장된 영화 하나씩.
-			let str = '<tr>';
-			str += '<td>' + movie.title + '</td>';
-			str += '<td>' + movie.genre + '</td>';
-			str += '<td>' + movie.description + '</td>';
-			str += '<td>' + movie.star + '</td>';
-			str += '</tr>';
-			$('#movie_list').append(str); // movie_list 에 str 을 등록하기.
+          $.each(resData.list, (i, movie) => {
+            let str = '<tr>';
+            str += '<td>' + movie.title + '</td>';
+            str += '<td>' + movie.genre + '</td>';
+            str += '<td>' + movie.description + '</td>';
+            str += '<td>' + movie.star + '</td>';
+            str += '</tr>';
+            $('#movie_list').append(str);
           })
         }
-  	  })
-  	}
- 	
-  	
-  	const fnInit = () => {
-    	$('#btn_init').click(() => {
-    		$('#column').val('');
-    		$('#searchText').val('');
-    		fnMovieList();
-    	})
+      })
+    }
+  
+    const fnInit = () => {
+      $('#btn_init').click(() => {
+        $('#column').val('');
+        $('#searchText').val('');
+        fnMovieList();
+      })
     }
 
     const fnMovieSearch = () => {
-    	$('#btn_search').click(() => {
-    		
-    	})
+      $('#btn_search').click(() => {
+        
+      })
     }
     
     fnMovieList();
@@ -83,8 +83,6 @@
     fnMovieSearch();
   
   </script>
-
-
-
+  
 </body>
 </html>
