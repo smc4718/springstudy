@@ -519,16 +519,143 @@ public interface UploadService {
 </script>
 
 
+-----------------------------------------------------------------------
+
+
+
+
+1. SQL 작성
+------------------------------------------------------------------
+-- 업로드 게시판 쿼리 테스트
+
+-- 1. 업로드 목록 (업로드 - 첨부 조인, 업로드 - 사용자 조인)
+--    첨부가 없는 업로드 게시글도 조회할 수 있도록 외부 조인을 사용함
+--    작성자가 없는 업로드 게시글도 조회할 수 있도록 외부 조인을 사용함
+SELECT UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT, COUNT(ATC.ATTACH_NO) AS 첨부파일수, USR.USER_NO, USR.EMAIL, USR.NAME
+  FROM UPLOAD_T UP LEFT OUTER JOIN ATTACH_T ATC 
+    ON UP.UPLOAD_NO = ATC.UPLOAD_NO LEFT OUTER JOIN USER_T USR
+    ON UP.USER_NO = USR.USER_NO
+ GROUP BY UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT, USR.USER_NO, USR.EMAIL, USR.NAME;
+ 
+-- 첨부 테이블 정보를 조회하지 않는다면 업로드 - 첨부의 조인을 제거하고 작업을 수행할 수 있음
+SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_COUNT, A.USER_NO, A.EMAIL, A.NAME
+  FROM (SELECT ROW_NUMBER() OVER(ORDER BY UPLOAD_NO DESC) AS RN,
+                UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT,
+               (SELECT COUNT(*) FROM ATTACH_T ATC WHERE UP.UPLOAD_NO = ATC.UPLOAD_NO) AS ATTACH_COUNT,
+                USR.USER_NO, USR.EMAIL, USR.NAME
+                FROM UPLOAD_T UP LEFT OUTER JOIN USER_T USR
+                  ON UP.USER_NO = USR.USER_NO) A
+ WHERE A.RN BETWEEN 1 AND 9;
+ -----------------------------------------------------------------
+
+
+2. UploadMapper.xml 작성
+  <select id="getUploadCount" resultType="int">
+    SELECT COUNT(*)
+      FROM UPLOAD_T
+  </select>
+  <!-- 최상단에서 UploadMap이 어떤 건지 쿼리문으로 설명해주었기 때문에 사용가능. -->
+  <select id="getUploadList" parameterType="Map" resultMap="UploadMap">
+    SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_COUNT, A.USER_NO, A.EMAIL, A.NAME
+      FROM (SELECT ROW_NUMBER() OVER(ORDER BY UPLOAD_NO DESC) AS RN,
+                UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT,
+               (SELECT COUNT(*) FROM ATTACH_T ATC WHERE UP.UPLOAD_NO = ATC.UPLOAD_NO) AS ATTACH_COUNT,
+                USR.USER_NO, USR.EMAIL, USR.NAME
+                FROM UPLOAD_T UP LEFT OUTER JOIN USER_T USR
+                  ON UP.USER_NO = USR.USER_NO) A
+     WHERE A.RN BETWEEN #{begin} AND #{end}
+  </select>
+  
+
++ 상단에 매퍼태그 밑에 바로 적어줄 것
+----------------------------------------------------------
+<mapper namespace="com.gdu.myhome.dao.UploadMapper">
+
+  <!-- UploadDto에는 UserDto가 포함되어 있으므로 resultMap을 만들어서 UploadDto의 설명을 넣어준다. -->
+  <resultMap type="UploadDto"       id="UploadMap">         <!-- 최종적으로 UploadMap으로 부르기로 함. -->
+    <id      column="UPLOAD_NO"     property="uploadNo"/>
+    <result  column="TITLE"         property="title"/>
+    <result  column="CONTENTS"      property="contents"/>
+    <result  column="CREATED_AT"    property="createdAt"/>
+    <result  column="MODIFIED_AT"   property="modifiedAt"/>
+    <result  javaType="int"         property="attachCount"/>
+    <association javaType="UserDto"      property="userDto">
+      <id        column="USER_NO"        property="userNo"/>
+      <result    column="EMAIL"          property="email" />
+      <result    column="PW"             property="pw" />
+      <result    column="NAME"           property="name" />
+      <result    column="GENDER"         property="gender" />
+      <result    column="MOBILE"         property="mobile" />
+      <result    column="POSTCODE"       property="postcode" />
+      <result    column="ROAD_ADDRESS"   property="roadAddress" />
+      <result    column="JIBUN_ADDRESS"  property="jibunAddress" />
+      <result    column="DETAIL_ADDRESS" property="detailAddress" />
+      <result    column="AGREE"          property="agree" />
+      <result    column="STATE"          property="state" />
+      <result    column="PW_MODIFIED_AT" property="pwModifiedAt" />
+      <result    column="JOINED_AT"      property="joinedAt" />
+    </association>
+  </resultMap>
+  
+  
+------------------------------------------------------------------------
+
+
+
+
+3. UploadDto 추가 작성
+private int attachCount;    // UPLOAD_T에는 없는 칼럼이지만, 목록 보기에서 첨부파일갯수를 반환하므로 그 결과를 저장하기 위해서 추가함
+
+*Dto안에 Dto가 들어있으면 Mapper가 인식하지 못한다.(우리만 아는 정보이다)
+
+
+
+
+4. UploadMapper.java 작성
+public int getUploadCount();
+public List<UploadDto> getUploadList(Map<String, Object> map);  // 매퍼.xml 에서는 UploadMap 으로 적었지만, 자바가 인식하기는 UploadDto로 인식한다.
+
+
+
+
+5. 서비스 작성
+ public Map<String, Object> getUploadList(HttpServletRequest request); // 목록을 ajax으로 넘길 때는 Map을 가장 많이 쓴다. (목록을 안 쓴다면 List도 가능하지만, 확장때문에 Map을 쓴다. Map을 쓰면 목록 외에 다른 것도 담을 수 있기 때문에 확장성에 좋다.)
+  // ↑ 컨트롤러로부터 page 번호를 받아온다. (하나만 쓰려면 int page를 써도 되지만, 그 외에도 여러가지를 저장하고 담으려면 HttpServletRequest를 써야 한다.  HttpServletRequest가 여러가지를 담는 확장성이 좋다.)
+
+
+
+
+6. 서비스임플 작성
+  @Override
+  public Map<String, Object> getUploadList(HttpServletRequest request) {
+
+    Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
+    int page = Integer.parseInt(opt.orElse("1"));
+    int total = uploadMapper.getUploadCount();
+    int display = 9;
+    
+    myPageUtils.setPaging(page, total, display);
+    
+    Map<String, Object> map = Map.of("begin", myPageUtils.getBegin()
+                                   , "end", myPageUtils.getEnd());
+    
+    List<UploadDto> uploadList = uploadMapper.getUploadList(map);
+    
+    return Map.of("uploadList", uploadList
+                , "totalPage", myPageUtils.getTotalPage());
+    
+  }
+  
+  
+  
+
+7. 컨트롤러 작성
 
 
 
 
 
-
-
-
-
-
+8. list.jsp 작성
 
 
 
