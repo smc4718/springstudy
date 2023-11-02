@@ -14,6 +14,7 @@
 <!-- margin: 상하여백10px 좌우는auto -->
 <!-- 기본 flex는 한 줄에 9개씩 빼곡하게 찬다. 기본값은 flex-wrap:nowrap: 이다. (크기 무시하고 우겨넣음), 그러지 말라고 flex-wrap:wrap: 으로 바꿔주어야 크기 모자르면 다음으로 넘어간다. -->
 <!-- padding-top: 100px;  => 상단 여백 100px -->
+<!-- margin: 위아래20px, 좌우 15px -->
 <style>
   div {
     box-sizing: border-box;
@@ -23,7 +24,6 @@
     margin: 10px auto;  
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
   }
   .upload {
     width: 300px;
@@ -31,7 +31,7 @@
     border: 1px solid gray;
     text-align: center;
     padding-top: 100px;
-    margin-top: 20px;
+    margin: 20px 15px;
   }
   .upload:hover {
     background-color: silver
@@ -68,6 +68,7 @@
 			  dataType: 'json',
 			  success: (resData) => {  // resData = {"uploadList": [], "totalPage": 10}
 				  totalPage = resData.totalPage;
+			    $('#upload_list').empty();
 			    $.each(resData.uploadList, (i, upload) => {
 			    	let str = '<div class="upload">';
 			    	str += '<div>제목: ' + upload.title + '</div>';
@@ -80,7 +81,39 @@
 			  }
 		  })
 	  }
-
+	
+	
+	const fnScroll = () => {
+		
+	  var timerId;	// 최초 undefined 상태.
+	  
+	  $(window).on('scroll', () => {	// window 객체가 스크롤을 관장한다.  윈도우가 스크롤 되었을 때.
+	
+		if(timerId){	// timerId가 undefined이면 false로 인식, timerId가 값을 가지면 true로 인식
+	      clearTimeout(timerId);	
+		}  
+		  
+		timerId = setTimeout(() => {  // setTimeout 실행 전에는 timerId가 undefined 상태, setTimeout이 한 번이라도 동작하면 timerId가 값을 가짐.
+		  
+		 // 반드시 작성해야 하는 3가지 ↓
+		  let scrollTop = $(window).scrollTop();  // 스크롤바 위치(스크롤 된 길이)	   // ← 이 줄부터 내가 하고 싶은 일 적으면 된다.
+		  let windowHeight = $(window).height();  // 화면 전체 크기
+		  let documentHeight = $(document).height();  // 문서 전체 크기
+		  
+		  if((scrollTop + windowHeight + 100) >= documentHeight) {   // 스크롤이 바닥에 닿기 50px 전에 true가 됨.
+			if(page > totalPage) {  // 마지막 페이지를 보여준 이후에 true가 됨.
+			  return;   // 마지막 페이지를 보여준 이후에는 아래 코드를 수행하지 말 것 (return의 의미 : return 이후의 코드를 수행하지 마라)
+			}
+		  	page++;  // 다음페이지로 넘어감.
+		  	fnGetUploadList();	// 다음페이지 목록 갱신
+		  }
+		  
+		}, 200);	// 200밀리초(0.2초) 후 동작
+		
+	  })
+	  
+	}
+	
 
 
 
@@ -89,6 +122,7 @@
 	  if(addResult != ''){
 		 if(addResult === 'true'){
 			alert('성공적으로 업로드 되었습니다.');
+			$('#upload_list').empty();
 			fnGetUploadList();
 		 } else {
 		   alert('업로드가 실패하였습니다.');
@@ -99,6 +133,7 @@
 	
 	// 호출
 	fnGetUploadList();
+	fnScroll();
 	fnAddResult();
 
 </script>
