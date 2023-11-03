@@ -68,7 +68,6 @@
 			  dataType: 'json',
 			  success: (resData) => {  // resData = {"uploadList": [], "totalPage": 10}
 				  totalPage = resData.totalPage;
-			    $('#upload_list').empty();
 			    $.each(resData.uploadList, (i, upload) => {
 			    	let str = '<div class="upload">';
 			    	str += '<div>제목: ' + upload.title + '</div>';
