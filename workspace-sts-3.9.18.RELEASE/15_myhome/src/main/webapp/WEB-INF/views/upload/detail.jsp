@@ -7,7 +7,7 @@
 <c:set var="dt" value="<%=System.currentTimeMillis()%>" />
 
 <jsp:include page="../layout/header.jsp">
-  <jsp:param value="${upload.uploadNO}번 게시글" name="title"/>
+  <jsp:param value="${upload.uploadNo}번 게시글" name="title"/>
 </jsp:include>
 
 <style>
@@ -27,13 +27,13 @@
   <div>${upload.contents}</div>
   <div>
     <form id="frm_btn" method="post">   <!-- 버튼을 모아두는 폼 -->
-      <input type="hidden" name="uploadNo" value="${upload.uploadNO}">
+      <input type="hidden" name="uploadNo" value="${upload.uploadNo}">
       <button type="button" id="btn_edit">편집</button>
       <button type="button" id="btn_remove">삭제</button>
     </form>
   </div>
   
-  <div id="file_list"></div>
+  <hr>
   
   <h4>첨부 다운로드</h4>
   <div>
@@ -43,15 +43,16 @@
     <c:if test="${not empty attachList}">  <!-- empty attachList : 첨부가 있을 때. -->
       <c:forEach items="${attachList}" var="atc">
         <div class="attach" data-attach_no="${atc.attachNo}">
-          <c:if test="${atc.hasThumbnail == 1}">  <!-- 썸네일 있으면 1 -->
-            <img src="${contextPath}${atc.path}/s_${atc.filesystemName}" alt="썸네일">
+            <c:if test="${atc.hasThumbnail == 1}">   <!-- 썸네일 있으면 1 -->
+            <img src="${contextPath}${atc.path}/s_${atc.filesystemName}" alt="썸네일" width="50px">
           </c:if>
-          <c:if test="${atc.hasThumbnail == 0}">  <!-- 썸네일 없으면 0 -->
-            <img src="${contextPath}/resources/image/nature4.jpg" alt="썸네일" width="50px">
+          <c:if test="${atc.hasThumbnail == 0}">     <!-- 썸네일 없으면 0 -->
+            <img src="${contextPath}/resources/image/attach1.png" alt="썸네일" width="50px">
           </c:if>
           ${atc.originalFilename}   <!-- 첨부된 파일들의 원래 이름 -->
         </div>
       </c:forEach>
+      <div><a href="${contextPath}/upload/downloadAll.do?uploadNo=${upload.uploadNo}">모두 다운로드</a></div>
     </c:if>
   </div>
   
@@ -60,18 +61,13 @@
 <script>
 
   const fnDownload = () => {
-	$('.attach').click(function(){
-	  if(confirm('다운로드 할까요?')){
-		$.ajax({
-		  type: 'get',
-		  url: '${contextPath}/upload/download.do',
-		  data: 'attachNo=' + $(this).data('attach_no')
-		})
-	  }
-	})
+	  $('.attach').click(function(){
+		  if(confirm('다운로드 할까요?')){
+			  location.href = '${contextPath}/upload/download.do?attachNo=' + $(this).data('attach_no');
+		  }
+	  })
   }
   
-  // 호출
   fnDownload();
   
 </script>

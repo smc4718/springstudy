@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,10 +73,7 @@ public class BlogController {
   }
 
   @PostMapping("/edit.form")
-  public String edit(@RequestParam(value="blogNo", required=false, defaultValue="0") int blogNo
-                   , Model model) {
-    BlogDto blog = blogService.getBlog(blogNo);
-    model.addAttribute("blog", blog);
+  public String edit(@ModelAttribute("blog") BlogDto blog) {  // Model 에 실어줄 때, blog라는 이름으로 실어줄 수 있도록 이름을 바꿔주는 ModelAttribute를 사용한다.
     return "blog/edit";  // edit.jsp 에 가서 블로그 편집을 하겠다.
   }
   

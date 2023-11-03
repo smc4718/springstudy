@@ -46,14 +46,14 @@ public class UploadController {
   
   @ResponseBody
   @GetMapping(value="/getList.do", produces="application/json")
-  public Map<String, Object> getList(HttpServletRequest request) {  // HttpServletRequest를 최초 선언해서 사용할 수 있는 게 컨트롤러이다.
+  public Map<String, Object> getList(HttpServletRequest request){  // HttpServletRequest를 최초 선언해서 사용할 수 있는 게 컨트롤러이다.
     return uploadService.getUploadList(request);
   }
   
   @GetMapping("/detail.do")
   public String detail(HttpServletRequest request, Model model) {
     uploadService.loadUpload(request, model);
-    return "upload/detail";   // 업로드폴더에 detail.jsp로 가겠다.
+    return "upload/detail";  // 업로드폴더에 detail.jsp로 가겠다.
   }
   
   @GetMapping("/download.do")
@@ -61,15 +61,10 @@ public class UploadController {
     return uploadService.download(request);
   }
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  @GetMapping("/downloadAll.do")
+  public ResponseEntity<Resource> downloadAll(HttpServletRequest request) {
+    return uploadService.downloadAll(request);
+  }
   
   
   

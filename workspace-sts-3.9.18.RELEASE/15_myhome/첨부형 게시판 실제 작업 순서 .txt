@@ -302,7 +302,7 @@ public interface UploadService {
 19. 서비스임플 작성
 ------------------------------------------
   @Override
-  public int addUpload(MultipartHttpServletRequest multipartRequest) throws Exception {
+  public boolean addUpload(MultipartHttpServletRequest multipartRequest) throws Exception {
     
     String title = multipartRequest.getParameter("title");
     String contents = multipartRequest.getParameter("contents");
@@ -316,11 +316,22 @@ public interface UploadService {
                                   .build())
                         .build();
                         
-    int addUploadResult = uploadMapper.insertUpload(upload);
+    int uploadCount = uploadMapper.insertUpload(upload);
     
     List<MultipartFile> files = multipartRequest.getFiles("files");     //첨부된 파일을 'MultipartFile' 이라고 부른다. multiple은 첨부파일이 여러개이기 때문에 List로 잡아야 한다.
     
+    // 첨부 없을 때 : [MultipartFile[field="files", filename=, contentType=application/octet-stream, size=0]]
+    // 첨부 1개 : [MultipartFile[field="files", filename="animal1.jpg", contentType=image.jpg size=0]]
+    
+    int attachCount;
+    if(files.get(0).getSize() == 0) {   // 첨부가 없었으면,
+      attachCount = 1;
+    } else {
+      attachCount = 0;
+    }
+    
     for(MultipartFile multipartFile : files) {
+      
       if(multipartFile != null && !multipartFile.isEmpty()) {
         
         String path = myFileUtils.getUploadPath();
@@ -335,9 +346,32 @@ public interface UploadService {
         
         multipartFile.transferTo(file);
         
-      }
-    }
-    return 0;
+        String contentType = Files.probeContentType(file.toPath()); // 이미지의 Content-Type : image/jpeg, image/png 등 image로 시작한다.
+        int hasThumbnail = (contentType != null && contentType.startsWith("image")) ? 1 : 0; // null 체크가 필요하면 반드시 앞에 먼저 작성해준다.(contentType != null 가 이 구문과 같이 앞에 먼저 작성되어 있어야 한다는말)
+        
+        if(hasThumbnail == 1) {
+          File thumbnail = new File(dir, "s_" + filesystemName); // small 이미지를 의미하는 s_을 덧붙임.
+          Thumbnails.of(file)
+                    .size(100,  100)
+                    .toFile(thumbnail);
+        }
+      
+        AttachDto attach = AttachDto.builder()
+                             .path(path)
+                             .originalFilename(originalFilename)
+                             .filesystemName(filesystemName)
+                             .hasThumbnail(hasThumbnail)
+                             .uploadNo(upload.getUploadNo())
+                             .build();
+        
+        attachCount += uploadMapper.insertAttach(attach);
+        
+      }  // if
+      
+    }    // for
+    
+    return (uploadCount == 1) && (files.size() == attachCount);   // 1이면 성공. attachCount와 파일사이즈가 같으면 성공. 
+    
   }
 ------------------------------------------------------
 
@@ -819,7 +853,7 @@ public void loadUpload(HttpServletRequest request, Model model);
     Optional<String> opt = Optional.ofNullable(request.getParameter("uploadNo"));
     int uploadNo = Integer.parseInt(opt.orElse("0"));  // uploadNo는 정수변환이 필요하니까 파스인트쓰고, 전달이 안됐을 때는 0을 사용한다.
     
-    model.addAttribute("upload", uploadMapper.getUpload(0));
+    model.addAttribute("upload", uploadMapper.getUpload(uploadNo));
     model.addAttribute("attachList", uploadMapper.getAttachList(uploadNo));
     
   }
@@ -873,15 +907,16 @@ public void loadUpload(HttpServletRequest request, Model model);
     <c:if test="${not empty attachList}">  <!-- empty attachList : 첨부가 있을 때. -->
       <c:forEach items="${attachList}" var="atc">
         <div class="attach" data-attach_no="${atc.attachNo}">
-          <c:if test="${atc.hasThumbnail == 1}">  <!-- 썸네일 있으면 1 -->
-            <img src="${contextPath}${atc.path}/s_${atc.filesystemName}" alt="썸네일">
+            <c:if test="${atc.hasThumbnail == 1}">   <!-- 썸네일 있으면 1 -->
+            <img src="${contextPath}${atc.path}/s_${atc.filesystemName}" alt="썸네일" width="50px">
           </c:if>
-          <c:if test="${atc.hasThumbnail == 0}">  <!-- 썸네일 없으면 0 -->
-            <img src="${contextPath}/resources/image/nature4.jpg" alt="썸네일" width="50px">
+          <c:if test="${atc.hasThumbnail == 0}">     <!-- 썸네일 없으면 0 -->
+            <img src="${contextPath}/resources/image/attach1.png" alt="썸네일" width="50px">
           </c:if>
           ${atc.originalFilename}   <!-- 첨부된 파일들의 원래 이름 -->
         </div>
       </c:forEach>
+      <div><a href="${contextPath}/upload/downloadAll.do?uploadNo=${upload.uploadNo}">모두 다운로드</a></div>
     </c:if>
   </div>
   
@@ -890,18 +925,13 @@ public void loadUpload(HttpServletRequest request, Model model);
 <script>
 
   const fnDownload = () => {
-	$('.attach').click(function(){
-	  if(confirm('다운로드 할까요?')){
-		$.ajax({
-		  type: 'get',
-		  url: '${contextPath}/upload/download.do',
-		  data: 'attachNo=' + $(this).data('attach_no')
-		})
-	  }
-	})
+	  $('.attach').click(function(){
+		  if(confirm('다운로드 할까요?')){
+			  location.href = '${contextPath}/upload/download.do?attachNo=' + $(this).data('attach_no');
+		  }
+	  })
   }
   
-  // 호출
   fnDownload();
   
 </script>
@@ -982,29 +1012,32 @@ public ResponseEntity<Resource> download(HttpServletRequest request); // Respons
 
 12. 서비스임플 작성
 --------------------------------------------
-@Override
-  public ResponseEntity<Resource> download(HttpServletRequest request) {  //HttpServletResponse 는 좀 고전적인 방법이다.
+  @Override
+  public ResponseEntity<Resource> download(HttpServletRequest request) {
     
     // 첨부 파일의 정보 가져오기
     int attachNo = Integer.parseInt(request.getParameter("attachNo"));
     AttachDto attach = uploadMapper.getAttach(attachNo);
     
-    // 첨부 파일 File 객체 -> Resource 객체로 바꿔준다.
+    // 첨부 파일 File 객체 -> Resource 객체
     File file = new File(attach.getPath(), attach.getFilesystemName());
     Resource resource = new FileSystemResource(file);  // 리소스화 시킴.
     
-    //첨부 파일이 없으면 다운로드 취소
+    // 첨부 파일이 없으면 다운로드 취소
     if(!resource.exists()) {
       return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
     }
- 
-    // 사용자가 다운로드 받을 파일의 이름 결정(User-Agent값에 따른 인코딩 처리)
+    
+    // 다운로드 횟수 증가하기
+    uploadMapper.updateDownloadCount(attachNo);
+    
+    // 사용자가 다운로드 받을 파일의 이름 결정 (User-Agent값에 따른 인코딩 처리)
     String originalFilename = attach.getOriginalFilename();
-    String userAgent = request.getHeader("User-Agent");   // getHeader : request header라고 해서 요청헤더이다.
+    String userAgent = request.getHeader("User-Agent");  // getHeader : request header라고 해서 요청헤더이다.
     try {
       // IE
       if(userAgent.contains("Trident")) {
-        originalFilename = URLEncoder.encode(originalFilename, "UTF-8").replace("+", " ");  // 인터넷 익스플로어로 가자
+        originalFilename = URLEncoder.encode(originalFilename, "UTF-8").replace("+", " ");
       }
       // Edge
       else if(userAgent.contains("Edg")) {
@@ -1014,7 +1047,7 @@ public ResponseEntity<Resource> download(HttpServletRequest request); // Respons
       else {
         originalFilename = new String(originalFilename.getBytes("UTF-8"), "ISO-8859-1");
       }
-    } catch (Exception e) {
+    } catch(Exception e) {
       e.printStackTrace();
     }
     
@@ -1022,10 +1055,11 @@ public ResponseEntity<Resource> download(HttpServletRequest request); // Respons
     HttpHeaders header = new HttpHeaders();  // 자동완성 스프링프레임워크로 선택해야함.
     header.add("Content-Type", "application/octet-stream");
     header.add("Content-Disposition", "attachment; filename=" + originalFilename);
-    header.add("Content-Length", file.length() + "");  // 빈문자열을 더해줘서 String으로 바꿔준다.
+    header.add("Content-Length", file.length() + "");  // 빈문자열을 더해서 String으로 바꿔준다.
     
     // 응답
     return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+    
   }
 ---------------------------------------------
 
@@ -1039,16 +1073,192 @@ public ResponseEntity<Resource> download(HttpServletRequest request); // Respons
 
 
 
+14. 서비스 작성
+public ResponseEntity<Resource> downloadAll(HttpServletRequest request);
+
+
+
+15. MyFileUtils.java 추가 작성
+// 업로드 게시판 작성시 첨부한 파일이 저장될 경로 반환하기
+  public String getUploadPath() {
+    LocalDate today = LocalDate.now();
+    return "/upload/" + DateTimeFormatter.ofPattern("yyyy/MM/dd").format(today);
+  }
+  
+  (밑에꺼 추가 ↓)
+  // 임시 파일이 저장될 경로 반환하기 (zip 파일)
+  public String getTempPath() {
+    return "/temp";
+  }
+
+
+-------------하단에도 추가 작성------------------
+  return UUID.randomUUID().toString().toString().replace("-", "") + "." + extName; // ← 원래 이름과 저장된 이름 구성하기.
+  }
+     ( 밑에 것 추가 ↓ )
+  
+  // 임시 파일 이름 반환하기 (확장자는 제외하고 이름만 반환)
+  public String getTempFilename() {
+    return System.currentTimeMillis() + "";
+  }
 
 
 
 
 
+16.서비스임플 작성
+  @Override
+  public ResponseEntity<Resource> downloadAll(HttpServletRequest request) {
+    
+    // 다운로드 할 모든 첨부 파일 정보 가져오기
+    int uploadNo = Integer.parseInt(request.getParameter("uploadNo"));
+    List<AttachDto> attachList = uploadMapper.getAttachList(uploadNo);
+    
+    // 첨부 파일이 없으면 종료
+    if(attachList.isEmpty()) {
+      return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
+    }
+    
+    // zip 파일을 생성할 경로
+    File tempDir = new File(myFileUtils.getTempPath());
+    if(!tempDir.exists()) {
+      tempDir.mkdirs();
+    }
+    
+    // zip 파일의 이름
+    String zipName = myFileUtils.getTempFilename() + ".zip";
+    
+    // zip 파일의 File 객체
+    File zipFile = new File(tempDir, zipName);
+    
+    // zip 파일을 생성하는 출력 스트림
+    ZipOutputStream zout = null;
+    
+    // 첨부 파일들을 순회하면서 zip 파일에 등록하기
+    try {
+      
+      zout = new ZipOutputStream(new FileOutputStream(zipFile));
+      
+      for(AttachDto attach : attachList) {
+        
+        // 각 첨부 파일들의 원래 이름으로 zip 파일에 등록하기 (이름만 등록)
+        ZipEntry zipEntry = new ZipEntry(attach.getOriginalFilename());
+        zout.putNextEntry(zipEntry);
+        
+        // 각 첨부 파일들의 내용을 zip 파일에 등록하기 (실제 파일 등록)
+        BufferedInputStream bin = new BufferedInputStream(new FileInputStream(new File(attach.getPath(), attach.getFilesystemName())));
+        zout.write(bin.readAllBytes());
+        
+        // 자원 반납
+        bin.close();
+        zout.closeEntry();
+        
+        // 다운로드 횟수 증가
+        uploadMapper.updateDownloadCount(attach.getAttachNo());
+        
+      }
+      
+      // zout 자원 반납
+      zout.close();
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    // 다운로드할 zip 파일의 File 객체 -> Resource 객체
+    Resource resource = new FileSystemResource(zipFile);
+    
+    // 다운로드 응답 헤더 만들기
+    HttpHeaders header = new HttpHeaders();
+    header.add("Content-Type", "application/octet-stream");
+    header.add("Content-Disposition", "attachment; filename=" + zipName);
+    header.add("Content-Length", zipFile.length() + "");
+    
+    // 응답
+    return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+    
+  }
+
+
+
+17. 컨트롤러 작성
+  @GetMapping("/downloadAll.do")
+  public ResponseEntity<Resource> downloadAll(HttpServletRequest request) {
+   return uploadService.downloadAll(request); 
+  }
 
 
 
 
 
+18. list.jsp 추가 작성 ( 글 상세보기 )
+<script>
+
+  const fnDownload = () => {
+	  $('.attach').click(function(){
+		  if(confirm('다운로드 할까요?')){
+			  location.href = '${contextPath}/upload/download.do?attachNo=' + $(this).data('attach_no');
+		  }
+	  })
+  }
+  
+  fnDownload();
+  
+</script>
+
+
+=========임시파일 삭제하기===========
+
+
+1.서비스 작성
+public void removeTempFiles();
+
+
+
+2.서비스임플 작성
+@Override
+  public void removeTempFiles() {
+    File tempDir = new File(myFileUtils.getTempPath());
+    File[] targetList = tempDir.listFiles();
+    if(targetList != null) {
+      for(File target : targetList) {
+        target.delete();
+      }
+    }
+  }
+
+
+
+
+3. 스케쥴 패키지에 RemoveTempFileBatch 클래스 만들기.
+@RequiredArgsConstructor
+@Component
+public class RemoveTempFileBatch {
+
+  private final UploadService uploadService;
+  
+  @Scheduled(cron="0 15 16 * * ?")
+  public void execute() {
+    uploadService.removeTempFiles();
+  }
+
+==========================================
+
+
+
+------블로그 패키지와 블로그views폴더에 수정할 부분 ↓↓↓ -----------
+
+1. detail.jsp 수정
+
+
+
+2. BlogController 수정
+  @PostMapping("/edit.form")
+  public String edit(@ModelAttribute("blog") BlogDto blog) {  // Model 에 실어줄 때, blog라는 이름으로 실어줄 수 있도록 이름을 바꿔주는 ModelAttribute를 사용한다.
+    return "blog/edit";  // edit.jsp 에 가서 블로그 편집을 하겠다.
+  }
+  
+------------------------------------------------------------------
 
 
 

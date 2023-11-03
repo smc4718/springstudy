@@ -72,7 +72,6 @@
       , #{hasThumbnail}
       , #{uploadNo}
     )
-    
   </insert>
   
   <select id="getUploadCount" resultType="int">
@@ -96,7 +95,7 @@
          , USR.USER_NO, USR.EMAIL, USR.NAME
       FROM USER_T USR RIGHT OUTER JOIN UPLOAD_T UP
         ON USR.USER_NO = UP.USER_NO
-     WHERE UPLOAD_NO = #{uploadNo}
+     WHERE UP.UPLOAD_NO = #{uploadNo}
   </select>
   
   <select id="getAttachList" parameterType="int" resultType="AttachDto">
