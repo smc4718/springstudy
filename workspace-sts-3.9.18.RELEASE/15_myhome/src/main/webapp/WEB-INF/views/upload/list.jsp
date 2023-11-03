@@ -72,7 +72,7 @@
 			    	let str = '<div class="upload" data-upload_no="' + upload.uploadNo + '">';
 			    	str += '<div>제목: ' + upload.title + '</div>';
 			    	if(upload.userDto === null){
-			    	  str += '<div>작성: 정보없음</div>;
+			    	  str += '<div>작성: 정보없음</div>';
 			    	} else {
 			    	str += '<div>작성: ' + upload.userDto.name + '</div>'; // 작성자는 userDto에 있는 name
 			    	}

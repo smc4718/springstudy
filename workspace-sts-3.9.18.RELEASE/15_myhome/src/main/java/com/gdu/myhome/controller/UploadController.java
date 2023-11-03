@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,8 +56,10 @@ public class UploadController {
     return "upload/detail";   // 업로드폴더에 detail.jsp로 가겠다.
   }
   
-  
-  
+  @GetMapping("/download.do")
+  public ResponseEntity<Resource> download(HttpServletRequest request) {
+    return uploadService.download(request);
+  }
   
   
   
