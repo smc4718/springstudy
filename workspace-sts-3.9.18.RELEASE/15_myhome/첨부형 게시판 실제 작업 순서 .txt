@@ -1249,7 +1249,14 @@ public class RemoveTempFileBatch {
 ------블로그 패키지와 블로그views폴더에 수정할 부분 ↓↓↓ -----------
 
 1. detail.jsp 수정
-
+     <!-- 블로그의 작성자는 편집/삭제를 수행할 수 있다. -->
+     <c:if test="${sessionScope.user.userNo == blog.userDto.userNo}"><!-- 작성자가 맞다면(로그인되어있다면) -->
+      <form id="frm_btn" method="post">
+        <input type="hidden" name="blogNo" value="${blog.blogNo}">
+        <input type="hidden" name="title" value="${blog.title}">
+        <input type="hidden" name="contents" value='${blog.contents}'>
+        <button type="button" id="btn_edit">편집</button>
+        <button type="button" id="btn_remove">삭제</button>
 
 
 2. BlogController 수정
