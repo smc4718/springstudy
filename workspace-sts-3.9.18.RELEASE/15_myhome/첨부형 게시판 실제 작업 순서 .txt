@@ -626,6 +626,7 @@ public List<UploadDto> getUploadList(Map<String, Object> map);  // 매퍼.xml �
 
 
 6. 서비스임플 작성
+  @Transactional(readOnly=true)
   @Override
   public Map<String, Object> getUploadList(HttpServletRequest request) {
 
@@ -782,9 +783,104 @@ public List<UploadDto> getUploadList(Map<String, Object> map);  // 매퍼.xml �
 
 
 
+=======================첨부형 게시판 이어서 작성=============================
+
+1. 매퍼.xml 작성
+  <select id="getUpload" parameterType="int" resultMap="UploadMap">  <!-- result는 리턴하는 타입:반환타입 -->
+    SELECT UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT
+         , USR.USER_NO, USR.EMAIL, USR.NAME
+      FROM USER_T USR RIGHT OUTER JOIN UPLOAD_T UP
+        ON USR.USER_NO = UP.USER_NO
+     WHERE UPLOAD_NO = #{uploadNo}
+  </select>
+  
+  <select id="getAttachList" parameterType="int" resultType="AttachDto">
+    SELECT ATTACH_NO, PATH, ORIGINAL_FILENAME, FILESYSTEM_NAME, DOWNLOAD_COUNT, HAS_THUMBNAIL, UPLOAD_NO
+      FROM ATTACH_T
+     WHERE UPLOAD_NO = #{uploadNo}
+  </select>
+  
+  
+  
+2. 매퍼.java 작성
+  public UploadDto getUpload(int uploadNo);
+  public List<AttachDto> getAttachList(int uploadNo);
+  
+  
+  
+3. 서비스 작성
+public void loadUpload(HttpServletRequest request, Model model);
 
 
-=======================첨부형 게시판 끝=============================
+4. 서비스 임플 작성
+  @Transactional(readOnly=true)
+  @Override
+  public void loadUpload(HttpServletRequest request, Model model) {
+    
+    Optional<String> opt = Optional.ofNullable(request.getParameter("uploadNo"));
+    int uploadNo = Integer.parseInt(opt.orElse("0"));  // uploadNo는 정수변환이 필요하니까 파스인트쓰고, 전달이 안됐을 때는 0을 사용한다.
+    
+    model.addAttribute("upload", uploadMapper.getUpload(0));
+    model.addAttribute("attachList", uploadMapper.getAttachList(uploadNo));
+    
+  }
+  
+
+
+5. 컨트롤러 작성
+  @GetMapping("/detail.do")
+  public String detail(HttpServletRequest request, Model model) {
+    uploadService.loadUpload(request, model);
+    return "upload/detail";   // 업로드폴더에 detail.jsp로 가겠다.
+  }
+
+
+
+6. detail.jsp 만들기
+<div>
+
+  <h1 style="text-align: center;">Upload 게시글</h1>
+  <div>작성자 : ${upload.userDto.name}</div>
+  <div>작성일 : ${upload.createdAt}</div>
+  <div>수정일 : ${upload.modifiedAt}</div>
+  <div>제목 : ${upload.title}</div>
+  <div>내용</div>
+  <div>${upload.contents}</div>
+  <div>
+    <form id="frm_btn" method="post">   <!-- 버튼을 모아두는 폼 -->
+      <input type="hidden" name="uploadNo" value="${upload.uploadNO}">
+      <button type="button" id="btn_edit">편집</button>
+      <button type="button" id="btn_remove">삭제</button>
+    </form>
+  </div>
+  
+  <div id="file_list"></div>
+  
+</div>
+
+
+
+
+7. servlet-context.xml 추가 작성
+  <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+  <resources mapping="/resources/**" location="/resources/" />
+  <resources mapping="/blog/**" location="file:///blog/" />   
+  <resources mapping="/upload/**" location="file:///upload/" />  <-- 이것 추가 : 업로드 경로 매핑 추가해주기.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

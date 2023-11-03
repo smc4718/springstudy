@@ -21,10 +21,10 @@
   }
   .upload_list {
     width: 1000px;
-    margin: 10px auto;  
+    margin: 10px auto;
     display: flex;
     flex-wrap: wrap;
-  }
+   }
   .upload {
     width: 300px;
     height: 300px;
@@ -34,7 +34,7 @@
     margin: 20px 15px;
   }
   .upload:hover {
-    background-color: silver
+    background-color: silver;
     cursor: pointer;
   }
 </style>
