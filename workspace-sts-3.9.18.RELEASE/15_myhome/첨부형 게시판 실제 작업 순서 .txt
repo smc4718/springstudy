@@ -736,7 +736,6 @@ public List<UploadDto> getUploadList(Map<String, Object> map);  // 매퍼.xml �
 		 if(addResult === 'true'){
 			alert('성공적으로 업로드 되었습니다.');
 			$('#upload_list').empty();
-			fnGetUploadList();
 		 } else {
 		   alert('업로드가 실패하였습니다.');
 		 }
@@ -837,6 +836,16 @@ public void loadUpload(HttpServletRequest request, Model model);
 
 
 6. detail.jsp 만들기
+<jsp:include page="../layout/header.jsp">
+  <jsp:param value="${upload.uploadNO}번 게시글" name="title"/>
+</jsp:include>
+
+<style>
+  .attach {
+    cursor: pointer;
+  }
+</style>
+
 <div>
 
   <h1 style="text-align: center;">Upload 게시글</h1>
@@ -856,7 +865,48 @@ public void loadUpload(HttpServletRequest request, Model model);
   
   <div id="file_list"></div>
   
+  <h4>첨부 다운로드</h4>
+  <div>
+    <c:if test="${empty attachList}">  <!-- empty attachList : 첨부가 없을 때. -->
+      <div>첨부 없음</div>
+    </c:if>
+    <c:if test="${not empty attachList}">  <!-- empty attachList : 첨부가 있을 때. -->
+      <c:forEach items="${attachList}" var="atc">
+        <div class="attach" data-attach_no="${atc.attachNo}">
+          <c:if test="${atc.hasThumbnail == 1}">  <!-- 썸네일 있으면 1 -->
+            <img src="${contextPath}${atc.path}/s_${atc.filesystemName}" alt="썸네일">
+          </c:if>
+          <c:if test="${atc.hasThumbnail == 0}">  <!-- 썸네일 없으면 0 -->
+            <img src="${contextPath}/resources/image/nature4.jpg" alt="썸네일" width="50px">
+          </c:if>
+          ${atc.originalFilename}   <!-- 첨부된 파일들의 원래 이름 -->
+        </div>
+      </c:forEach>
+    </c:if>
+  </div>
+  
 </div>
+  
+<script>
+
+  const fnDownload = () => {
+	$('.attach').click(function(){
+	  if(confirm('다운로드 할까요?')){
+		$.ajax({
+		  type: 'get',
+		  url: '${contextPath}/upload/download.do',
+		  data: 'attachNo=' + $(this).data('attach_no')
+		})
+	  }
+	})
+  }
+  
+  // 호출
+  fnDownload();
+  
+</script>
+  
+<%@ include file="../layout/footer.jsp" %>
 
 
 
@@ -868,6 +918,71 @@ public void loadUpload(HttpServletRequest request, Model model);
   <resources mapping="/upload/**" location="file:///upload/" />  <-- 이것 추가 : 업로드 경로 매핑 추가해주기.
 
 
+
+
+8. 매퍼.xml 작성
+  <select id="getAttach" parameterType="int" resultType="AttachDto">
+    SELECT ATTACH_NO, PATH, ORIGINAL_FILENAME, FILESYSTEM_NAME, DOWNLOAD_COUNT, HAS_THUMBNAIL, UPLOAD_NO
+      FROM ATTACH_T
+     WHERE ATTACH_NO = #{attachNo}
+  </select>
+  
+  <update id="updateDownloadCount" parameterType="int">
+    UPDATE ATTACH_T
+       SET DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1
+     WHERE ATTACH_NO = #{attachNo}
+  </update>
+
+
+
+
+9. 매퍼.java 작성
+  public AttachDto getAttach(int attachNo);
+  public int updateDownloadCount(int attachNo);
+  
+  
+  
+
+10. list.jsp 기존 것 수정
+---------------------------------------------
+const fnGetUploadList = () => {
+		  $.ajax({
+			  // 요청
+			  type: 'get',
+			  url: '${contextPath}/upload/getList.do',
+			  data: 'page=' + page,
+			  // 응답
+			  dataType: 'json',
+			  success: (resData) => {  // resData = {"uploadList": [], "totalPage": 10}
+				  totalPage = resData.totalPage;
+			    $.each(resData.uploadList, (i, upload) => {
+			    	let str = '<div class="upload" data-upload_no="' + upload.uploadNo + '">';
+			    	str += '<div>제목: ' + upload.title + '</div>';
+			    	if(upload.userDto === null){
+			    	  str += '<div>작성: 정보없음</div>;
+			    	} else {
+			    	str += '<div>작성: ' + upload.userDto.name + '</div>'; // 작성자는 userDto에 있는 name
+			    	}
+			    	str += '<div>생성: ' + upload.createdAt + '</div>';    // 작성일자
+			    	str += '<div>첨부: ' + upload.attachCount + '개</div>';
+			    	str += '</div>';
+			    	$('#upload_list').append(str);
+			    })
+			  }
+		  })
+	  }
+---------------------------------------------
+ 
+  
+11. 서비스 작성
+
+
+
+12. 서비스임플 작성
+
+
+
+13. 컨트롤러 작성
 
 
 

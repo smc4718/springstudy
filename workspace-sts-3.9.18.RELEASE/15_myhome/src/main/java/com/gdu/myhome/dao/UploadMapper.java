@@ -16,4 +16,6 @@ public interface UploadMapper {
   public List<UploadDto> getUploadList(Map<String, Object> map);  // 매퍼.xml 에서는 UploadMap 으로 적었지만, 자바가 인식하기는 UploadDto로 인식한다.
   public UploadDto getUpload(int uploadNo);
   public List<AttachDto> getAttachList(int uploadNo);
+  public AttachDto getAttach(int attachNo);
+  public int updateDownloadCount(int attachNo);
 }

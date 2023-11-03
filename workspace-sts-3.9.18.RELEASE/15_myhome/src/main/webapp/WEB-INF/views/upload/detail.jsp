@@ -10,6 +10,12 @@
   <jsp:param value="${upload.uploadNO}번 게시글" name="title"/>
 </jsp:include>
 
+<style>
+  .attach {
+    cursor: pointer;
+  }
+</style>
+
 <div>
 
   <h1 style="text-align: center;">Upload 게시글</h1>
@@ -36,7 +42,7 @@
     </c:if>
     <c:if test="${not empty attachList}">  <!-- empty attachList : 첨부가 있을 때. -->
       <c:forEach items="${attachList}" var="atc">
-        <div>
+        <div class="attach" data-attach_no="${atc.attachNo}">
           <c:if test="${atc.hasThumbnail == 1}">  <!-- 썸네일 있으면 1 -->
             <img src="${contextPath}${atc.path}/s_${atc.filesystemName}" alt="썸네일">
           </c:if>
@@ -53,33 +59,20 @@
   
 <script>
 
-  const fnFileCheck = () => {
-    $('#files').change((ev) => {
-      $('#file_list').empty();
-      let maxSize = 1024 * 1024 * 100;
-      let maxSizePerFile = 1024 * 1024 * 10;
-      let totalSize = 0;
-      let files = ev.target.files;
-      for(let i = 0; i < files.length; i++){
-        totalSize += files[i].size;
-        if(files[i].size > maxSizePerFile){
-          alert('각 첨부파일의 최대 크기는 10MB입니다.');
-          $(ev.target).val('');
-          $('#file_list').empty();
-          return;
-        }
-        $('#file_list').append('<div>' + files[i].name + '</div>');
-      }
-      if(totalSize > maxSize){
-        alert('전체 첨부파일의 최대 크기는 100MB입니다.');
-        $(ev.target).val('');
-        $('#file_list').empty();
-        return;
-      }
-    })
+  const fnDownload = () => {
+	$('.attach').click(function(){
+	  if(confirm('다운로드 할까요?')){
+		$.ajax({
+		  type: 'get',
+		  url: '${contextPath}/upload/download.do',
+		  data: 'attachNo=' + $(this).data('attach_no')
+		})
+	  }
+	})
   }
   
-  fnFileCheck();
+  // 호출
+  fnDownload();
   
 </script>
   
