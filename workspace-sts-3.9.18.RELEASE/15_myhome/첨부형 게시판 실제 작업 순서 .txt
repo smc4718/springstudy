@@ -1691,4 +1691,107 @@ public Map<String, Object> addAttach(MultipartHttpServletRequest multipartReques
   }
 ---------------------------------------------------------------
 
+< 삭제 기능 >
 
+1. 매퍼.xml 작성
+<delete id="deleteUpload" parameterType="int">
+    DELETE
+      FROM UPLOAD_T
+     WHERE UPLOAD_NO = #{uploadNo}
+  </delete>
+  
+
+
+2. 매퍼.java 작성
+public int deleteUpload(int uploadNo);
+
+
+
+3. 서비스 작성
+public int removeUpload(int uploadNo);
+
+
+
+4. 서비스임플 작성
+  @Override
+  public int removeUpload(int uploadNo) {
+    
+    // 파일 삭제
+    List<AttachDto> attachList = uploadMapper.getAttachList(uploadNo);
+    for(AttachDto attach : attachList) {
+      
+      File file = new File(attach.getPath(), attach.getFilesystemName());
+      if(file.exists()) {
+        file.delete();
+      }
+      
+      // 썸네일 삭제
+      if(attach.getHasThumbnail() == 1) {
+        File thumbnail = new File(attach.getPath(), "s_" + attach.getFilesystemName());
+        if(thumbnail.exists()) {
+          thumbnail.delete();
+        }
+      }
+      
+    }
+    
+    // UPLOAD_T 삭제
+    return uploadMapper.deleteUpload(uploadNo);
+    
+  }
+  
+  
+  
+  
+5. 컨트롤러 작성
+  @PostMapping("/removeUpload.do")
+  public String removeUpload(@RequestParam(value = "uploadNo", required = false, defaultValue = "0") int uploadNo
+                        , RedirectAttributes redirectAttributes) {
+    int removeResult = uploadService.removeUpload(uploadNo);
+    redirectAttributes.addFlashAttribute("removeResult", removeResult);
+    return "redirect:/upload/list.do";
+  }
+  
+  
+  
+6. detail.jsp 작성
+  const fnRemove = () => {
+	$('#btn_remove').click(() => {
+	  if(confirm('해당 게시글을 삭제할까요?')){
+	    frmBtn.attr('action', '${contextPath}/upload/removeUpload.do');
+	    frmBtn.attr('method', 'post');
+	    frmBtn.submit();
+	  }
+	})
+  }
+  
+  
+  fnRemove();
+  
+  
+  
+7. list.jsp 작성
+  const fnRemoveResult = () => {
+	let removeResult = '${addResult}';	// '', 'true', 'false'
+	if(removeResult != ''){
+	  if(removeResult === '1'){
+	    alert('게시글이 삭제되었습니다.');
+		  $('#upload_list').empty();
+	  } else {
+	    alert('게시글 삭제가 실패하였습니다.');
+        }
+	}
+		  
+  }
+  
+  
+  fnRemoveResult();
+  
+  
+  
+  
+  
+  
+  
+  
+  

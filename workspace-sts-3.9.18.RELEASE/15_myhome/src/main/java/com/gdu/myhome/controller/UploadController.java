@@ -100,4 +100,14 @@ public class UploadController {
     return uploadService.addAttach(multipartRequest);
   }
   
+  @PostMapping("/removeUpload.do")
+  public String removeUpload(@RequestParam(value = "uploadNo", required = false, defaultValue = "0") int uploadNo
+                        , RedirectAttributes redirectAttributes) {
+    int removeResult = uploadService.removeUpload(uploadNo);
+    redirectAttributes.addFlashAttribute("removeResult", removeResult);
+    return "redirect:/upload/list.do";
+  }
+  
+  
+  
 }
