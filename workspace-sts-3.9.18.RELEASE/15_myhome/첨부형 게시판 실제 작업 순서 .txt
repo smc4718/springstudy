@@ -1268,8 +1268,63 @@ public class RemoveTempFileBatch {
 ------------------------------------------------------------------
 
 
+< upload 폴더 수정 >
+
+1. detail.jsp 스크립트에 작성
+<script>
+
+  var frmBtn = $('#frm_btn');
+
+  const fnEdit = () => {
+	  $('#btn_edit').click(() => {
+	    frmBtn.attr('action', '${contextPath}/upload/edit.form');
+	    frmBtn.submit();
+	  })
+  }
+  
+  //호출
+  fnEdit();
 
 
+2. UploadController 작성
+  @PostMapping("/edit.form")
+  public String edit(@RequestParam(value="uploadNo", required=false, defaultValue=0) int uploadNO
+                    , Model model) {
+    model.addAttribute("upload", uploadService.getUpload(uploadNO));
+    return "upload/edit";
+    
+  }
+
+
+
+3. 서비스 작성
+public UploadDto getUpload(int uploadNo);
+
+
+
+4. 서비스임플 작성
+  @Transactional(readOnly=true)
+  @Override
+  public UploadDto getUpload(int uploadNo) {
+    return uploadMapper.getUpload(uploadNo);
+  }
+
+
+
+5. edit.jsp 만들어서 내용 수정 (detail.jsp 내용 복붙)
+  <h1 style="text-align: center;">Upload 게시글</h1>
+  <div>
+    <form id="frm_edit" method="post">   <!-- 버튼을 모아두는 폼 -->
+      <div>작성자 : ${upload.userDto.name}</div>
+      <div>작성일 : ${upload.createdAt}</div>
+      <div>수정일 : ${upload.modifiedAt}</div>
+      <div>제목 : <input type="text" name="title" value="${upload.title}"></div>
+      <div>내용</div>
+      <div><textarea name="contents">${upload.contents}</textarea></div>
+      <input type="hidden" name="uploadNo" value="${upload.uploadNo}">
+      <button type="button" id="btn_modify">수정</button>
+    </form>
+  </div>
 
 
 

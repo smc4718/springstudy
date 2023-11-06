@@ -145,8 +145,9 @@ public class UploadServiceImpl implements UploadService {
     Optional<String> opt = Optional.ofNullable(request.getParameter("uploadNo"));
     int uploadNo = Integer.parseInt(opt.orElse("0"));  // uploadNo는 정수변환이 필요하니까 파스인트쓰고, 전달이 안됐을 때는 0을 사용한다.
     
-    model.addAttribute("upload", uploadMapper.getUpload(uploadNo));
-    model.addAttribute("attachList", uploadMapper.getAttachList(uploadNo));
+    // 게시판내용과 해당 게시판 첨부된 첨부파일목록 2가지를 가지고 컨트롤러로 넘긴다.
+    model.addAttribute("upload", uploadMapper.getUpload(uploadNo));  // 게시판내용
+    model.addAttribute("attachList", uploadMapper.getAttachList(uploadNo)); // 첨부내역
     
   }
   
@@ -283,6 +284,10 @@ public class UploadServiceImpl implements UploadService {
     }
   }
   
-  
+  @Transactional(readOnly=true)
+  @Override
+  public UploadDto getUpload(int uploadNo) {
+    return uploadMapper.getUpload(uploadNo);
+  }
   
 }
