@@ -305,4 +305,30 @@ public class UploadServiceImpl implements UploadService {
     
   }
   
+  @Override
+  public Map<String, Object> removeAttach(HttpServletRequest request) {
+    Optional<String> opt = Optional.ofNullable(request.getParameter("attachNo"));
+    int attachNo = Integer.parseInt(opt.orElse("0"));
+
+    // 파일 삭제
+    AttachDto attach = uploadMapper.getAttach(attachNo);
+    File file = new File(attach.getPath(), attach.getFilesystemName());
+    if(file.exists()) {
+      file.delete();
+    }
+    
+    // 썸네일 삭제
+    if(attach.getHasThumbnail() == 1) {
+      File thumbnail = new File(attach.getPath(), "s_" + attach.getFilesystemName());
+      if(thumbnail.exists()) {
+        thumbnail.delete();
+      }
+    }
+    
+    // ATTACH_T 삭제
+    int removeResult = uploadMapper.deleteAttach(attachNo);
+    
+    return Map.of("removeResult", removeResult);
+  }
+  
 }

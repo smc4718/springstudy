@@ -51,15 +51,42 @@
 		    $.each(resData.attachList, (i, attach) => {
 		    	let str = '<div>';
 		    	str += '<span>' + attach.originalFilename + '</span>';
-		    	str += '<span><i class="fa-solid fa-xmark"></i></span>';
+		    	str += '<span data-attach_no="' + attach.attachNo + '"><i class="fa-solid fa-xmark ico_remove_attach"></i></span>';
 		    	str += '</div>';
 		    	$('#attach_list').append(str);
 		    })
 		  }
 	  })
   }
+  
+  const fnRemoveAttach = () => {
+	$(document).on('click', '.ico_remove_attach', (ev) => {
+	  if(!confirm('해당 첨부 파일을 삭제할까요?')){
+	    return;
+	  }
+	  $.ajax({
+		// 요청
+		type: 'post',
+		url: '${contextPath}/upload/removeAttach.do',
+		data: 'attachNo=' + $(ev.target).parent().data('attach_no'),
+		// 응답
+		dataType: 'json',
+		success: (resData) => {  // resData = {"removeResult" : 1}
+		  if(resData.removeResult === 1){
+			  alert('해당 첨부 파일이 삭제되었습니다.');
+			  fnAttachList();
+		  } else {
+			alert('해당 첨부 파일이 삭제되지 않았습니다.');
+		  }
+		}
+	  })
+	})
+  }
+  
+  
 
   fnAttachList();
+  fnRemoveAttach();
   
 </script>
   

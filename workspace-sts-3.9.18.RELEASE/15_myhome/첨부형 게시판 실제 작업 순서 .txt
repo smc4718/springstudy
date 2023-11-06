@@ -1422,14 +1422,101 @@ public Map<String, Object> getAttachList(HttpServletRequest request);
 		    $.each(resData.attachList, (i, attach) => {
 		    	let str = '<div>';
 		    	str += '<span>' + attach.originalFilename + '</span>';
-		    	str += '<span><i class="fa-solid fa-xmark"></i></span>';
+		    	str += '<span data-attach_no="' + attach.attachNo + '"><i class="fa-solid fa-xmark ico_remove_attach"></i></span>';
 		    	str += '</div>';
 		    	$('#attach_list').append(str);
 		    })
 		  }
 	  })
   }
+  
+  const fnRemoveAttach = () => {
+	$(document).on('click', '.ico_remove_attach', (ev) => {
+	  if(!confirm('해당 첨부 파일을 삭제할까요?')){
+	    return;
+	  }
+	  $.ajax({
+		// 요청
+		type: 'post',
+		url: '${contextPath}/upload/removeAttach.do',
+		data: 'attachNo=' + $(ev.target).parent().data('attach_no'),
+		// 응답
+		dataType: 'json',
+		success: (resData) => {  // resData = {"removeResult" : 1}
+		  if(resData.removeResult === 1){
+			  alert('해당 첨부 파일이 삭제되었습니다.');
+			  fnAttachList();
+		  } else {
+			alert('해당 첨부 파일이 삭제되지 않았습니다.');
+		  }
+		}
+	  })
+	})
+  }
+  
+  
 
   fnAttachList();
+  fnRemoveAttach();
   
 </script>
+
+
+
+16. 매퍼 작성
+  <delete id="deleteAttach" parameterType="int">
+    DELETE
+      FROM ATTACH_T
+     WHERE ATTACH_NO = #{attachNo}
+  </delete>
+  
+  
+
+17. 매퍼.java 작성
+public int deleteAttach(int attachNo);
+
+
+
+18. 서비스 작성
+public Map<String, Object> removeAttach(HttpServletRequest request);
+
+
+
+19. 서비스임플 작성
+  @Override
+  public Map<String, Object> removeAttach(HttpServletRequest request) {
+    Optional<String> opt = Optional.ofNullable(request.getParameter("attachNo"));
+    int attachNo = Integer.parseInt(opt.orElse("0"));
+
+    // 파일 삭제
+    AttachDto attach = uploadMapper.getAttach(attachNo);
+    File file = new File(attach.getPath(), attach.getFilesystemName());
+    if(file.exists()) {
+      file.delete();
+    }
+    
+    // 썸네일 삭제
+    if(attach.getHasThumbnail() == 1) {
+      File thumbnail = new File(attach.getPath(), "s_" + attach.getFilesystemName());
+      if(thumbnail.exists()) {
+        thumbnail.delete();
+      }
+    }
+    
+    // ATTACH_T 삭제
+    int removeResult = uploadMapper.deleteAttach(attachNo);
+    
+    return Map.of("removeResult", removeResult);
+  }
+  
+  
+  
+  
+20. 컨트롤러 작성
+  @ResponseBody
+  @PostMapping(value="/removeAttach.do", produces="application/json")
+  public Map<String, Object> removeAttach(HttpServletRequest request) {
+    return uploadService.removeAttach(request);
+  }
+  
+  
