@@ -1288,11 +1288,10 @@ public class RemoveTempFileBatch {
 
 2. UploadController 작성
   @PostMapping("/edit.form")
-  public String edit(@RequestParam(value="uploadNo", required=false, defaultValue=0) int uploadNO
-                    , Model model) {
-    model.addAttribute("upload", uploadService.getUpload(uploadNO));
+  public String edit(@RequestParam(value="uploadNo", required=false, defaultValue="0") int uploadNo
+                   , Model model) {
+    model.addAttribute("upload", uploadService.getUpload(uploadNo));
     return "upload/edit";
-    
   }
 
 
@@ -1312,9 +1311,8 @@ public UploadDto getUpload(int uploadNo);
 
 
 5. edit.jsp 만들어서 내용 수정 (detail.jsp 내용 복붙)
-  <h1 style="text-align: center;">Upload 게시글</h1>
   <div>
-    <form id="frm_edit" method="post">   <!-- 버튼을 모아두는 폼 -->
+    <form id="frm_edit" method="post" action="${contextPath}/upload/modify.do">
       <div>작성자 : ${upload.userDto.name}</div>
       <div>작성일 : ${upload.createdAt}</div>
       <div>수정일 : ${upload.modifiedAt}</div>
@@ -1322,9 +1320,116 @@ public UploadDto getUpload(int uploadNo);
       <div>내용</div>
       <div><textarea name="contents">${upload.contents}</textarea></div>
       <input type="hidden" name="uploadNo" value="${upload.uploadNo}">
-      <button type="button" id="btn_modify">수정</button>
+      <button type="submit" id="btn_modify">수정</button>
     </form>
   </div>
 
 
+6. 매퍼 작성
+  <update id="updateUpload" parameterType="UpdateDto">
+    UPDATE UPLOAD_T
+       SET TITLE = #{title}
+         , CONTENTS = #{contents}
+         , MODIFIED_AT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+     WHERE UPLOAD_NO = #{uploadNo}
+  </update>
 
+
+7. 매퍼.java 작성
+public int updateUpload(UploadDto upload);
+
+
+8. 서비스 작성
+public int modifyUpload(UploadDto upload);
+
+
+9. 서비스임플 작성
+  @Override
+  public int modifyUpdate(UploadDto upload) {
+    return uploadMapper.updateUpload(upload);
+  }
+
+
+10. 컨트롤러 작성
+  @PostMapping("/modify.do")
+  public String modify(UploadDto upload, RedirectAttributes redirectAttributes) {
+    int modifyResult = uploadService.modifyUpload(upload);
+    redirectAttributes.addFlashAttribute("modifyResult", modifyResult);
+    return "redirect:/upload/detail.do?uploadNo=" + upload.getUploadNo();    // 상세보기를 하고 싶으면 uploadNo를 전달한다.
+  }
+  
+11. detaul.jsp 스크립트 작성
+  const fnModifyResult = () => {
+	let modifyResult = '${modifyResult}';
+	if(modifyResult !== ''){
+	  if(modifyResult === '1'){
+		 alert('게시글이 수정되었습니다.');
+	  } else {
+		 alert('게시글이 수정되지 않았습니다.');
+	  }
+	}
+  }
+  
+  fnEdit();
+  fnDownload();
+  fnModifyResult();
+  
+  
+  
+  
+12. 서비스 작성
+public Map<String, Object> getAttachList(HttpServletRequest request);
+
+
+
+
+13. 서비스임플 작성
+  @Override
+  public Map<String, Object> getAttachList(HttpServletRequest request) {
+    
+    Optional<String> opt = Optional.ofNullable(request.getParameter("uploadNo"));
+    int uploadNo = Integer.parseInt(opt.orElse("0"));
+    
+    return Map.of("attachList", uploadMapper.getAttachList(uploadNo));
+    
+  }
+  
+  
+  
+
+14. 컨트롤러 작성
+  @ResponseBody
+  @GetMapping(value="/getAttachList.do", produces="application/json")
+  public Map<String, Object> getAttachList(HttpServletRequest request) {
+    return uploadService.getAttachList(request);
+  }
+  
+  
+  
+15. edit.jsp 작성
+<script>
+
+  const fnAttachList = () => {
+	  $.ajax({
+		  // 요청
+		  type: 'get',
+		  url: '${contextPath}/upload/getAttachList.do',
+		  data: 'uploadNo=${upload.uploadNo}',
+		  // 응답
+		  dataType: 'json',
+		  success: (resData) => {  // resData = {"attachList": []}
+			  $('#attach_list').empty();
+		    $.each(resData.attachList, (i, attach) => {
+		    	let str = '<div>';
+		    	str += '<span>' + attach.originalFilename + '</span>';
+		    	str += '<span><i class="fa-solid fa-xmark"></i></span>';
+		    	str += '</div>';
+		    	$('#attach_list').append(str);
+		    })
+		  }
+	  })
+  }
+
+  fnAttachList();
+  
+</script>

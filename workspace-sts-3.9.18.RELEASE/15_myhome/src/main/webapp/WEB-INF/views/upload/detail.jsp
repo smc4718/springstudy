@@ -78,8 +78,20 @@
 	  })
   }
   
+  const fnModifyResult = () => {
+	let modifyResult = '${modifyResult}';
+	if(modifyResult !== ''){
+	  if(modifyResult === '1'){
+		 alert('게시글이 수정되었습니다.');
+	  } else {
+		 alert('게시글이 수정되지 않았습니다.');
+	  }
+	}
+  }
+  
   fnEdit();
   fnDownload();
+  fnModifyResult();
   
 </script>
   
