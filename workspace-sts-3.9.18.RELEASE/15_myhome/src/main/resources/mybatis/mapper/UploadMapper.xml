@@ -116,7 +116,7 @@
      WHERE ATTACH_NO = #{attachNo}
   </update>
   
-  <update id="updateUpload" parameterType="UpdateDto">
+  <update id="updateUpload" parameterType="UploadDto">
     UPDATE UPLOAD_T
        SET TITLE = #{title}
          , CONTENTS = #{contents}

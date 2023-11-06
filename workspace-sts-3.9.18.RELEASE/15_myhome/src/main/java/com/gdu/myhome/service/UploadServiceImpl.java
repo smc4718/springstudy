@@ -331,4 +331,60 @@ public class UploadServiceImpl implements UploadService {
     return Map.of("removeResult", removeResult);
   }
   
+  @Override
+  public Map<String, Object> addAttach(MultipartHttpServletRequest multipartRequest) throws Exception {
+    
+    List<MultipartFile> files =  multipartRequest.getFiles("files");
+    
+    int attachCount;
+    if(files.get(0).getSize() == 0) {
+      attachCount = 1;
+    } else {
+      attachCount = 0;
+    }
+    
+    for(MultipartFile multipartFile : files) {
+      
+      if(multipartFile != null && !multipartFile.isEmpty()) {
+        
+        String path = myFileUtils.getUploadPath();
+        File dir = new File(path);
+        if(!dir.exists()) {
+          dir.mkdirs();
+        }
+        
+        String originalFilename = multipartFile.getOriginalFilename();
+        String filesystemName = myFileUtils.getFilesystemName(originalFilename);
+        File file = new File(dir, filesystemName);
+        
+        multipartFile.transferTo(file);
+        
+        String contentType = Files.probeContentType(file.toPath());  // 이미지의 Content-Type은 image/jpeg, image/png 등 image로 시작한다.
+        int hasThumbnail = (contentType != null && contentType.startsWith("image")) ? 1 : 0;
+        
+        if(hasThumbnail == 1) {
+          File thumbnail = new File(dir, "s_" + filesystemName);  // small 이미지를 의미하는 s_을 덧붙임
+          Thumbnails.of(file)
+                    .size(100, 100)      // 가로 100px, 세로 100px
+                    .toFile(thumbnail);
+        }
+        
+        AttachDto attach = AttachDto.builder()
+                            .path(path)
+                            .originalFilename(originalFilename)
+                            .filesystemName(filesystemName)
+                            .hasThumbnail(hasThumbnail)
+                            .uploadNo(Integer.parseInt(multipartRequest.getParameter("uploadNo")))
+                            .build();
+        
+        attachCount += uploadMapper.insertAttach(attach);
+        
+      }  // if
+      
+    }  // for
+    
+    return Map.of("attachResult", files.size() == attachCount);
+    
+  }
+  
 }
