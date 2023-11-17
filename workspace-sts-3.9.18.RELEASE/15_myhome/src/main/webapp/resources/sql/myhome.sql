@@ -294,8 +294,6 @@ SELECT FREE_NO, EMAIL, CONTENTS, CREATED_AT, STATUS, DEPTH, GROUP_NO, GROUP_ORDE
          WHERE EMAIL LIKE '%' || 'user1' || '%')
  WHERE RN BETWEEN 11 AND 20;
 
-
-
 -- 사용자 쿼리 테스트
 
 -- 1. 로그인 할 때(이메일, 비밀번호 입력)
