@@ -17,7 +17,7 @@ public class MyPageUtils {
   private int end;      // 한 페이지에 표시되는 항목의 종료 번호(계산한다.)
   
   private int totalPage;        // 전체 페이지의 개수(계산한다.)
-  private int pagePerBlock=10; // 한 블록에 표시되는 페이지의 개수(임의로 정한다.)
+  private int pagePerBlock=10;  // 한 블록에 표시되는 페이지의 개수(임의로 정한다.)
   private int beginPage;        // 한 블록에 표시되는 페이지의 시작 번호(계산한다.)
   private int endPage;          // 한 블록에 표시되는 페이지의 종료 번호(계산한다.)
   
@@ -52,7 +52,7 @@ public class MyPageUtils {
     
     StringBuilder sb = new StringBuilder();
     
-    sb.append("<div>");
+    sb.append("<div class=\"paging\">");
     
     // 이전 블록
     if(beginPage == 1) {
@@ -64,7 +64,7 @@ public class MyPageUtils {
     // 페이지 번호
     for(int p = beginPage; p <= endPage; p++) {
       if(p == page) {
-        sb.append("<a>" + p + "</a>");
+        sb.append("<a class=\"now_page\">" + p + "</a>");
       } else {
         sb.append("<a href=\"" + url + "?page=" + p + "\">" + p + "</a>");
       }
@@ -83,11 +83,11 @@ public class MyPageUtils {
     
   }
   
-public String getMvcPaging(String url, String params) {
+  public String getMvcPaging(String url, String params) {
     
     StringBuilder sb = new StringBuilder();
     
-    sb.append("<div>");
+    sb.append("<div class=\"paging\">");
     
     // 이전 블록
     if(beginPage == 1) {
@@ -99,7 +99,7 @@ public String getMvcPaging(String url, String params) {
     // 페이지 번호
     for(int p = beginPage; p <= endPage; p++) {
       if(p == page) {
-        sb.append("<a>" + p + "</a>");
+        sb.append("<a class=\"now_page\">" + p + "</a>");
       } else {
         sb.append("<a href=\"" + url + "?page=" + p + "&" + params + "\">" + p + "</a>");
       }
@@ -122,7 +122,7 @@ public String getMvcPaging(String url, String params) {
     
     StringBuilder sb = new StringBuilder();
     
-    sb.append("<div>");
+    sb.append("<div class=\"paging\">");
     
     // 이전 블록
     if(beginPage == 1) {
@@ -134,7 +134,7 @@ public String getMvcPaging(String url, String params) {
     // 페이지 번호
     for(int p = beginPage; p <= endPage; p++) {
       if(p == page) {
-        sb.append("<a>" + p + "</a>");
+        sb.append("<a class=\"now_page\">" + p + "</a>");
       } else {
         sb.append("<a href=\"javascript:fnAjaxPaging(" + p + ")\">" + p + "</a>");
       }

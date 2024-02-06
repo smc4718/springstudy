@@ -10,27 +10,26 @@
   <jsp:param value="휴면해제" name="title"/>
 </jsp:include>
 
-<div>
+<div class="wrap wrap_5">
 
-  <h1>휴면계정안내</h1>
+  <h1 class="title">휴면계정안내</h1>
   
-  <div>
-    안녕하세요. ${sessionScope.inactiveUser.email}님은 1년 이상 로그인하지 않아
+  <div class="mt-5">
+    ${sessionScope.inactiveUser.email}님은 1년 이상 로그인하지 않아
     관계 법령에 의해서 휴면회원으로 전환되었습니다.
   </div>
-  <div>
+  
+  <div class="mt-5 text-center">
     휴면전환일 : ${sessionScope.inactiveUser.inactivedAt}
   </div>
   
-  <div>
-    <div>휴면해제를 위해서 휴면해제 버튼을 클릭하세요.</div>
-    <div><button type="button" id="btn_active">휴면해제</button></div>
-  </div>
+  <div class="mt-5 text-center">휴면해제를 위해서 휴면해제 버튼을 클릭하세요.</div>
+  <div class="mt-3 text-center"><button type="button" id="btn_active" class="btn btn-primary">휴면해제</button></div>
   <script>
     const fnActive = () => {
-    	$('#btn_active').click(() => {
-    		location.href = '${contextPath}/user/active.do';
-    	})
+      $('#btn_active').click(() => {
+        location.href = '${contextPath}/user/active.do';
+      })
     }
     fnActive();
   </script>

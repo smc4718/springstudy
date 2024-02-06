@@ -52,6 +52,7 @@ const fnCheckEmail = () => {
         dataType: 'json',
         success: (resData) => {  // resData === {"enableEmail": true}
           if(resData.enableEmail){
+            $('#msg_email').text('');
             resolve();
           } else {
             reject(2);
@@ -174,3 +175,4 @@ const fnJoin = () => {
     }
   })
 }
+ 

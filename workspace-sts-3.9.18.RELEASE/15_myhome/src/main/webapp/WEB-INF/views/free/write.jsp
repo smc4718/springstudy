@@ -10,28 +10,46 @@
   <jsp:param value="게시글작성" name="title"/>
 </jsp:include>
 
-<div>
+<div class="wrap wrap_6">
+
+  <h1 class="title">자유게시글 작성</h1>
 
   <form id="frm_free_add" method="post" action="${contextPath}/free/add.do">
     
-    <h1>자유게시글을 작성하세요</h1>
-    
-    <div>
-      <label for="email">작성자</label>        <!-- session에있는 유저의 이메일을 갖다 놓은 뒤 수정할 수 없게 readonly 한다. -->
-      <input type="text" name="email" id="email" value="${sessionScope.user.email}" readonly>   <!-- value 값이 꼭 필요함 -->
+    <div class="mb-3 row">
+      <label for="email" class="col-sm-2 col-form-label">작성자</label>
+      <div class="col-sm-10"><input type="text" readonly class="form-control-plaintext" id="email" name="email" value="${sessionScope.user.email}"></div>
     </div>
-    
-    <div>
-      <label for="contents">내용</label>
-      <textarea name="contents" id="contents"></textarea>
+    <div class="input-group">
+      <span class="input-group-text">내용</span>
+      <textarea rows="5" name="contents" id="contents" class="form-control"></textarea>
     </div>
-    
-    <div>
-      <button type="submit">작성완료</button>
+    <div class="text-center mt-3">
+      <a href="${contextPath}/free/list.do">
+        <button class="btn btn-secondary" type="button">작성취소</button>
+      </a>
+      <button type="submit" class="btn btn-primary">작성완료</button>
     </div>
     
   </form>
 
 </div>
+
+<script>
+
+  const fnSubmit = () => {
+    $('#frm_free_add').submit((ev) => {
+      if($('#contents').val() === ''){
+        alert('내용은 반드시 입력해야 합니다.');
+        $('#contents').focus();
+        ev.preventDefault();
+        return;
+      }
+    })
+  }
+  
+  fnSubmit();
+
+</script>
 
 <%@ include file="../layout/footer.jsp" %>

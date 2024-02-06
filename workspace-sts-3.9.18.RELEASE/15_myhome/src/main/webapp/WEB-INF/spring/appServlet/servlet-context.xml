@@ -14,8 +14,8 @@
 
   <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
   <resources mapping="/resources/**" location="/resources/" />
-  <resources mapping="/blog/**" location="file:///blog/" />   <!-- file:// 를 붙이면 프로젝트 내부 폴더가 아닌, 외부 폴더 경로로 인식한다. -->
-  <resources mapping="/upload/**" location="file:///upload/" />
+  <resources mapping="/blog/**"      location="file:///blog/" />
+  <resources mapping="/upload/**"    location="file:///upload/" />
 
   <!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
   <beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -27,15 +27,15 @@
   
   <interceptors>
   
-   <interceptor>
+    <interceptor>
       <mapping path="/user/mypage.form"/>
       <mapping path="/user/modifyPw.form"/>
       <mapping path="/free/write.form"/>
       <mapping path="/blog/write.form"/>
       <mapping path="/blog/edit.form"/>
       <mapping path="/blog/remove.do"/>
-      <mapping path="/upload/write.form"/>
-      <beans:bean class="com.gdu.myhome.intercept.RequiredLoginInterceptor" />  <!-- 로그인체크가 필요할 때 : 필수 로그인 인터셉터 : RequiredLoginInterceptor -->
+      <mapping path="/upload/write.form" />
+      <beans:bean class="com.gdu.myhome.intercept.RequiredLoginInterceptor" />
     </interceptor>
     
     <interceptor>
@@ -44,9 +44,7 @@
       <mapping path="/user/login.form"/>
       <beans:bean class="com.gdu.myhome.intercept.ShouldNotLoginInterceptor" />
     </interceptor>
-  
+    
   </interceptors>
-  
-  
   
 </beans:beans>

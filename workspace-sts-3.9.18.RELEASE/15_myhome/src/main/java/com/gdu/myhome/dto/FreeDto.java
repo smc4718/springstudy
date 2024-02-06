@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder    // 쉬운 생성을 도와주는 빌더패턴
+@Builder
 public class FreeDto {
   private int freeNo;
-  private String email;   // 사용자와의 관계를 이메일로 맺었음
+  private String email;
   private String contents;
-  private Timestamp createdAt; // 자바의 Timestamp 는 sql로 해야 한다.
+  private Timestamp createdAt;
   private int status;
   private int depth;
   private int groupNo;

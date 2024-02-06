@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder      // 쉬운 생성을 도와주는 빌더패턴
+@Builder
 public class BlogDto {
   private int blogNo;
   private String title;
@@ -17,5 +17,5 @@ public class BlogDto {
   private String ip;
   private String createdAt;
   private String modifiedAt;
-  private UserDto userDto;  // = private int userNo;  // 매퍼.xml에서 association 태그를 쓴 것은 맨 아래에 놓기.
+  private UserDto userDto;  // private int userNo;
 }

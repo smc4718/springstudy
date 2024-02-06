@@ -5,14 +5,14 @@
 
 <mapper namespace="com.gdu.myhome.dao.BlogMapper">
 
-  <resultMap type="BlogDto"      id="BlogMap">
-    <id     column="BLOG_NO"     property="blogNo" />
-    <result column="TITLE"       property="title" />
-    <result column="CONTENTS"    property="contents" />
-    <result column="HIT"         property="hit" />
-    <result column="IP"          property="ip" />
-    <result column="CREATED_AT"  property="createdAt" />
-    <result column="MODIFIED_AT" property="modifiedAt" />
+  <resultMap type="BlogDto"       id="BlogMap">
+    <id      column="BLOG_NO"     property="blogNo" />
+    <result  column="TITLE"       property="title" />
+    <result  column="CONTENTS"    property="contents" />
+    <result  column="HIT"         property="hit" />
+    <result  column="IP"          property="ip" />
+    <result  column="CREATED_AT"  property="createdAt" />
+    <result  column="MODIFIED_AT" property="modifiedAt" />
     <association javaType="UserDto"      property="userDto">
       <id        column="USER_NO"        property="userNo"/>
       <result    column="EMAIL"          property="email" />
@@ -31,14 +31,14 @@
     </association>
   </resultMap>
 
-  <resultMap type="CommentDto"    id="CommentMap">     <!-- 사용자에 관한 모든 정보를 댓글과 함께 나타낼 수 있습니다. -->  
-    <id      column="COMMENT_NO"  property="commentNo" />
-    <result  column="CONTENTS"    property="contents" />
-    <result  column="BLOG_NO"    property="blogNo" />
-    <result  column="CREATED_AT"    property="createdAt" />
-    <result  column="STATUS"    property="status" />
-    <result  column="DEPTH"    property="depth" />
-    <result  column="GROUP_NO"    property="groupNo" />
+  <resultMap type="CommentDto"    id="CommentMap">
+    <id      column="COMMENT_NO"  property="commentNo"/>
+    <result  column="CONTENTS"    property="contents"/>
+    <result  column="BLOG_NO"     property="blogNo"/>
+    <result  column="CREATED_AT"  property="createdAt"/>
+    <result  column="STATUS"      property="status"/>
+    <result  column="DEPTH"       property="depth"/>
+    <result  column="GROUP_NO"    property="groupNo"/>
     <association javaType="UserDto"      property="userDto">
       <id        column="USER_NO"        property="userNo"/>
       <result    column="EMAIL"          property="email" />
@@ -116,28 +116,20 @@
                 ON B.USER_NO = U.USER_NO) A
      WHERE A.RN BETWEEN #{begin} AND #{end}
   </select>
-
+  
   <update id="updateHit" parameterType="int">
     UPDATE BLOG_T
        SET HIT = HIT + 1
-     WHERE BLOG_NO = #{blogNo}
+     WHERE BLOG_NO = #{blogNo}  
   </update>
-
+  
   <select id="getBlog" parameterType="int" resultMap="BlogMap">
-   <!-- 오라클 문법 (위,아래 둘 중 하나만 써) -->
     SELECT B.BLOG_NO, B.TITLE, B.CONTENTS, B.HIT, B.IP, B.CREATED_AT, B.MODIFIED_AT, U.USER_NO, U.EMAIL, U.NAME
       FROM USER_T U, BLOG_T B
      WHERE U.USER_NO = B.USER_NO
        AND B.BLOG_NO = #{blogNo}
-       
-   <!-- 표준 문법 -->    
-   <!-- SELECT B.BLOG_NO, B.TITLE, B.CONTENTS, B.HIT, B.IP, B.CREATED_AT, B.MODIFIED_AT, U.USER_NO, U.EMAIL, U.NAME
-          FROM USER_T U, INNER JOIN BLOG_T B
-            ON U.USER_NO = B.USER_NO
-         WHERE B.BLOG_NO = #{blogNo}
-       -->
   </select>
-  
+
   <update id="updateBlog" parameterType="BlogDto">
     UPDATE BLOG_T
        SET TITLE = #{title}
@@ -146,14 +138,32 @@
      WHERE BLOG_NO = #{blogNo}
   </update>
   
+  <select id="getBlogImageList" parameterType="int" resultType="BlogImageDto">
+    SELECT BLOG_NO, IMAGE_PATH, FILESYSTEM_NAME
+      FROM BLOG_IMAGE_T
+     WHERE BLOG_NO = #{blogNo}
+  </select>
+  
+  <delete id="deleteBlogImage" parameterType="String">
+    DELETE
+      FROM BLOG_IMAGE_T
+     WHERE FILESYSTEM_NAME = #{filesystemName}
+  </delete>
+  
+  <delete id="deleteBlogImageList" parameterType="int">
+    DELETE
+      FROM BLOG_IMAGE_T
+     WHERE BLOG_NO = #{blogNo}
+  </delete>
+
   <delete id="deleteBlog" parameterType="int">
     DELETE
       FROM BLOG_T
      WHERE BLOG_NO = #{blogNo}
   </delete>
-
+  
   <insert id="insertComment" parameterType="CommentDto">
-    INSERT INTO COMMENT_T(
+    INSERT INTO COMMENT_T (
         COMMENT_NO
       , CONTENTS
       , USER_NO
@@ -162,35 +172,35 @@
       , STATUS
       , DEPTH
       , GROUP_NO
-    ) VALUES(
+    ) VALUES (
         COMMENT_SEQ.NEXTVAL
       , #{contents}
       , #{userDto.userNo}
       , #{blogNo}
-      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')  <!-- CREATED_AT -->
-      , 1   <!-- DEPTH -->
-      , 0   <!-- GROUP_NO -->
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
+      , 1
+      , 0
       , COMMENT_SEQ.CURRVAL
     )
   </insert>
   
-  <select id="getCommentCount" parameterType="int" resultType="int">    <!-- 항상 목록을 구할 때는 갯수(Count)가 필요했다. -->
+  <select id="getCommentCount" parameterType="int" resultType="int">
     SELECT COUNT(*)
       FROM COMMENT_T
      WHERE BLOG_NO = #{blogNo}
   </select>
-  
+
   <select id="getCommentList" parameterType="Map" resultMap="CommentMap">
     SELECT A.COMMENT_NO, A.CONTENTS, A.BLOG_NO, A.CREATED_AT, A.STATUS, A.DEPTH, A.GROUP_NO, A.USER_NO, A.NAME
       FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, DEPTH ASC, COMMENT_NO DESC) AS RN, C.COMMENT_NO, C.CONTENTS, C.BLOG_NO, C.CREATED_AT, C.STATUS, C.DEPTH, C.GROUP_NO, U.USER_NO, U.NAME
               FROM USER_T U INNER JOIN COMMENT_T C
                 ON U.USER_NO = C.USER_NO
              WHERE C.BLOG_NO = #{blogNo}) A
-     WHERE A.RN BETWEEN #{begin} AND #{end}  <!-- Map에 들어있는 게 blog_no , begin, end. 이렇게 3개다. -->  
+     WHERE A.RN BETWEEN #{begin} AND #{end}
   </select>
 
   <insert id="insertCommentReply" parameterType="CommentDto">
-    INSERT INTO COMMENT_T(
+    INSERT INTO COMMENT_T (
         COMMENT_NO
       , CONTENTS
       , USER_NO
@@ -199,14 +209,14 @@
       , STATUS
       , DEPTH
       , GROUP_NO
-    ) VALUES(
+    ) VALUES (
         COMMENT_SEQ.NEXTVAL
       , #{contents}
       , #{userDto.userNo}
       , #{blogNo}
-      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')  <!-- CREATED_AT -->
-      , 1   <!-- DEPTH -->
-      , 1   <!-- GROUP_NO. 답글은 1이다.  --> 
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MI:SS')
+      , 1
+      , 1
       , #{groupNo}
     )
   </insert>
@@ -215,12 +225,6 @@
     UPDATE COMMENT_T
        SET STATUS = 0
      WHERE COMMENT_NO = #{commentNo}
-  </update>  <!-- status 값을 0 에서 1로 바꿔주는 것이기 때문에 delete가 아니라 update이다. -->
-
-
-
-
-
-
-
+  </update>
+  
 </mapper>

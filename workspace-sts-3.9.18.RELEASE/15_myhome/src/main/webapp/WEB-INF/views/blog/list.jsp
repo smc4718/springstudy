@@ -10,22 +10,16 @@
   <jsp:param value="블로그" name="title"/>
 </jsp:include>
 
-<div>
+<div class="wrap wrap_8">
 
-    <!-- ↑ 위에 jsp 태그에 아무것도 적지 말기. 에러남 -->
-  
-    <!-- 새글작성으로 무조건 가면 안 되고, 로그인되어 있는지 확인해야 한다. -->
-    <!-- Servlet-context 파일에서 인터셉터에 <mapping path="/free/write.form"/> 작성해준다. -->
-    <div>
+  <div class="text-center mb-3">
     <a href="${contextPath}/blog/write.form">
-      <button type="button" class="btn btn-primary">새글작성</button>
+      <button type="button" class="btn btn-outline-primary">새글작성</button>
     </a>
   </div>
   
-  <hr>
-
-  <div>
-    <table border="1">
+  <div class="table-responsive">
+    <table class="table align-middle">
       <thead>
         <tr>
           <td>순번</td>
@@ -35,8 +29,9 @@
           <td>작성일자</td>
         </tr>
       </thead>
-      <c:forEach items="${blogList}" var="b" varStatus="vs">
-          <tr>
+      <tbody>
+        <c:forEach items="${blogList}" var="b" varStatus="vs">
+          <tr class="align-bottom">
             <td>${beginNo - vs.index}</td>
             <td>
               <!-- 내가 작성한 블로그의 조회수는 증가하지 않는다. -->
@@ -45,11 +40,11 @@
               </c:if>
               <!-- 내가 작성하지 않았다면 조회수를 증가시킨 뒤 상세보기 요청을 한다. -->
               <c:if test="${sessionScope.user.userNo != b.userDto.userNo}">
-                <a href="${contextPath}/blog/increaseHit.do?blogNo=${b.blogNo}">${b.title}</a>
+                <a href="${contextPath}/blog/increseHit.do?blogNo=${b.blogNo}">${b.title}</a>
               </c:if>
             </td>
             <td>${b.hit}</td>
-            <td>${b.userDto.email}</td>  <!-- userDto에서 email을 꺼내야 한다. -->
+            <td>${b.userDto.email}</td>
             <td>${b.createdAt}</td>
           </tr>
         </c:forEach>
@@ -61,14 +56,37 @@
       </tfoot>
     </table>
   </div>
-          
 
 </div>
 
 <script>
-  
-  
 
+  const fnAddResult = () => {
+    let addResult = '${addResult}';  // '', '1', '0'
+    if(addResult !== ''){
+      if(addResult === '1'){
+        alert('블로그가 작성되었습니다.');
+      } else {
+        alert('블로그 작성이 실패했습니다.');
+      }
+    }
+  }
+  
+  const fnRemoveResult = () => {
+    let removeResult = '${removeResult}';  // '', '1', '0'
+    if(removeResult !== ''){
+      if(removeResult === '1'){
+        alert('블로그가 삭제되었습니다.');
+        $('#upload_list').empty();
+      } else {
+        alert('블로그 삭제가 실패했습니다.');
+      }
+    }
+  }
+
+  fnAddResult();
+  fnRemoveResult();
+  
 </script>
 
 <%@ include file="../layout/footer.jsp" %>

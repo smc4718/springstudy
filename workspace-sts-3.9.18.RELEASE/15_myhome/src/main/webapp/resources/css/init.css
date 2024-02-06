@@ -4,39 +4,32 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css');
 
 * {
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #333333;
+}
+body, div, ul, li, ol {
   padding: 0;
   margin: 0;
-  font-family: 'Noto Sans KR', sans-serif;
-  color: #121212;
   position: relative;
+  box-sizing: border-box;
 }
-
-a {
-  text-decoration: none;
-}
-
-ul, ol {
-  list-style-type: none;
-}
-
 body {
   width: 1000px;
   margin: 0 auto;
 }
-
-.ul_menu {
-  display: flex;
+a {
+  text-decoration: none;
+  color: #333333;
 }
-.ul_menu li {
-  padding: 0 5px;
+i {
+  color: #333333;
 }
-.ul_menu li + li {
-  border-left: 1px solid gray;
+a:hover {
+  color: crimson;
 }
-.center_wrap {
-  margin: 0 auto;
+a:hover i {
+  color: crimson;
 }
-.right_wrap {
-  right: 0;
-  position: absolute;
+ul, ol {
+  list-style-type: none;
 }

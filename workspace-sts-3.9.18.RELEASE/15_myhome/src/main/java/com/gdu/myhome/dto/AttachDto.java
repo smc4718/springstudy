@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder      // 쉬운 생성을 도와주는 빌더패턴
+@Builder
 public class AttachDto {
   private int attachNo;
   private String path;

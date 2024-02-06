@@ -13,8 +13,8 @@ $(() => {
 
 
 /* 전역변수 선언 */
-var namePassed = false;
-var mobilePassed = false;
+var namePassed = true;
+var mobilePassed = true;
 
 
 /* 함수 정의 */

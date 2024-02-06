@@ -28,11 +28,11 @@ public class FreeController {
   
   @PostMapping("/add.do")
   public String add(HttpServletRequest request, RedirectAttributes redirectAttributes) {
-    int addResult = freeService.addFree(request); // 값을 받아와서  addResult 에 저장.
-    redirectAttributes.addFlashAttribute("addResult", addResult); // addResult에 저장된 것을 redirectAttributes 에 저장.
-    return "redirect:/free/list.do";  // 저장한 값을 redirect 로 list.do로 보냄.
+    int addResult = freeService.addFree(request);
+    redirectAttributes.addFlashAttribute("addResult", addResult);
+    return "redirect:/free/list.do";
   }
- 
+  
   @GetMapping("/list.do")
   public String list(HttpServletRequest request, Model model) {
     freeService.loadFreeList(request, model);
@@ -40,23 +40,23 @@ public class FreeController {
   }
   
   @PostMapping("/addReply.do")
-  public String addReply(HttpServletRequest request, RedirectAttributes redirectAttributes) { // addReplyResult 를 저장해서 보내기 위해 리다이렉트를 써준다.
-  int addReplyResult = freeService.addReply(request); // 댓글 결과 받아오기.
-  redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult); // 댓글 결과를 리다이렉트에 저장하기.
-  return "redirect:/free/list.do";  // 리다이렉트해서 리스트로 보내기.
+  public String addReply(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    int addReplyResult = freeService.addReply(request);
+    redirectAttributes.addFlashAttribute("addReplyResult", addReplyResult);
+    return "redirect:/free/list.do";
   }
   
   @PostMapping("/remove.do")
   public String remove(@RequestParam(value="freeNo") int freeNo, RedirectAttributes redirectAttributes) {
-    int removeResult = freeService.removeFree(freeNo);  // 삭제 결과 받아오기.
-    redirectAttributes.addFlashAttribute("removeResult", removeResult); // 삭제 결과를 리다이렉트에 저장하기
-    return "redirect:/free/list.do";  // 삭제 후 목록보기로 되돌아가기(리다이렉트)
+    int removeResult = freeService.removeFree(freeNo);
+    redirectAttributes.addFlashAttribute("removeResult", removeResult);
+    return "redirect:/free/list.do";
   }
   
   @GetMapping("/search.do")
   public String search(HttpServletRequest request, Model model) {
-    freeService.loadSearchList(request, model);  //column과 query를 모델에 저장한 건 포워딩해서 확인가능하다.
-    return "free/list";   // list 가 검색결과로 바뀌어서 나오게 끔 구성할 것이다.
+    freeService.loadSearchList(request, model);
+    return "free/list";
   }
   
 }

@@ -12,37 +12,43 @@
 
 <script src="${contextPath}/resources/js/user_agree.js"></script>
 
-<div>
+<div class="wrap wrap_5">
+
+  <h1 class="title">약관 동의하기</h1>
 
   <form id="frm_agree" action="${contextPath}/user/join.form">
-    
-    <h1>약관 동의하기</h1>
-    
-    <div>
-      <input type="checkbox" id="chk_all">
-      <label for="chk_all">모두 동의합니다</label>
-    </div>
-    
-    <hr>
-    
-    <div>
-      <input type="checkbox" name="service" id="service" class="chk_each">
-      <label for="service">서비스 이용약관 동의(필수)</label>
-    </div>
-    <div>
-      <textarea>본 약관은 ...</textarea>
-    </div>
-    
-    <div>
-      <input type="checkbox" name="event" id="event" class="chk_each">
-      <label for="event">이벤트 알림 동의(선택)</label>
-    </div>
-    <div>
-      <textarea>본 약관은 ...</textarea>
+  
+    <div class="form-check mt-3">
+      <input type="checkbox" class="form-check-input" id="chk_all">
+      <label class="form-check-label" for="chk_all">
+        모두 동의합니다
+      </label>
     </div>
 
+    <hr class="my-2">
+    
+    <div class="form-check mt-3">
+      <input type="checkbox" name="service" class="form-check-input chk_each" id="service">
+      <label class="form-check-label" for="service">
+        서비스 이용약관 동의(필수)
+      </label>
+    </div>
     <div>
-      <button type="submit">다음</button>
+      <textarea rows="5" class="form-control">본 약관은 ...</textarea>
+    </div>
+    
+    <div class="form-check mt-3">
+      <input type="checkbox" name="event" class="form-check-input chk_each" id="event">
+      <label class="form-check-label" for="event">
+        이벤트 알림 동의(선택)
+      </label>
+    </div>
+    <div>
+      <textarea rows="5" class="form-control">본 약관은 ...</textarea>
+    </div>
+
+    <div class="mt-3 text-center">
+      <button type="submit" class="btn btn-primary">다음</button>
     </div>
     
   </form>

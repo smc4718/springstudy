@@ -38,8 +38,8 @@ public class UserServiceImpl implements UserService {
   private final MySecurityUtils mySecurityUtils;
   private final MyJavaMailUtils myJavaMailUtils;
   
-  private final String client_id = "0ZmDGyDBmv6fI7U_AB5y";
-  private final String client_secret = "Q5iw70bf6I";
+  private final String client_id = "RTJMyHb54a63lvLzPh7A";
+  private final String client_secret = "0xR9yv0oo3";
   
   @Override
   public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -204,15 +204,15 @@ public class UserServiceImpl implements UserService {
     String email = request.getParameter("email");
     String name = request.getParameter("name");
     String gender = request.getParameter("gender");
-    String mobile = request.getParameter("mobile"); //해당 모바일에는 하이픈(-)이 포함되어 있다.(하이픈은 아래에서 지워라)
+    String mobile = request.getParameter("mobile");
     String event = request.getParameter("event");
     
     UserDto user = UserDto.builder()
                     .email(email)
                     .name(name)
                     .gender(gender)
-                    .mobile(mobile.replace("-", "")) //모든 하이픈(-)을 찾아서 빈 문자열로 바꿔라.
-                    .agree(event != null ? 1 : 0) // (이벤트 알림 동의 선택하면 이벤트 알림을 전송하겠다. 선택하지 않았으면 이벤트 알림을 전송 안 한다.)
+                    .mobile(mobile.replace("-", ""))
+                    .agree(event != null ? 1 : 0)
                     .build();
     
     int naverJoinResult = userMapper.insertNaverUser(user);
@@ -223,15 +223,12 @@ public class UserServiceImpl implements UserService {
       PrintWriter out = response.getWriter();
       out.println("<script>");
       if(naverJoinResult == 1) {
-        // 로그인 = 세션에 유저를 올린다
         request.getSession().setAttribute("user", userMapper.getUser(Map.of("email", email)));
-        // 로그인 기록을 남긴다.
         userMapper.insertAccess(email);
         out.println("alert('네이버 간편가입이 완료되었습니다.')");
       } else {
         out.println("alert('네이버 간편가입이 실패했습니다.')");
       }
-      // 성공하든 실패하든 main으로 간다.
       out.println("location.href='" + request.getContextPath() + "/main.do'");
       out.println("</script>");
       out.flush();
@@ -532,3 +529,9 @@ public class UserServiceImpl implements UserService {
 
   
 }
+
+
+
+
+
+

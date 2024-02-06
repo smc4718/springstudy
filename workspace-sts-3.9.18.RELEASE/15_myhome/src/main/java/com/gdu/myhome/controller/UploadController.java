@@ -48,14 +48,14 @@ public class UploadController {
   
   @ResponseBody
   @GetMapping(value="/getList.do", produces="application/json")
-  public Map<String, Object> getList(HttpServletRequest request){  // HttpServletRequest를 최초 선언해서 사용할 수 있는 게 컨트롤러이다.
+  public Map<String, Object> getList(HttpServletRequest request){
     return uploadService.getUploadList(request);
   }
   
   @GetMapping("/detail.do")
   public String detail(HttpServletRequest request, Model model) {
     uploadService.loadUpload(request, model);
-    return "upload/detail";  // 업로드폴더에 detail.jsp로 가겠다.
+    return "upload/detail";
   }
   
   @GetMapping("/download.do")
@@ -79,7 +79,7 @@ public class UploadController {
   public String modify(UploadDto upload, RedirectAttributes redirectAttributes) {
     int modifyResult = uploadService.modifyUpload(upload);
     redirectAttributes.addFlashAttribute("modifyResult", modifyResult);
-    return "redirect:/upload/detail.do?uploadNo=" + upload.getUploadNo();    // 상세보기를 하고 싶으면 uploadNo를 전달한다.
+    return "redirect:/upload/detail.do?uploadNo=" + upload.getUploadNo();
   }
   
   @ResponseBody
@@ -101,13 +101,11 @@ public class UploadController {
   }
   
   @PostMapping("/removeUpload.do")
-  public String removeUpload(@RequestParam(value = "uploadNo", required = false, defaultValue = "0") int uploadNo
-                        , RedirectAttributes redirectAttributes) {
+  public String removeUpload(@RequestParam(value="uploadNo", required=false, defaultValue="0") int uploadNo
+                           , RedirectAttributes redirectAttributes) {
     int removeResult = uploadService.removeUpload(uploadNo);
     redirectAttributes.addFlashAttribute("removeResult", removeResult);
     return "redirect:/upload/list.do";
   }
-  
-  
   
 }

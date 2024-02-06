@@ -12,51 +12,78 @@
 
 <script src="${contextPath}/resources/js/user_modify.js?dt=${dt}"></script>
 
-<div>
+<div class="wrap wrap_6">
+
+  <h1 class="title">마이페이지</h1>
 
   <form id="frm_mypage" method="post">
     
-    <h1>마이페이지</h1>
+    <c:if test="${sessionScope.user.state == 0}">
+      <div class="text-center">
+        <div class="mb-2">비밀번호 변경</div>
+        <button type="button" id="btn_modify_pw" class="btn btn-danger">비밀번호변경하기</button>
+      </div>      
+      <hr class="my-3">
+    </c:if>
     
-    <div>
-      <button type="button" id="btn_modify_pw">비밀번호변경</button>
+    <div class="text-center mb-4">개인정보 변경</div>
+    <div class="row mb-4">
+      <div class="col-sm-3">이메일</div>
+      <div class="col-sm-9">${sessionScope.user.email}</div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-sm-3">가입일</div>
+      <div class="col-sm-9">${sessionScope.user.joinedAt}</div>
+    </div>
+    <div class="row mb-2">
+      <label for="name" class="col-sm-3 col-form-label">이름</label>
+      <div class="col-sm-9"><input type="text" name="name" value="${sessionScope.user.name}" id="name" class="form-control"></div>
+      <div class="col-sm-3"></div>
+      <div class="col-sm-9 mb-3" id="msg_name"></div>
     </div>
     
-    <div>이메일 : ${sessionScope.user.email}</div>
-    <div>가입일 : ${sessionScope.user.joinedAt}</div>
-    
-    <div>
-      <label for="name">이름</label>
-      <input type="text" name="name" id="name" value="${sessionScope.user.name}">
-      <span id="msg_name"></span>
+    <div class="row mb-2">
+      <label for="mobile" class="col-sm-3 col-form-label">휴대전화번호</label>
+      <div class="col-sm-9"><input type="text" name="mobile" value="${sessionScope.user.mobile}" id="mobile" class="form-control"></div>
+      <div class="col-sm-3"></div>
+      <div class="col-sm-9 mb-3" id="msg_mobile"></div>
     </div>
     
-    <div>
-      <input type="radio" name="gender" value="NO" id="none">
-      <label for="none">선택안함</label>
-      <input type="radio" name="gender" value="M" id="man">
-      <label for="man">남자</label>
-      <input type="radio" name="gender" value="F" id="woman">
-      <label for="woman">여자</label>
+    <div class="row mb-2">
+      <label class="col-sm-3 form-label">성별</label>
+      <div class="col-sm-3">
+        <input type="radio" name="gender" value="NO" id="none" class="form-check-input" checked>
+        <label class="form-check-label" for="none">선택안함</label>
+      </div>
+      <div class="col-sm-3">
+        <input type="radio" name="gender" value="M" id="man" class="form-check-input">
+        <label class="form-check-label" for="man">남자</label>
+      </div>
+      <div class="col-sm-3">
+        <input type="radio" name="gender" value="F" id="woman" class="form-check-input">
+        <label class="form-check-label" for="woman">여자</label>
+      </div>
     </div>
     <script>
       $(':radio[value=${sessionScope.user.gender}]').prop('checked', true);
     </script>
     
-    <div>
-      <label for="mobile">휴대전화번호</label>
-      <input type="text" name="mobile" id="mobile" value="${sessionScope.user.mobile}">
-      <span id="msg_mobile"></span>
+    <hr class="my-3">
+    
+    <div class="row mb-2">
+      <label for="postcode" class="col-sm-3 col-form-label">주소</label>
+      <div class="col-sm-4"><input type="text" name="postcode" value="${sessionScope.user.postcode}" id="postcode" class="form-control" onclick="execDaumPostcode()" placeholder="우편번호" readonly></div>
+      <div class="col-sm-5"><input type="button" class="btn btn-outline-success" onclick="execDaumPostcode()" value="우편번호 찾기"></div>
     </div>
     
-    <div>    
-      <input type="text" name="postcode" id="postcode" onclick="execDaumPostcode()" placeholder="우편번호" readonly value="${sessionScope.user.postcode}">
-      <input type="button" onclick="execDaumPostcode()" value="우편번호 찾기"><br>
-      <input type="text" name="roadAddress" id="roadAddress" placeholder="도로명주소" readonly value="${sessionScope.user.roadAddress}">
-      <input type="text" name="jibunAddress" id="jibunAddress" placeholder="지번주소" readonly value="${sessionScope.user.jibunAddress}">
-      <span id="guide" style="color:#999;display:none"></span>
-      <input type="text" name="detailAddress" id="detailAddress" placeholder="상세주소" value="${sessionScope.user.detailAddress}">
-      <input type="text" id="extraAddress" placeholder="참고항목">
+    <div class="row mb-2">
+      <div class="col-sm-6"><input type="text" name="roadAddress" value="${sessionScope.user.roadAddress}" id="roadAddress" class="form-control" placeholder="도로명주소" readonly></div>
+      <div class="col-sm-6"><input type="text" name="jibunAddress" value="${sessionScope.user.jibunAddress}" id="jibunAddress" class="form-control" placeholder="지번주소" readonly></div>
+    </div>
+    <div class="col-sm-12"><span id="guide" style="color:#999;display:none"></span></div>
+    <div class="row mb-2">
+      <div class="col-sm-6"><input type="text" name="detailAddress" value="${sessionScope.user.detailAddress}" id="detailAddress" class="form-control" placeholder="상세주소"></div>
+      <div class="col-sm-6"><input type="text" id="extraAddress" class="form-control" placeholder="참고항목"></div>
     </div>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
@@ -116,23 +143,33 @@
       }
     </script>
     
-    <div>
-      <div>이벤트 알림 동의(선택)</div>
-      <input type="radio" name="event" id="event_on" value="on"><label for="event_on">동의함</label>
-      <input type="radio" name="event" id="event_off" value="off"><label for="event_off">동의안함</label>      
+    <div class="row mt-3">
+      <label class="col-sm-12 form-label">이벤트 알림 동의(선택)</label>
+    </div>
+    <div class="row mb-2">
+      <div class="col-sm-3">
+        <input type="radio" name="event" value="on" id="event_on" class="form-check-input">
+        <label class="form-check-label" for="event_on">동의함</label>
+      </div>
+      <div class="col-sm-3">
+        <input type="radio" name="event" value="off" id="event_off" class="form-check-input">
+        <label class="form-check-label" for="event_off">동의안함</label>
+      </div>
     </div>
     <script>
       if('${sessionScope.user.agree}' === '0'){
-    	  $('#event_off').prop('checked', true);
+        $('#event_off').prop('checked', true);
       } else if('${sessionScope.user.agree}' === '1'){
         $('#event_on').prop('checked', true);
       }
     </script>
     
-    <div>
+    <hr class="my-3">
+    
+    <div class="text-center">
       <input type="hidden" name="userNo" value="${sessionScope.user.userNo}">
-      <button type="button" id="btn_modify">개인정보수정</button>
-      <button type="button" id="btn_leave">회원탈퇴</button>
+      <button type="button" id="btn_leave" class="btn btn-dark">회원탈퇴</button>
+      <button type="button" id="btn_modify" class="btn btn-success">개인정보수정</button>
     </div>
     
   </form>

@@ -40,9 +40,9 @@ import net.coobird.thumbnailator.Thumbnails;
 @Service
 public class UploadServiceImpl implements UploadService {
 
-  private final UploadMapper uploadMapper;  // 매퍼 이용할 용도
-  private final MyFileUtils myFileUtils;    // 파일첨부할 용도
-  private final MyPageUtils myPageUtils;    // 목록 다룰 용도
+  private final UploadMapper uploadMapper;
+  private final MyFileUtils myFileUtils;
+  private final MyPageUtils myPageUtils;
   
   @Override
   public boolean addUpload(MultipartHttpServletRequest multipartRequest) throws Exception {
@@ -58,16 +58,16 @@ public class UploadServiceImpl implements UploadService {
                                   .userNo(userNo)
                                   .build())
                         .build();
-                        
+    
     int uploadCount = uploadMapper.insertUpload(upload);
     
-    List<MultipartFile> files = multipartRequest.getFiles("files");     //첨부된 파일을 'MultipartFile' 이라고 부른다. multiple은 첨부파일이 여러개이기 때문에 List로 잡아야 한다.
+    List<MultipartFile> files = multipartRequest.getFiles("files");
     
     // 첨부 없을 때 : [MultipartFile[field="files", filename=, contentType=application/octet-stream, size=0]]
-    // 첨부 1개 : [MultipartFile[field="files", filename="animal1.jpg", contentType=image.jpg size=0]]
+    // 첨부 1개     : [MultipartFile[field="files", filename="animal1.jpg", contentType=image/jpeg, size=123456]]
     
     int attachCount;
-    if(files.get(0).getSize() == 0) {   // 첨부가 없었으면,
+    if(files.get(0).getSize() == 0) {
       attachCount = 1;
     } else {
       attachCount = 0;
@@ -84,43 +84,43 @@ public class UploadServiceImpl implements UploadService {
         }
         
         String originalFilename = multipartFile.getOriginalFilename();
-        String filesystemName = myFileUtils.getFilesystemName(originalFilename);  // 원래 이름에 확장자를 그대로 사용하기 위해 전달해주는 작업이 필요함.
+        String filesystemName = myFileUtils.getFilesystemName(originalFilename);
         File file = new File(dir, filesystemName);
         
         multipartFile.transferTo(file);
         
-        String contentType = Files.probeContentType(file.toPath()); // 이미지의 Content-Type : image/jpeg, image/png 등 image로 시작한다.
-        int hasThumbnail = (contentType != null && contentType.startsWith("image")) ? 1 : 0; // null 체크가 필요하면 반드시 앞에 먼저 작성해준다.(contentType != null 가 이 구문과 같이 앞에 먼저 작성되어 있어야 한다는말)
+        String contentType = Files.probeContentType(file.toPath());  // 이미지의 Content-Type은 image/jpeg, image/png 등 image로 시작한다.
+        int hasThumbnail = (contentType != null && contentType.startsWith("image")) ? 1 : 0;
         
         if(hasThumbnail == 1) {
-          File thumbnail = new File(dir, "s_" + filesystemName); // small 이미지를 의미하는 s_을 덧붙임.
+          File thumbnail = new File(dir, "s_" + filesystemName);  // small 이미지를 의미하는 s_을 덧붙임
           Thumbnails.of(file)
-                    .size(100,  100)
+                    .size(100, 100)      // 가로 100px, 세로 100px
                     .toFile(thumbnail);
         }
-      
+        
         AttachDto attach = AttachDto.builder()
-                             .path(path)
-                             .originalFilename(originalFilename)
-                             .filesystemName(filesystemName)
-                             .hasThumbnail(hasThumbnail)
-                             .uploadNo(upload.getUploadNo())
-                             .build();
+                            .path(path)
+                            .originalFilename(originalFilename)
+                            .filesystemName(filesystemName)
+                            .hasThumbnail(hasThumbnail)
+                            .uploadNo(upload.getUploadNo())
+                            .build();
         
         attachCount += uploadMapper.insertAttach(attach);
         
       }  // if
       
-    }    // for
+    }  // for
     
-    return (uploadCount == 1) && (files.size() == attachCount);   // 1이면 성공. attachCount와 파일사이즈가 같으면 성공. 
+    return (uploadCount == 1) && (files.size() == attachCount);
     
   }
   
   @Transactional(readOnly=true)
   @Override
   public Map<String, Object> getUploadList(HttpServletRequest request) {
-
+    
     Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
     int page = Integer.parseInt(opt.orElse("1"));
     int total = uploadMapper.getUploadCount();
@@ -143,11 +143,10 @@ public class UploadServiceImpl implements UploadService {
   public void loadUpload(HttpServletRequest request, Model model) {
     
     Optional<String> opt = Optional.ofNullable(request.getParameter("uploadNo"));
-    int uploadNo = Integer.parseInt(opt.orElse("0"));  // uploadNo는 정수변환이 필요하니까 파스인트쓰고, 전달이 안됐을 때는 0을 사용한다.
+    int uploadNo = Integer.parseInt(opt.orElse("0"));
     
-    // 게시판내용과 해당 게시판 첨부된 첨부파일목록 2가지를 가지고 컨트롤러로 넘긴다.
-    model.addAttribute("upload", uploadMapper.getUpload(uploadNo));  // 게시판내용
-    model.addAttribute("attachList", uploadMapper.getAttachList(uploadNo)); // 첨부내역
+    model.addAttribute("upload", uploadMapper.getUpload(uploadNo));
+    model.addAttribute("attachList", uploadMapper.getAttachList(uploadNo));
     
   }
   
@@ -160,7 +159,7 @@ public class UploadServiceImpl implements UploadService {
     
     // 첨부 파일 File 객체 -> Resource 객체
     File file = new File(attach.getPath(), attach.getFilesystemName());
-    Resource resource = new FileSystemResource(file);  // 리소스화 시킴.
+    Resource resource = new FileSystemResource(file);
     
     // 첨부 파일이 없으면 다운로드 취소
     if(!resource.exists()) {
@@ -172,7 +171,7 @@ public class UploadServiceImpl implements UploadService {
     
     // 사용자가 다운로드 받을 파일의 이름 결정 (User-Agent값에 따른 인코딩 처리)
     String originalFilename = attach.getOriginalFilename();
-    String userAgent = request.getHeader("User-Agent");  // getHeader : request header라고 해서 요청헤더이다.
+    String userAgent = request.getHeader("User-Agent");
     try {
       // IE
       if(userAgent.contains("Trident")) {
@@ -191,10 +190,10 @@ public class UploadServiceImpl implements UploadService {
     }
     
     // 다운로드 응답 헤더 만들기
-    HttpHeaders header = new HttpHeaders();  // 자동완성 스프링프레임워크로 선택해야함.
+    HttpHeaders header = new HttpHeaders();
     header.add("Content-Type", "application/octet-stream");
     header.add("Content-Disposition", "attachment; filename=" + originalFilename);
-    header.add("Content-Length", file.length() + "");  // 빈문자열을 더해서 String으로 바꿔준다.
+    header.add("Content-Length", file.length() + "");
     
     // 응답
     return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
@@ -307,9 +306,10 @@ public class UploadServiceImpl implements UploadService {
   
   @Override
   public Map<String, Object> removeAttach(HttpServletRequest request) {
+    
     Optional<String> opt = Optional.ofNullable(request.getParameter("attachNo"));
     int attachNo = Integer.parseInt(opt.orElse("0"));
-
+    
     // 파일 삭제
     AttachDto attach = uploadMapper.getAttach(attachNo);
     File file = new File(attach.getPath(), attach.getFilesystemName());
@@ -329,6 +329,7 @@ public class UploadServiceImpl implements UploadService {
     int removeResult = uploadMapper.deleteAttach(attachNo);
     
     return Map.of("removeResult", removeResult);
+    
   }
   
   @Override
@@ -399,7 +400,6 @@ public class UploadServiceImpl implements UploadService {
         file.delete();
       }
       
-      // 썸네일 삭제
       if(attach.getHasThumbnail() == 1) {
         File thumbnail = new File(attach.getPath(), "s_" + attach.getFilesystemName());
         if(thumbnail.exists()) {
@@ -413,7 +413,5 @@ public class UploadServiceImpl implements UploadService {
     return uploadMapper.deleteUpload(uploadNo);
     
   }
-  
-  
   
 }

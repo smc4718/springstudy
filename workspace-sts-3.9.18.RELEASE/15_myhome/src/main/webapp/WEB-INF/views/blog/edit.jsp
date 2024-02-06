@@ -10,23 +10,11 @@
   <jsp:param value="블로그편집" name="title"/>
 </jsp:include>
 
-<style>
-  .ck.ck-editor {
-    max-width: 1000px;
-  }
-  .ck-editor__editable {
-    min-height: 400px;
-  }
-  .ck-content {
-    color: gray;
-  }
-</style>
+<div class="wrap wrap_9">
 
-<div>
+  <h1 class="title">${blog.blogNo}번 블로그 편집</h1>
 
   <form id="frm_blog_modify" method="post" action="${contextPath}/blog/modifyBlog.do">
-    
-    <h1 style="text-align: center;">${blog.blogNo}번 블로그 편집</h1>
     
     <div>
       <label for="title">제목</label>
@@ -40,9 +28,12 @@
       <div id="ckeditor">${blog.contents}</div>
     </div>
     
-    <div>
+    <div class="text-center my-3">
+      <a href="${contextPath}/blog/detail.do?blogNo=${blog.blogNo}">
+        <button class="btn btn-secondary" type="button">블로그로 돌아가기</button>
+      </a>
       <input type="hidden" name="blogNo" value="${blog.blogNo}">
-      <button class="btn btn-primary col-12" type="submit">수정완료</button>
+      <button class="btn btn-primary" type="submit">수정완료</button>
     </div>
     
   </form>
@@ -69,7 +60,13 @@
   }
   
   const fnBlogModify = () => {
-    $('#frm_blog_modify').submit(() => {
+    $('#frm_blog_modify').submit((ev) => {
+    	if($('#title').val() === ''){
+    		alert('제목은 반드시 입력해야 합니다.');
+        $('#title').focus();
+        ev.preventDefault();
+        return;
+    	}
       $('#contents').val($('#ckeditor').html());
     })
   }

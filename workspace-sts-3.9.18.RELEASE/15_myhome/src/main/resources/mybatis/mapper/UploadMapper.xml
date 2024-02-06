@@ -5,14 +5,14 @@
 
 <mapper namespace="com.gdu.myhome.dao.UploadMapper">
 
-  <!-- UploadDto에는 UserDto가 포함되어 있으므로 resultMap을 만들어서 UploadDto의 설명을 넣어준다. -->
-  <resultMap type="UploadDto"       id="UploadMap">         <!-- 최종적으로 UploadMap으로 부르기로 함. -->
-    <id      column="UPLOAD_NO"     property="uploadNo"/>
-    <result  column="TITLE"         property="title"/>
-    <result  column="CONTENTS"      property="contents"/>
-    <result  column="CREATED_AT"    property="createdAt"/>
-    <result  column="MODIFIED_AT"   property="modifiedAt"/>
-    <result  column="ATTACH_COUNT"  property="attachCount"/>
+  <!-- UploadDto에는 UserDto가 포함되어 있으므로 resultMap을 만들어서 UploadDto의 설명을 넣어줌 -->
+  <resultMap type="UploadDto"      id="UploadMap">
+    <id      column="UPLOAD_NO"    property="uploadNo"/>
+    <result  column="TITLE"        property="title"/>
+    <result  column="CONTENTS"     property="contents"/>
+    <result  column="CREATED_AT"   property="createdAt"/>
+    <result  column="MODIFIED_AT"  property="modifiedAt"/>
+    <result  column="ATTACH_COUNT" property="attachCount"/>
     <association javaType="UserDto"      property="userDto">
       <id        column="USER_NO"        property="userNo"/>
       <result    column="EMAIL"          property="email" />
@@ -32,7 +32,7 @@
   </resultMap>
 
   <insert id="insertUpload" parameterType="UploadDto">
-    <!-- insert를 수행하기 전에 시퀀스 값을 파라미터 UploadDto의 uploadNo 필드에 UPLOAD_SEQ.NEXTVAL값을 저장한다. -->
+    <!-- INSERT 수행 이전에 파라미터 UploadDto의 uploadNo 필드에 UPLOAD_SEQ.NEXTVAL값을 저장한다. -->
     <selectKey order="BEFORE" resultType="int" keyProperty="uploadNo">
       SELECT UPLOAD_SEQ.NEXTVAL
         FROM DUAL
@@ -49,11 +49,11 @@
       , #{title}
       , #{contents}
       , #{userDto.userNo}
-      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') 
-      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') 
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+      , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
     )
   </insert>
-
+  
   <insert id="insertAttach" parameterType="AttachDto">
     INSERT INTO ATTACH_T (
         ATTACH_NO
@@ -78,7 +78,7 @@
     SELECT COUNT(*)
       FROM UPLOAD_T
   </select>
-  <!-- 최상단에서 UploadMap이 어떤 건지 쿼리문으로 설명해주었기 때문에 사용가능. -->
+  
   <select id="getUploadList" parameterType="Map" resultMap="UploadMap">
     SELECT A.UPLOAD_NO, A.TITLE, A.CONTENTS, A.CREATED_AT, A.MODIFIED_AT, A.ATTACH_COUNT, A.USER_NO, A.EMAIL, A.NAME
       FROM (SELECT ROW_NUMBER() OVER(ORDER BY UPLOAD_NO DESC) AS RN,
@@ -90,14 +90,14 @@
      WHERE A.RN BETWEEN #{begin} AND #{end}
   </select>
   
-  <select id="getUpload" parameterType="int" resultMap="UploadMap">  <!-- result는 리턴하는 타입:반환타입 -->
+  <select id="getUpload" parameterType="int" resultMap="UploadMap">
     SELECT UP.UPLOAD_NO, UP.TITLE, UP.CONTENTS, UP.CREATED_AT, UP.MODIFIED_AT
          , USR.USER_NO, USR.EMAIL, USR.NAME
       FROM USER_T USR RIGHT OUTER JOIN UPLOAD_T UP
         ON USR.USER_NO = UP.USER_NO
      WHERE UP.UPLOAD_NO = #{uploadNo}
   </select>
-  
+
   <select id="getAttachList" parameterType="int" resultType="AttachDto">
     SELECT ATTACH_NO, PATH, ORIGINAL_FILENAME, FILESYSTEM_NAME, DOWNLOAD_COUNT, HAS_THUMBNAIL, UPLOAD_NO
       FROM ATTACH_T
@@ -136,7 +136,4 @@
      WHERE UPLOAD_NO = #{uploadNo}
   </delete>
   
-  
-  
-
 </mapper>
