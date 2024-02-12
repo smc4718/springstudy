@@ -12,7 +12,7 @@
 
 <div class="wrap wrap_6">
 
-  <h1 class="title">업로드 하기</h1>
+  <h1 class="title">탐구 업로드</h1>
   
   <form id="frm_upload_add" method="post" action="${contextPath}/upload/add.do" enctype="multipart/form-data">
     <div class="mt-3">

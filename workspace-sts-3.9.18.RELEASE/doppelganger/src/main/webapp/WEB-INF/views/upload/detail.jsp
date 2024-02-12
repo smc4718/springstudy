@@ -12,7 +12,7 @@
 
 <div class="wrap wrap_6">
 
-  <h1 class="title">웹하드 게시글</h1>
+  <h1 class="title">탐구 게시글</h1>
   
   <div class="text-center mb-5">
     <c:if test="${sessionScope.user.userNo == upload.userDto.userNo}">

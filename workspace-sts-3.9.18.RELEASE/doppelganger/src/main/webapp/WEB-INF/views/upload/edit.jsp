@@ -12,7 +12,7 @@
 
 <div class="wrap wrap_6">
 
-  <h1 class="title">웹하드 게시글 수정</h1>
+  <h1 class="title">탐구 게시글 수정</h1>
 
   <form id="frm_upload_edit" method="post" action="${contextPath}/upload/modify.do">
   

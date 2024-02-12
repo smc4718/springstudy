@@ -7,12 +7,12 @@
 <c:set var="dt" value="<%=System.currentTimeMillis()%>" />
 
 <jsp:include page="../layout/header.jsp">
-  <jsp:param value="게시글작성" name="title"/>
+  <jsp:param value="게시글 작성" name="title"/>
 </jsp:include>
 
 <div class="wrap wrap_6">
 
-  <h1 class="title">자유게시글 작성</h1>
+  <h1 class="title">마음의소리 작성</h1>
 
   <form id="frm_free_add" method="post" action="${contextPath}/free/add.do">
     

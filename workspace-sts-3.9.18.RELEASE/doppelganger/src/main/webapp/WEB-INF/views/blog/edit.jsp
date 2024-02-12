@@ -7,12 +7,12 @@
 <c:set var="dt" value="<%=System.currentTimeMillis()%>" />
 
 <jsp:include page="../layout/header.jsp">
-  <jsp:param value="블로그편집" name="title"/>
+  <jsp:param value="QnA편집" name="title"/>
 </jsp:include>
 
 <div class="wrap wrap_9">
 
-  <h1 class="title">${blog.blogNo}번 블로그 편집</h1>
+  <h1 class="title">${blog.blogNo}번 QnA 편집</h1>
 
   <form id="frm_blog_modify" method="post" action="${contextPath}/blog/modifyBlog.do">
     

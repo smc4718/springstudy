@@ -7,12 +7,12 @@
 <c:set var="dt" value="<%=System.currentTimeMillis()%>" />
 
 <jsp:include page="../layout/header.jsp">
-  <jsp:param value="블로그작성" name="title"/>
+  <jsp:param value="QnA작성" name="title"/>
 </jsp:include>
 
 <div class="wrap wrap_9">
 
-  <h1 class="title">블로그를 작성하세요</h1>
+  <h1 class="title">QnA를 작성하세요</h1>
 
   <form id="frm_blog_add" method="post" action="${contextPath}/blog/addBlog.do">
     

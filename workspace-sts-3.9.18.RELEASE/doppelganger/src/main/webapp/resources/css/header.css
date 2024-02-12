@@ -9,11 +9,11 @@
   padding-top: 50px; 
 }
 .logo {
-  width: 176px;
-  height: 46px;
-  background-image: url(../../resources/image/goodee.png);
+  width: 500px;
+  height: 110px;
+  background-image: url(../../resources/image/doppel.png);
   background-size: 100%;
-  margin: 50px auto;
+  margin: 100px auto;
   cursor: pointer;
 }
 .login_wrap {
